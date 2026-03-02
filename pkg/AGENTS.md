@@ -1,7 +1,7 @@
 # AGENTS.md - pkg/ 共享库层
 
 <!-- Parent: ../AGENTS.md -->
-<!-- Generated: 2026-02-09 | Updated: 2026-02-09 -->
+<!-- Generated: 2026-02-09 | Updated: 2026-03-02 -->
 
 ## 目录概述
 
@@ -160,12 +160,13 @@ Kubernetes 客户端封装，用于与 K8s API 交互。
 ### `helpers/` - 辅助函数
 通用工具函数集合。
 
-**子目录**：
-- `hash/` - 密码哈希工具
-  - `hash.go` - bcrypt 密码哈希实现
+**核心文件**：
+- `helpers.go` - 通用时间与文本辅助函数
+- `hash.go` - bcrypt 密码哈希实现
 
 **主要功能**：
-- 密码加密和验证
+- 密码哈希生成与校验（统一在 `helpers` 包内）
+- 哈希判定（`BcryptIsHashed`）
 - 其他通用辅助函数
 
 ### `mapper/` - 数据映射工具
@@ -404,7 +405,7 @@ var dataSet = wire.NewSet(
 - **k8s/**
   - `k8s.io/client-go` - Kubernetes 客户端
   - `k8s.io/api` - Kubernetes API 类型
-- **helpers/hash/**
+- **helpers/**
   - `golang.org/x/crypto/bcrypt` - 密码哈希
 - **transport/**
   - `github.com/google/wire` - 依赖注入

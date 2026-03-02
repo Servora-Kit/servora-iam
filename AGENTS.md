@@ -105,8 +105,8 @@ Protobuf API 定义的中心目录，包含所有 proto 文件和生成的代码
 - `jwt/` - JWT 认证工具
 - `redis/` - Redis 客户端封装
 - `logger/` - 日志工具
-- `hash/` - 密码哈希工具
 - `middleware/` - 通用中间件（CORS 等）
+- `helpers/` - 通用辅助函数（含 bcrypt 哈希工具）
 
 ### `openspec/` - OpenSpec 规范文档
 OpenSpec 变更管理系统，用于结构化跟踪架构变更和提案。
