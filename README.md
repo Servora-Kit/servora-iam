@@ -45,8 +45,7 @@ servora 是一个基于 **Go Kratos v2** 的微服务快开框架，采用 **DDD
 │   └── svr/                     # CLI 工具（svr gen gorm / svr new api）
 ├── pkg/                         # 项目共享库
 ├── web/                         # Vue 3 前端项目（根目录）
-├── manifests/                   # 可观测性与证书等基础设施清单
-├── deployment/                  # 部署相关配置
+├── manifests/                   # 部署清单（k8s/certs/grafana/loki/otel/prometheus）
 ├── docker-compose.yaml          # 生产编排
 ├── docker-compose.dev.yaml      # 开发覆盖层（Air）
 ├── app.mk                       # 服务级通用 Makefile
