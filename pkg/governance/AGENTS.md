@@ -1,36 +1,39 @@
 <!-- Parent: ../AGENTS.md -->
 # 服务治理 (pkg/governance)
 
-**最后更新时间**: 2026-02-09
+**最后更新时间**: 2026-03-06
 
 ## 模块目的
-封装服务发现、注册以及配置中心的功能。支持多种后端：Etcd, Consul, Nacos, Kubernetes。
 
-## 核心组件
+提供服务治理相关基础能力，当前已分成三块：
+- `registry/`：注册与发现
+- `config/`：配置中心
+- `telemetry/`：指标与链路追踪辅助能力
 
-### 1. 服务注册与发现 (registry)
-实现 Kratos `registry.Registrar` 和 `registry.Discovery` 接口。
-- `etcd.go`: Etcd 实现，包含心跳检测和自动重试机制。
-- `kubernetes.go`: Kubernetes 原生服务发现。
+## 当前结构
 
-### 2. 配置中心 (configCenter)
-提供统一的配置加载适配器。
-
-## 使用示例
-
-### Etcd 注册中心初始化
-```go
-import "github.com/horonlee/servora/pkg/governance/registry"
-
-reg, err := registry.NewEtcdRegistry(etcdConfig)
-if err != nil {
-    panic(err)
-}
+```text
+pkg/governance/
+├── config/
+├── registry/
+└── telemetry/
 ```
 
-## 测试指南
-由于涉及外部依赖，部分测试可能需要特定环境：
+## 当前实现事实
+
+- `registry/` 支持 `consul`、`etcd`、`nacos`、`kubernetes`
+- `registry/registry.go` 提供统一入口；目录内还有 `etcd_watcher.go`
+- `config/` 目录承载 Consul / Etcd / Nacos 配置源实现
+- `telemetry/` 目录当前包含 `metrics.go` 与 `tracing.go`
+
+## 使用位置
+
+- `app/servora/service/internal/server/server.go` 通过 `registry.NewRegistrar` 与 `telemetry.NewMetrics` 接入
+- `app/servora/service/internal/data/data.go` 通过 `registry.NewDiscovery` 注入服务发现
+
+## 测试
+
 ```bash
-go test -v ./pkg/governance/registry/...
+go test ./pkg/governance/registry/...
+go test ./pkg/governance/config/...
 ```
-🤖 Generated with [Claude Code](https://claude.com/claude-code)
