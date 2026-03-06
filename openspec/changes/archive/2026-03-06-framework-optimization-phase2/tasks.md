@@ -39,8 +39,8 @@
 
 ## 6. 验证和测试
 
-- [ ] 6.1 在 main 分支执行 make lint.go，验证代码格式正确
-- [ ] 6.2 在 example 分支执行 make lint.go && make test，验证所有测试通过
-- [ ] 6.3 测试完整的分支切换流程：main → example → main，验证 hooks 自动同步
-- [ ] 6.4 测试提交流程：在两个分支分别提交代码，验证 scope 规则和路径检查正确
-- [ ] 6.5 验证 README 内容：确认 main 分支展示框架能力，example 分支展示完整项目
+- [x] 6.1 在 main 分支执行 make lint.go，验证代码格式正确
+- [x] 6.2 在 example 分支执行 make lint.go && make test，验证所有测试通过
+- [x] 6.3 测试完整的分支切换流程：main → example → main，验证 hooks 自动同步
+- [x] 6.4 测试提交流程：在两个分支分别提交代码，验证 scope 规则和路径检查正确
+- [x] 6.5 验证 README 内容：确认 main 分支展示框架能力，example 分支展示完整项目
