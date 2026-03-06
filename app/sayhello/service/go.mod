@@ -1,4 +1,4 @@
-module github.com/horonlee/servora/app/sayhello/service
+module github.com/Servora-Kit/servora/app/sayhello/service
 
 go 1.26.0
 
@@ -6,8 +6,8 @@ require (
 	github.com/go-kratos/kratos/contrib/middleware/validate/v2 v2.0.0-20260105075216-c7a58ff59f80
 	github.com/go-kratos/kratos/v2 v2.9.2
 	github.com/google/wire v0.7.0
-	github.com/horonlee/servora v0.0.0
-	github.com/horonlee/servora/api/gen v0.0.0
+	github.com/Servora-Kit/servora v0.0.0
+	github.com/Servora-Kit/servora/api/gen v0.0.0
 	go.uber.org/automaxprocs v1.6.0
 	google.golang.org/grpc v1.79.1
 )
@@ -136,6 +136,6 @@ require (
 )
 
 replace (
-	github.com/horonlee/servora => ../../..
-	github.com/horonlee/servora/api/gen => ../../../api/gen
+	github.com/Servora-Kit/servora => ../../..
+	github.com/Servora-Kit/servora/api/gen => ../../../api/gen
 )

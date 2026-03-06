@@ -7,13 +7,13 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
-	authpb "github.com/horonlee/servora/api/gen/go/auth/service/v1"
-	"github.com/horonlee/servora/api/gen/go/conf/v1"
-	"github.com/horonlee/servora/app/servora/service/internal/biz/entity"
-	dataent "github.com/horonlee/servora/app/servora/service/internal/data/ent"
-	"github.com/horonlee/servora/pkg/helpers"
-	jwtpkg "github.com/horonlee/servora/pkg/jwt"
-	"github.com/horonlee/servora/pkg/logger"
+	authpb "github.com/Servora-Kit/servora/api/gen/go/auth/service/v1"
+	"github.com/Servora-Kit/servora/api/gen/go/conf/v1"
+	"github.com/Servora-Kit/servora/app/servora/service/internal/biz/entity"
+	dataent "github.com/Servora-Kit/servora/app/servora/service/internal/data/ent"
+	"github.com/Servora-Kit/servora/pkg/helpers"
+	jwtpkg "github.com/Servora-Kit/servora/pkg/jwt"
+	"github.com/Servora-Kit/servora/pkg/logger"
 )
 
 // AuthUsecase is a Auth usecase.

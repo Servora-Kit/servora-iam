@@ -4,7 +4,7 @@ package template.service.v1;
 
 import "gnostic/openapi/v3/annotations.proto";
 
-option go_package = "github.com/horonlee/servora/api/gen/go/template/service/v1;v1";
+option go_package = "github.com/Servora-Kit/servora/api/gen/go/template/service/v1;v1";
 // OpenAPI 文档配置
 option (gnostic.openapi.v3.document) = {
   info: {
@@ -13,11 +13,11 @@ option (gnostic.openapi.v3.document) = {
     description: "Template 微服务 API 文档"
     contact: {
       name: "servora Team"
-      url: "https://github.com/horonlee/servora"
+      url: "https://github.com/Servora-Kit/servora"
     }
     license: {
       name: "MIT License"
-      url: "https://github.com/horonlee/servora/blob/main/LICENSE"
+      url: "https://github.com/Servora-Kit/servora/blob/main/LICENSE"
     }
   }
 

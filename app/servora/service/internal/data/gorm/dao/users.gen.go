@@ -17,7 +17,7 @@ import (
 
 	"gorm.io/plugin/dbresolver"
 
-	"github.com/horonlee/servora/app/servora/service/internal/data/gorm/po"
+	"github.com/Servora-Kit/servora/app/servora/service/internal/data/gorm/po"
 )
 
 func newUser(db *gorm.DB, opts ...gen.DOOption) user {

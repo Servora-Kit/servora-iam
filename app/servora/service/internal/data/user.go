@@ -5,13 +5,13 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 
-	"github.com/horonlee/servora/app/servora/service/internal/biz"
-	"github.com/horonlee/servora/app/servora/service/internal/biz/entity"
-	"github.com/horonlee/servora/app/servora/service/internal/data/ent"
-	"github.com/horonlee/servora/app/servora/service/internal/data/ent/user"
-	"github.com/horonlee/servora/pkg/helpers"
-	"github.com/horonlee/servora/pkg/logger"
-	"github.com/horonlee/servora/pkg/mapper"
+	"github.com/Servora-Kit/servora/app/servora/service/internal/biz"
+	"github.com/Servora-Kit/servora/app/servora/service/internal/biz/entity"
+	"github.com/Servora-Kit/servora/app/servora/service/internal/data/ent"
+	"github.com/Servora-Kit/servora/app/servora/service/internal/data/ent/user"
+	"github.com/Servora-Kit/servora/pkg/helpers"
+	"github.com/Servora-Kit/servora/pkg/logger"
+	"github.com/Servora-Kit/servora/pkg/mapper"
 )
 
 type userRepo struct {

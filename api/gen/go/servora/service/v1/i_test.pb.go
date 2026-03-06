@@ -7,7 +7,7 @@
 package servorapb
 
 import (
-	v1 "github.com/horonlee/servora/api/gen/go/test/service/v1"
+	v1 "github.com/Servora-Kit/servora/api/gen/go/test/service/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -30,9 +30,9 @@ const file_servora_service_v1_i_test_proto_rawDesc = "" +
 	"\vTestService\x12a\n" +
 	"\x05Hello\x12\x1d.test.service.v1.HelloRequest\x1a\x1e.test.service.v1.HelloResponse\"\x19\x82\xd3\xe4\x93\x02\x13:\x01*\"\x0e/v1/test/Hello\x12]\n" +
 	"\x04Test\x12\x1c.test.service.v1.TestRequest\x1a\x1d.test.service.v1.TestResponse\"\x18\x82\xd3\xe4\x93\x02\x12:\x01*\"\r/v1/test/test\x12u\n" +
-	"\vPrivateTest\x12#.test.service.v1.PrivateTestRequest\x1a$.test.service.v1.PrivateTestResponse\"\x1b\x82\xd3\xe4\x93\x02\x15:\x01*\"\x10/v1/test/privateB\xd3\x01\n" +
+	"\vPrivateTest\x12#.test.service.v1.PrivateTestRequest\x1a$.test.service.v1.PrivateTestResponse\"\x1b\x82\xd3\xe4\x93\x02\x15:\x01*\"\x10/v1/test/privateB\xd6\x01\n" +
 	"\x16com.servora.service.v1B\n" +
-	"ITestProtoP\x01ZCgithub.com/horonlee/servora/api/gen/go/servora/service/v1;servorapb\xa2\x02\x03SSX\xaa\x02\x12Servora.Service.V1\xca\x02\x12Servora\\Service\\V1\xe2\x02\x1eServora\\Service\\V1\\GPBMetadata\xea\x02\x14Servora::Service::V1b\x06proto3"
+	"ITestProtoP\x01ZFgithub.com/Servora-Kit/servora/api/gen/go/servora/service/v1;servorapb\xa2\x02\x03SSX\xaa\x02\x12Servora.Service.V1\xca\x02\x12Servora\\Service\\V1\xe2\x02\x1eServora\\Service\\V1\\GPBMetadata\xea\x02\x14Servora::Service::V1b\x06proto3"
 
 var file_servora_service_v1_i_test_proto_goTypes = []any{
 	(*v1.HelloRequest)(nil),        // 0: test.service.v1.HelloRequest

@@ -25,10 +25,10 @@ var File_servora_service_v1_servora_doc_proto protoreflect.FileDescriptor
 
 const file_servora_service_v1_servora_doc_proto_rawDesc = "" +
 	"\n" +
-	"$servora/service/v1/servora_doc.proto\x12\x12servora.service.v1\x1a$gnostic/openapi/v3/annotations.protoB\xcf\x05\xbaG\xf3\x03\x12\xab\x01\n" +
-	"\vservora API\x12\x1cservora 微服务 API 文档\"3\n" +
-	"\fservora Team\x12#https://github.com/horonlee/servora*D\n" +
-	"\vMIT License\x125https://github.com/horonlee/servora/blob/main/LICENSE2\x031.0*\xc2\x02\n" +
+	"$servora/service/v1/servora_doc.proto\x12\x12servora.service.v1\x1a$gnostic/openapi/v3/annotations.protoB\xd8\x05\xbaG\xf9\x03\x12\xb1\x01\n" +
+	"\vservora API\x12\x1cservora 微服务 API 文档\"6\n" +
+	"\fservora Team\x12&https://github.com/Servora-Kit/servora*G\n" +
+	"\vMIT License\x128https://github.com/Servora-Kit/servora/blob/main/LICENSE2\x031.0*\xc2\x02\n" +
 	"\xd4\x01\n" +
 	"\xd1\x01\n" +
 	"\vKratosError\x12\xc1\x01\n" +
@@ -53,7 +53,7 @@ const file_servora_service_v1_servora_doc_proto_rawDesc = "" +
 	"\x10application/json\x12&\n" +
 	"$\x12\"\n" +
 	" #/components/schemas/KratosError\n" +
-	"\x16com.servora.service.v1B\x0fServoraDocProtoP\x01ZCgithub.com/horonlee/servora/api/gen/go/servora/service/v1;servorapb\xa2\x02\x03SSX\xaa\x02\x12Servora.Service.V1\xca\x02\x12Servora\\Service\\V1\xe2\x02\x1eServora\\Service\\V1\\GPBMetadata\xea\x02\x14Servora::Service::V1b\x06proto3"
+	"\x16com.servora.service.v1B\x0fServoraDocProtoP\x01ZFgithub.com/Servora-Kit/servora/api/gen/go/servora/service/v1;servorapb\xa2\x02\x03SSX\xaa\x02\x12Servora.Service.V1\xca\x02\x12Servora\\Service\\V1\xe2\x02\x1eServora\\Service\\V1\\GPBMetadata\xea\x02\x14Servora::Service::V1b\x06proto3"
 
 var file_servora_service_v1_servora_doc_proto_goTypes = []any{}
 var file_servora_service_v1_servora_doc_proto_depIdxs = []int32{

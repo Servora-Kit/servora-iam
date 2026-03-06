@@ -9,7 +9,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/horonlee/servora/app/servora/service/internal/data/ent/user"
+	"github.com/Servora-Kit/servora/app/servora/service/internal/data/ent/user"
 )
 
 // User is the model entity for the User schema.

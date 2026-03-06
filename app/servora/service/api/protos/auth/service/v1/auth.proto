@@ -5,7 +5,7 @@ package auth.service.v1;
 import "buf/validate/validate.proto";
 import "errors/errors.proto";
 
-option go_package = "github.com/horonlee/servora/api/gen/go/auth/service/v1;authpb";
+option go_package = "github.com/Servora-Kit/servora/api/gen/go/auth/service/v1;authpb";
 
 // 错误码定义
 enum ErrorReason {

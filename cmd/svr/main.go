@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/horonlee/servora/cmd/svr/internal/root"
+	"github.com/Servora-Kit/servora/cmd/svr/internal/root"
 )
 
 func main() {

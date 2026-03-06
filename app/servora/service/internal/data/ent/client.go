@@ -9,12 +9,12 @@ import (
 	"log"
 	"reflect"
 
-	"github.com/horonlee/servora/app/servora/service/internal/data/ent/migrate"
+	"github.com/Servora-Kit/servora/app/servora/service/internal/data/ent/migrate"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
-	"github.com/horonlee/servora/app/servora/service/internal/data/ent/user"
+	"github.com/Servora-Kit/servora/app/servora/service/internal/data/ent/user"
 )
 
 // Client is the client that holds all ent builders.

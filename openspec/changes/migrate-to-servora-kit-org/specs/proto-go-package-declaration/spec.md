@@ -20,7 +20,7 @@
 
 #### 场景:更新现有 go_package 声明
 
-- **当** proto 文件已有 `option go_package` 声明使用旧路径 `github.com/horonlee/servora`
+- **当** proto 文件已有 `option go_package` 声明使用旧路径 `github.com/Servora-Kit/servora`
 - **那么** 必须将路径更新为 `github.com/Servora-Kit/servora`
 - **那么** 必须保持 package 别名不变
 

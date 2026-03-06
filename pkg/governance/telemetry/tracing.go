@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	conf "github.com/horonlee/servora/api/gen/go/conf/v1"
+	conf "github.com/Servora-Kit/servora/api/gen/go/conf/v1"
 
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"

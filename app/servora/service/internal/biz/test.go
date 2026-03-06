@@ -3,7 +3,7 @@ package biz
 import (
 	"context"
 
-	"github.com/horonlee/servora/pkg/logger"
+	"github.com/Servora-Kit/servora/pkg/logger"
 )
 
 type TestRepo interface {

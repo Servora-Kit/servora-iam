@@ -10,7 +10,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/horonlee/servora/cmd/svr/internal/discovery"
+	"github.com/Servora-Kit/servora/cmd/svr/internal/discovery"
 )
 
 var nameRegex = regexp.MustCompile(`^[a-z][a-z0-9]*(_[a-z0-9]+)*(\.[a-z][a-z0-9]*(_[a-z0-9]+)*)*$`)

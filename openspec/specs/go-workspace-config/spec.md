@@ -25,7 +25,7 @@
 #### 场景:本地依赖自动解析
 
 - **当** 存在 `go.work` 并包含所有模块
-- **那么** 服务模块引用 `github.com/horonlee/servora/api/gen` 时必须自动解析到本地 `api/gen` 模块
-- **那么** 服务模块引用 `github.com/horonlee/servora` 时必须自动解析到本地根模块
+- **那么** 服务模块引用 `github.com/Servora-Kit/servora/api/gen` 时必须自动解析到本地 `api/gen` 模块
+- **那么** 服务模块引用 `github.com/Servora-Kit/servora` 时必须自动解析到本地根模块
 - **那么** 不需要在服务 `go.mod` 中添加 `replace` 指令
 

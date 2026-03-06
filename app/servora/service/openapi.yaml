@@ -7,10 +7,10 @@ info:
     description: servora 微服务 API 文档
     contact:
         name: servora Team
-        url: https://github.com/horonlee/servora
+        url: https://github.com/Servora-Kit/servora
     license:
         name: MIT License
-        url: https://github.com/horonlee/servora/blob/main/LICENSE
+        url: https://github.com/Servora-Kit/servora/blob/main/LICENSE
     version: "1.0"
 paths:
     /v1/auth/login/email-password:

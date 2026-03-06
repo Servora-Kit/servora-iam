@@ -3,10 +3,10 @@ package data
 import (
 	"context"
 
-	sayhellopb "github.com/horonlee/servora/api/gen/go/sayhello/service/v1"
-	"github.com/horonlee/servora/app/servora/service/internal/biz"
-	"github.com/horonlee/servora/pkg/logger"
-	"github.com/horonlee/servora/pkg/transport/client"
+	sayhellopb "github.com/Servora-Kit/servora/api/gen/go/sayhello/service/v1"
+	"github.com/Servora-Kit/servora/app/servora/service/internal/biz"
+	"github.com/Servora-Kit/servora/pkg/logger"
+	"github.com/Servora-Kit/servora/pkg/transport/client"
 )
 
 type testRepo struct {

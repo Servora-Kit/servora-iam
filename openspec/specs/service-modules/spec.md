@@ -11,21 +11,21 @@
 
 - **当** 创建 servora 服务模块
 - **那么** 必须在 `app/servora/service/go.mod` 创建模块文件
-- **那么** 模块路径必须为 `module github.com/horonlee/servora/app/servora/service`
+- **那么** 模块路径必须为 `module github.com/Servora-Kit/servora/app/servora/service`
 - **那么** 必须包含服务特定依赖（entgo.io/ent, gorm.io/gorm, 数据库驱动等）
 
 #### 场景:sayhello 服务模块
 
 - **当** 创建 sayhello 服务模块
 - **那么** 必须在 `app/sayhello/service/go.mod` 创建模块文件
-- **那么** 模块路径必须为 `module github.com/horonlee/servora/app/sayhello/service`
+- **那么** 模块路径必须为 `module github.com/Servora-Kit/servora/app/sayhello/service`
 
 #### 场景:服务模块引用框架和生成代码
 
 - **当** 服务 `go.mod` 需要引用框架或生成代码
 - **那么** 必须在 `require` 中声明依赖：
-  - `github.com/horonlee/servora/api/gen v0.0.0`
-  - `github.com/horonlee/servora v0.0.0`
+  - `github.com/Servora-Kit/servora/api/gen v0.0.0`
+  - `github.com/Servora-Kit/servora v0.0.0`
 - **那么** 在有 `go.work` 的情况下，不需要 `replace` 指令（workspace 自动解析）
 
 ### 需求:根 go.mod 必须精简

@@ -9,7 +9,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/horonlee/servora/pkg/helpers"
+	"github.com/Servora-Kit/servora/pkg/helpers"
 
 	kratoslog "github.com/go-kratos/kratos/v2/log"
 	"go.uber.org/zap"

@@ -10,8 +10,8 @@ import (
 	"time"
 
 	"github.com/go-kratos/kratos/v2/log"
-	"github.com/horonlee/servora/pkg/logger"
-	"github.com/horonlee/servora/pkg/redis"
+	"github.com/Servora-Kit/servora/pkg/logger"
+	"github.com/Servora-Kit/servora/pkg/redis"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

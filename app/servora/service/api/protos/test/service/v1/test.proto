@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package test.service.v1;
 
-option go_package = "github.com/horonlee/servora/api/gen/go/test/service/v1;testpb";
+option go_package = "github.com/Servora-Kit/servora/api/gen/go/test/service/v1;testpb";
 
 // Test gRPC 服务 - 纯 gRPC 接口
 service TestService {

@@ -5,7 +5,7 @@ package servora.service.v1;
 import "google/api/annotations.proto";
 import "user/service/v1/user.proto";
 
-option go_package = "github.com/horonlee/servora/api/gen/go/servora/service/v1;servorapb";
+option go_package = "github.com/Servora-Kit/servora/api/gen/go/servora/service/v1;servorapb";
 
 // User HTTP 服务 - 用于 OpenAPI 生成
 service UserService {

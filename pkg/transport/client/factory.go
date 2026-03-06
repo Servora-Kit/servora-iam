@@ -5,8 +5,8 @@ import (
 	"fmt"
 
 	"github.com/go-kratos/kratos/v2/registry"
-	"github.com/horonlee/servora/api/gen/go/conf/v1"
-	"github.com/horonlee/servora/pkg/logger"
+	"github.com/Servora-Kit/servora/api/gen/go/conf/v1"
+	"github.com/Servora-Kit/servora/pkg/logger"
 )
 
 type client struct {

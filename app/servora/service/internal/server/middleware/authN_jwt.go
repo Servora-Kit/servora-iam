@@ -6,11 +6,11 @@ import (
 
 	"github.com/go-kratos/kratos/v2/middleware"
 	"github.com/go-kratos/kratos/v2/transport"
-	authpb "github.com/horonlee/servora/api/gen/go/auth/service/v1"
-	"github.com/horonlee/servora/api/gen/go/conf/v1"
-	"github.com/horonlee/servora/app/servora/service/internal/biz"
-	"github.com/horonlee/servora/app/servora/service/internal/consts"
-	"github.com/horonlee/servora/pkg/jwt"
+	authpb "github.com/Servora-Kit/servora/api/gen/go/auth/service/v1"
+	"github.com/Servora-Kit/servora/api/gen/go/conf/v1"
+	"github.com/Servora-Kit/servora/app/servora/service/internal/biz"
+	"github.com/Servora-Kit/servora/app/servora/service/internal/consts"
+	"github.com/Servora-Kit/servora/pkg/jwt"
 )
 
 // AuthJWT 定义认证中间件生成器函数类型

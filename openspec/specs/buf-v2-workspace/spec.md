@@ -48,7 +48,7 @@
 #### 场景:import 路径不变
 
 - **当** 执行 `buf generate` 生成 Go 代码
-- **那么** 生成的代码 package 路径必须为 `github.com/horonlee/servora/api/gen/go/<path>`
+- **那么** 生成的代码 package 路径必须为 `github.com/Servora-Kit/servora/api/gen/go/<path>`
 
 #### 场景:现有代码无需修改
 

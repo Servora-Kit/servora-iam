@@ -9,9 +9,9 @@ import (
 	"github.com/charmbracelet/huh"
 	"github.com/spf13/cobra"
 
-	"github.com/horonlee/servora/cmd/svr/internal/discovery"
-	"github.com/horonlee/servora/cmd/svr/internal/generator"
-	"github.com/horonlee/servora/cmd/svr/internal/ux"
+	"github.com/Servora-Kit/servora/cmd/svr/internal/discovery"
+	"github.com/Servora-Kit/servora/cmd/svr/internal/generator"
+	"github.com/Servora-Kit/servora/cmd/svr/internal/ux"
 )
 
 // Error type constants for structured failure reporting.

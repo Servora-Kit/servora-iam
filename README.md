@@ -71,7 +71,7 @@
 ### 2) 克隆仓库
 
 ```bash
-git clone https://github.com/horonlee/servora.git
+git clone https://github.com/Servora-Kit/servora.git
 cd servora
 ```
 

@@ -1,4 +1,4 @@
-module github.com/horonlee/servora/app/servora/service
+module github.com/Servora-Kit/servora/app/servora/service
 
 go 1.26.0
 
@@ -9,8 +9,8 @@ require (
 	github.com/go-sql-driver/mysql v1.9.3
 	github.com/golang-jwt/jwt/v5 v5.3.1
 	github.com/google/wire v0.7.0
-	github.com/horonlee/servora v0.0.0
-	github.com/horonlee/servora/api/gen v0.0.0
+	github.com/Servora-Kit/servora v0.0.0
+	github.com/Servora-Kit/servora/api/gen v0.0.0
 	github.com/lib/pq v1.11.2
 	github.com/mattn/go-sqlite3 v1.14.22
 	github.com/stretchr/testify v1.11.1
@@ -171,6 +171,6 @@ require (
 )
 
 replace (
-	github.com/horonlee/servora => ../../..
-	github.com/horonlee/servora/api/gen => ../../../api/gen
+	github.com/Servora-Kit/servora => ../../..
+	github.com/Servora-Kit/servora/api/gen => ../../../api/gen
 )

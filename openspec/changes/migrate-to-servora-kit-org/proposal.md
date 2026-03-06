@@ -1,10 +1,10 @@
 ## 为什么
 
-项目从个人账户迁移到组织账户，以更好地反映项目的协作性质和长期维护计划。当前所有代码、proto 文件和配置中硬编码的 `github.com/horonlee/servora` 路径需要统一更新为 `github.com/Servora-Kit/servora`，确保 Go 模块导入、proto 生成和文档链接的一致性。
+项目从个人账户迁移到组织账户，以更好地反映项目的协作性质和长期维护计划。当前所有代码、proto 文件和配置中硬编码的 `github.com/Servora-Kit/servora` 路径需要统一更新为 `github.com/Servora-Kit/servora`，确保 Go 模块导入、proto 生成和文档链接的一致性。
 
 ## 变更内容
 
-- 更新所有 proto 文件中的 `go_package` 选项，从 `github.com/horonlee/servora` 改为 `github.com/Servora-Kit/servora`
+- 更新所有 proto 文件中的 `go_package` 选项，从 `github.com/Servora-Kit/servora` 改为 `github.com/Servora-Kit/servora`
 - 更新所有 Go 模块文件（go.mod）中的 module 路径和 replace 指令
 - 更新所有 Go 源代码中的 import 路径
 - 更新 OpenAPI 配置文件（buf.openapi.gen.yaml）中的 contact URL

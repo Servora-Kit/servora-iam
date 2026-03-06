@@ -5,7 +5,7 @@ package servora.service.v1;
 import "auth/service/v1/auth.proto";
 import "google/api/annotations.proto";
 
-option go_package = "github.com/horonlee/servora/api/gen/go/servora/service/v1;servorapb";
+option go_package = "github.com/Servora-Kit/servora/api/gen/go/servora/service/v1;servorapb";
 
 // Auth HTTP 服务 - 用于 OpenAPI 生成
 service AuthService {

@@ -7,18 +7,18 @@
 package main
 
 import (
+	"github.com/Servora-Kit/servora/api/gen/go/conf/v1"
+	"github.com/Servora-Kit/servora/app/servora/service/internal/biz"
+	"github.com/Servora-Kit/servora/app/servora/service/internal/data"
+	"github.com/Servora-Kit/servora/app/servora/service/internal/server"
+	"github.com/Servora-Kit/servora/app/servora/service/internal/server/middleware"
+	"github.com/Servora-Kit/servora/app/servora/service/internal/service"
+	"github.com/Servora-Kit/servora/pkg/bootstrap"
+	"github.com/Servora-Kit/servora/pkg/governance/registry"
+	"github.com/Servora-Kit/servora/pkg/governance/telemetry"
+	"github.com/Servora-Kit/servora/pkg/transport/client"
 	"github.com/go-kratos/kratos/v2"
 	"github.com/go-kratos/kratos/v2/log"
-	"github.com/horonlee/servora/api/gen/go/conf/v1"
-	"github.com/horonlee/servora/app/servora/service/internal/biz"
-	"github.com/horonlee/servora/app/servora/service/internal/data"
-	"github.com/horonlee/servora/app/servora/service/internal/server"
-	"github.com/horonlee/servora/app/servora/service/internal/server/middleware"
-	"github.com/horonlee/servora/app/servora/service/internal/service"
-	"github.com/horonlee/servora/pkg/bootstrap"
-	"github.com/horonlee/servora/pkg/governance/registry"
-	"github.com/horonlee/servora/pkg/governance/telemetry"
-	"github.com/horonlee/servora/pkg/transport/client"
 )
 
 import (

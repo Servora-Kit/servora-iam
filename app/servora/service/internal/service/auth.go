@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	authpb "github.com/horonlee/servora/api/gen/go/auth/service/v1"
-	"github.com/horonlee/servora/app/servora/service/internal/biz"
-	"github.com/horonlee/servora/app/servora/service/internal/biz/entity"
+	authpb "github.com/Servora-Kit/servora/api/gen/go/auth/service/v1"
+	"github.com/Servora-Kit/servora/app/servora/service/internal/biz"
+	"github.com/Servora-Kit/servora/app/servora/service/internal/biz/entity"
 )
 
 // AuthService is a auth service.

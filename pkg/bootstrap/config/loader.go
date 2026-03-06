@@ -3,8 +3,8 @@ package config
 import (
 	"strings"
 
-	conf "github.com/horonlee/servora/api/gen/go/conf/v1"
-	governanceConfig "github.com/horonlee/servora/pkg/governance/config"
+	conf "github.com/Servora-Kit/servora/api/gen/go/conf/v1"
+	governanceConfig "github.com/Servora-Kit/servora/pkg/governance/config"
 
 	krconfig "github.com/go-kratos/kratos/v2/config"
 	"github.com/go-kratos/kratos/v2/config/env"

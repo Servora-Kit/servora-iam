@@ -10,7 +10,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/horonlee/servora/app/servora/service/internal/data/ent/user"
+	"github.com/Servora-Kit/servora/app/servora/service/internal/data/ent/user"
 )
 
 // UserCreate is the builder for creating a User entity.

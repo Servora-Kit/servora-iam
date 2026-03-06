@@ -1,6 +1,6 @@
 ## 上下文
 
-项目当前使用 `github.com/horonlee/servora` 作为 Go 模块路径和 proto 包的基础路径。随着项目从个人维护转向组织维护，需要将所有引用迁移到 `github.com/Servora-Kit/servora`。
+项目当前使用 `github.com/Servora-Kit/servora` 作为 Go 模块路径和 proto 包的基础路径。随着项目从个人维护转向组织维护，需要将所有引用迁移到 `github.com/Servora-Kit/servora`。
 
 当前状态：
 - 约 125 个文件包含 `horonlee/servora` 引用
@@ -15,7 +15,7 @@
 ## 目标 / 非目标
 
 **目标：**
-- 将所有 `github.com/horonlee/servora` 引用更新为 `github.com/Servora-Kit/servora`
+- 将所有 `github.com/Servora-Kit/servora` 引用更新为 `github.com/Servora-Kit/servora`
 - 重新生成所有依赖路径的代码（proto、wire）
 - 更新文档和配置中的 GitHub 链接
 - 确保 `make gen`、`make api`、`make wire` 等命令正常工作

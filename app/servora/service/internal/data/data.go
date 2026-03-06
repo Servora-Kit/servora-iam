@@ -7,12 +7,12 @@ import (
 
 	"entgo.io/ent/dialect"
 	entsql "entgo.io/ent/dialect/sql"
-	"github.com/horonlee/servora/api/gen/go/conf/v1"
-	"github.com/horonlee/servora/app/servora/service/internal/data/ent"
-	"github.com/horonlee/servora/pkg/governance/registry"
-	"github.com/horonlee/servora/pkg/logger"
-	"github.com/horonlee/servora/pkg/redis"
-	"github.com/horonlee/servora/pkg/transport/client"
+	"github.com/Servora-Kit/servora/api/gen/go/conf/v1"
+	"github.com/Servora-Kit/servora/app/servora/service/internal/data/ent"
+	"github.com/Servora-Kit/servora/pkg/governance/registry"
+	"github.com/Servora-Kit/servora/pkg/logger"
+	"github.com/Servora-Kit/servora/pkg/redis"
+	"github.com/Servora-Kit/servora/pkg/transport/client"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/google/wire"

@@ -8,9 +8,9 @@ package servorapb
 
 import (
 	context "context"
+	v1 "github.com/Servora-Kit/servora/api/gen/go/auth/service/v1"
 	http "github.com/go-kratos/kratos/v2/transport/http"
 	binding "github.com/go-kratos/kratos/v2/transport/http/binding"
-	v1 "github.com/horonlee/servora/api/gen/go/auth/service/v1"
 )
 
 // This is a compile-time assertion to ensure that this generated file

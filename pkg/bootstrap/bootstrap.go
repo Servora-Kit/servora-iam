@@ -6,10 +6,10 @@ import (
 	"os"
 	"time"
 
-	conf "github.com/horonlee/servora/api/gen/go/conf/v1"
-	"github.com/horonlee/servora/pkg/bootstrap/config"
-	"github.com/horonlee/servora/pkg/governance/telemetry"
-	"github.com/horonlee/servora/pkg/logger"
+	conf "github.com/Servora-Kit/servora/api/gen/go/conf/v1"
+	"github.com/Servora-Kit/servora/pkg/bootstrap/config"
+	"github.com/Servora-Kit/servora/pkg/governance/telemetry"
+	"github.com/Servora-Kit/servora/pkg/logger"
 
 	"github.com/go-kratos/kratos/v2"
 	"github.com/go-kratos/kratos/v2/log"

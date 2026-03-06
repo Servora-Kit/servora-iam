@@ -5,7 +5,7 @@ package sayhello.service.v1;
 
 import "buf/validate/validate.proto";
 
-option go_package = "github.com/horonlee/servora/api/gen/go/sayhello/service/v1;sayhellopb";
+option go_package = "github.com/Servora-Kit/servora/api/gen/go/sayhello/service/v1;sayhellopb";
 option java_multiple_files = true;
 option java_outer_classname = "SayHelloProtoV1";
 option java_package = "dev.servora.api.sayhello.v1";

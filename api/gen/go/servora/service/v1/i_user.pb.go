@@ -7,7 +7,7 @@
 package servorapb
 
 import (
-	v1 "github.com/horonlee/servora/api/gen/go/user/service/v1"
+	v1 "github.com/Servora-Kit/servora/api/gen/go/user/service/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -34,9 +34,9 @@ const file_servora_service_v1_i_user_proto_rawDesc = "" +
 	"UpdateUser\x12\".user.service.v1.UpdateUserRequest\x1a#.user.service.v1.UpdateUserResponse\"\x1a\x82\xd3\xe4\x93\x02\x14:\x01*\"\x0f/v1/user/update\x12i\n" +
 	"\bSaveUser\x12 .user.service.v1.SaveUserRequest\x1a!.user.service.v1.SaveUserResponse\"\x18\x82\xd3\xe4\x93\x02\x12:\x01*\"\r/v1/user/save\x12s\n" +
 	"\n" +
-	"DeleteUser\x12\".user.service.v1.DeleteUserRequest\x1a#.user.service.v1.DeleteUserResponse\"\x1c\x82\xd3\xe4\x93\x02\x16*\x14/v1/user/delete/{id}B\xd3\x01\n" +
+	"DeleteUser\x12\".user.service.v1.DeleteUserRequest\x1a#.user.service.v1.DeleteUserResponse\"\x1c\x82\xd3\xe4\x93\x02\x16*\x14/v1/user/delete/{id}B\xd6\x01\n" +
 	"\x16com.servora.service.v1B\n" +
-	"IUserProtoP\x01ZCgithub.com/horonlee/servora/api/gen/go/servora/service/v1;servorapb\xa2\x02\x03SSX\xaa\x02\x12Servora.Service.V1\xca\x02\x12Servora\\Service\\V1\xe2\x02\x1eServora\\Service\\V1\\GPBMetadata\xea\x02\x14Servora::Service::V1b\x06proto3"
+	"IUserProtoP\x01ZFgithub.com/Servora-Kit/servora/api/gen/go/servora/service/v1;servorapb\xa2\x02\x03SSX\xaa\x02\x12Servora.Service.V1\xca\x02\x12Servora\\Service\\V1\xe2\x02\x1eServora\\Service\\V1\\GPBMetadata\xea\x02\x14Servora::Service::V1b\x06proto3"
 
 var file_servora_service_v1_i_user_proto_goTypes = []any{
 	(*v1.CurrentUserInfoRequest)(nil),  // 0: user.service.v1.CurrentUserInfoRequest

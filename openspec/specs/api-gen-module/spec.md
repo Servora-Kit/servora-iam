@@ -11,7 +11,7 @@
 
 - **当** 创建 api/gen 模块
 - **那么** `go.mod` 必须位于 `api/gen/go.mod`（而不是 `api/gen/go/go.mod`）
-- **那么** 模块路径必须为 `module github.com/horonlee/servora/api/gen`
+- **那么** 模块路径必须为 `module github.com/Servora-Kit/servora/api/gen`
 
 #### 场景:避免被 buf generate 删除
 
@@ -31,6 +31,6 @@
 #### 场景:import 路径保持不变
 
 - **当** 生成代码位于 `api/gen/go/`
-- **那么** import 路径必须为 `github.com/horonlee/servora/api/gen/go/<path>`
+- **那么** import 路径必须为 `github.com/Servora-Kit/servora/api/gen/go/<path>`
 - **那么** 现有代码的 import 语句无需修改
 

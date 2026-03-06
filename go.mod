@@ -1,4 +1,4 @@
-module github.com/horonlee/servora
+module github.com/Servora-Kit/servora
 
 go 1.26.0
 

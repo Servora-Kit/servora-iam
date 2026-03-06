@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
-	"github.com/horonlee/servora/app/servora/service/internal/data/ent/predicate"
+	"github.com/Servora-Kit/servora/app/servora/service/internal/data/ent/predicate"
 )
 
 // ID filters vertices based on their ID field.

@@ -8,8 +8,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/horonlee/servora/app/servora/service/internal/data/ent/predicate"
-	"github.com/horonlee/servora/app/servora/service/internal/data/ent/user"
+	"github.com/Servora-Kit/servora/app/servora/service/internal/data/ent/predicate"
+	"github.com/Servora-Kit/servora/app/servora/service/internal/data/ent/user"
 )
 
 // UserDelete is the builder for deleting a User entity.

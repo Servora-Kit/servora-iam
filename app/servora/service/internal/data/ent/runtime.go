@@ -5,8 +5,8 @@ package ent
 import (
 	"time"
 
-	"github.com/horonlee/servora/app/servora/service/internal/data/ent/user"
-	"github.com/horonlee/servora/app/servora/service/internal/data/schema"
+	"github.com/Servora-Kit/servora/app/servora/service/internal/data/ent/user"
+	"github.com/Servora-Kit/servora/app/servora/service/internal/data/schema"
 )
 
 // The init function reads all schema descriptors with runtime code

@@ -3,8 +3,8 @@ package root
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/horonlee/servora/cmd/svr/internal/cmd/gen"
-	"github.com/horonlee/servora/cmd/svr/internal/cmd/new"
+	"github.com/Servora-Kit/servora/cmd/svr/internal/cmd/gen"
+	"github.com/Servora-Kit/servora/cmd/svr/internal/cmd/new"
 )
 
 var rootCmd = &cobra.Command{

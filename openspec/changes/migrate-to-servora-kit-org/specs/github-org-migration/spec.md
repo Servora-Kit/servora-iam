@@ -6,17 +6,17 @@
 
 #### 场景:更新 Go 模块路径
 - **当** 项目从个人账户迁移到组织账户
-- **那么** 系统必须将所有 go.mod 文件中的 module 路径从 `github.com/horonlee/servora` 更新为 `github.com/Servora-Kit/servora`
+- **那么** 系统必须将所有 go.mod 文件中的 module 路径从 `github.com/Servora-Kit/servora` 更新为 `github.com/Servora-Kit/servora`
 - **那么** 系统必须将所有 go.mod 文件中的 replace 指令路径相应更新
 
 #### 场景:更新 Go 源代码 import
 - **当** 项目从个人账户迁移到组织账户
-- **那么** 系统必须将所有 Go 源代码文件中的 import 语句从 `github.com/horonlee/servora` 更新为 `github.com/Servora-Kit/servora`
+- **那么** 系统必须将所有 Go 源代码文件中的 import 语句从 `github.com/Servora-Kit/servora` 更新为 `github.com/Servora-Kit/servora`
 - **那么** 系统必须确保所有子包的 import 路径都正确更新
 
 #### 场景:更新文档链接
 - **当** 项目从个人账户迁移到组织账户
-- **那么** 系统必须将 README.md 中的 GitHub 链接从 `github.com/horonlee/servora` 更新为 `github.com/Servora-Kit/servora`
+- **那么** 系统必须将 README.md 中的 GitHub 链接从 `github.com/Servora-Kit/servora` 更新为 `github.com/Servora-Kit/servora`
 - **那么** 系统必须将所有 AGENTS.md 文件中的 GitHub 链接相应更新
 
 #### 场景:更新 OpenAPI 配置

@@ -6,7 +6,7 @@ import "buf/validate/validate.proto";
 import "errors/errors.proto";
 import "pagination/v1/pagination.proto";
 
-option go_package = "github.com/horonlee/servora/api/gen/go/user/service/v1;userpb";
+option go_package = "github.com/Servora-Kit/servora/api/gen/go/user/service/v1;userpb";
 option java_multiple_files = true;
 option java_outer_classname = "UserProtoV1";
 option java_package = "dev.servora.api.user.v1";

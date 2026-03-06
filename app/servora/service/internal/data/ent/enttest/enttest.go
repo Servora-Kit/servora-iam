@@ -5,12 +5,12 @@ package enttest
 import (
 	"context"
 
-	"github.com/horonlee/servora/app/servora/service/internal/data/ent"
+	"github.com/Servora-Kit/servora/app/servora/service/internal/data/ent"
 	// required by schema hooks.
-	_ "github.com/horonlee/servora/app/servora/service/internal/data/ent/runtime"
+	_ "github.com/Servora-Kit/servora/app/servora/service/internal/data/ent/runtime"
 
 	"entgo.io/ent/dialect/sql/schema"
-	"github.com/horonlee/servora/app/servora/service/internal/data/ent/migrate"
+	"github.com/Servora-Kit/servora/app/servora/service/internal/data/ent/migrate"
 )
 
 type (

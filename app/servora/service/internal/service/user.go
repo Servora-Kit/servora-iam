@@ -4,13 +4,13 @@ import (
 	"context"
 	"fmt"
 
-	authpb "github.com/horonlee/servora/api/gen/go/auth/service/v1"
-	paginationpb "github.com/horonlee/servora/api/gen/go/pagination/v1"
-	userpb "github.com/horonlee/servora/api/gen/go/user/service/v1"
+	authpb "github.com/Servora-Kit/servora/api/gen/go/auth/service/v1"
+	paginationpb "github.com/Servora-Kit/servora/api/gen/go/pagination/v1"
+	userpb "github.com/Servora-Kit/servora/api/gen/go/user/service/v1"
 
-	"github.com/horonlee/servora/app/servora/service/internal/biz"
-	"github.com/horonlee/servora/app/servora/service/internal/biz/entity"
-	"github.com/horonlee/servora/app/servora/service/internal/consts"
+	"github.com/Servora-Kit/servora/app/servora/service/internal/biz"
+	"github.com/Servora-Kit/servora/app/servora/service/internal/biz/entity"
+	"github.com/Servora-Kit/servora/app/servora/service/internal/consts"
 )
 
 type UserService struct {

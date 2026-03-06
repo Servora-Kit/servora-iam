@@ -6,8 +6,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	conf "github.com/horonlee/servora/api/gen/go/conf/v1"
-	config "github.com/horonlee/servora/pkg/bootstrap/config"
+	conf "github.com/Servora-Kit/servora/api/gen/go/conf/v1"
+	config "github.com/Servora-Kit/servora/pkg/bootstrap/config"
 )
 
 // ServiceConfig holds resolved configuration for a service.

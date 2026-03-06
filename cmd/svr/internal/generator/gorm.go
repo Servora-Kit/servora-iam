@@ -11,8 +11,8 @@ import (
 	"gorm.io/gen"
 	"gorm.io/gorm"
 
-	conf "github.com/horonlee/servora/api/gen/go/conf/v1"
-	"github.com/horonlee/servora/cmd/svr/internal/ux"
+	conf "github.com/Servora-Kit/servora/api/gen/go/conf/v1"
+	"github.com/Servora-Kit/servora/cmd/svr/internal/ux"
 )
 
 // GormGenerator wraps the GORM GEN code generation for a single service.

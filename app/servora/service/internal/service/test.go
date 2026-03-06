@@ -3,8 +3,8 @@ package service
 import (
 	"context"
 
-	testpb "github.com/horonlee/servora/api/gen/go/test/service/v1"
-	"github.com/horonlee/servora/app/servora/service/internal/biz"
+	testpb "github.com/Servora-Kit/servora/api/gen/go/test/service/v1"
+	"github.com/Servora-Kit/servora/app/servora/service/internal/biz"
 )
 
 // TestService is a test service.

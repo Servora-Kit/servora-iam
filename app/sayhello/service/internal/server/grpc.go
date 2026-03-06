@@ -3,11 +3,11 @@ package server
 import (
 	"crypto/tls"
 
-	"github.com/horonlee/servora/api/gen/go/conf/v1"
-	sayhellov1 "github.com/horonlee/servora/api/gen/go/sayhello/service/v1"
-	"github.com/horonlee/servora/app/sayhello/service/internal/service"
-	"github.com/horonlee/servora/pkg/governance/telemetry"
-	"github.com/horonlee/servora/pkg/logger"
+	"github.com/Servora-Kit/servora/api/gen/go/conf/v1"
+	sayhellov1 "github.com/Servora-Kit/servora/api/gen/go/sayhello/service/v1"
+	"github.com/Servora-Kit/servora/app/sayhello/service/internal/service"
+	"github.com/Servora-Kit/servora/pkg/governance/telemetry"
+	"github.com/Servora-Kit/servora/pkg/logger"
 
 	"github.com/go-kratos/kratos/contrib/middleware/validate/v2"
 	"github.com/go-kratos/kratos/v2/middleware"
