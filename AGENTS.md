@@ -16,7 +16,7 @@
 
 - `api/`：共享 proto、生成产物 `api/gen/` 与相关 AGENTS
 - `app/`：服务实现；当前包含 `servora/service/` 与 `sayhello/service/`
-- `cmd/svr/`：中心化 CLI，提供 `svr gen gorm` 与 `svr new api`
+- `cmd/svr/`：中心化 CLI，当前提供 `svr gen gorm`
 - `pkg/`：共享基础库，现有 `bootstrap`、`governance`、`helpers`、`jwt`、`k8s`、`logger`、`mapper`、`middleware`、`redis`、`transport`
 - `manifests/`：统一部署清单，K8s 已收敛到 `manifests/k8s/`
 - `docs/`：文档目录；当前包含 `design/`、`knowledge/`、`reference/`
@@ -75,9 +75,11 @@ make compose.dev.restart
 CLI：
 
 ```bash
+svr new api <name> <server_name>
+svr new api billing servora
+svr new api billing.invoice servora
 svr gen gorm <service-name...>
 svr gen gorm servora --dry-run
-svr new api billing.invoice
 ```
 
 ## 维护提示

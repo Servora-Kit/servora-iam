@@ -4,20 +4,20 @@ context: |
   项目：servora —— 基于 Go Kratos v2 的微服务快开框架，采用 DDD 分层与 Proto First 开发方式。
 
   技术栈：
-  - 语言：Go 1.21+
+  - 语言：Go 1.26+
   - 框架：Kratos v2（微服务框架，双协议 gRPC + HTTP）
   - API：Protobuf + Buf（Proto First，buf lint/generate）
   - DI：Google Wire（编译时依赖注入）
   - ORM：Ent（主）+ GORM GEN（并行）
   - 存储：MySQL / PostgreSQL / SQLite + Redis
-  - 前端：Vue 3 + Vite + TypeScript（web/ 目录）
+  - 前端：Vue 3 + Vite + TypeScript（app/servora/service/web/ 目录）
   - 服务治理：Consul / Nacos / etcd
   - 可观测性：OTel Collector + Jaeger + Loki + Prometheus + Grafana
-  - CLI 工具：cmd/svr（svr gen gorm、svr new api）
+  - CLI 工具：cmd/svr（当前提供 svr gen gorm）
 
   架构约定：
   - DDD 分层：service → biz → data，职责边界严格
-  - Proto 组织：api/protos/<service>/service/v1/<service>.proto
+  - Proto 组织：共享 proto 放在 api/protos/，服务私有 proto 放在 app/<service>/service/api/protos/
   - 每个微服务独立目录：app/<service>/service/
   - 共享库放 pkg/，不允许跨服务直接引用 internal/
   - 代码生成产物（api/gen/go/、wire_gen.go、openapi.yaml）不手动修改
@@ -33,7 +33,7 @@ context: |
   测试约定：
   - 单元测试与源文件同目录，文件名 *_test.go
   - 集成测试使用真实数据库（testcontainers 或 sqlite）
-  - 提交前须通过 make lint && make test
+  - 提交前须通过 make lint.go && make test
 
 rules:
   proposal:

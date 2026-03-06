@@ -23,8 +23,7 @@ api/
     ├── buf.yaml
     ├── buf.lock
     ├── conf/
-    ├── pagination/
-    └── template/
+    └── pagination/
 ```
 
 ## 生成规则
@@ -47,8 +46,8 @@ api/
 - 服务专属业务 proto 优先放在对应服务的 `app/{service}/service/api/protos/`
 - 修改 proto 后运行根目录 `make gen`
 - 不要手动编辑 `api/gen/go/`
-- 新建共享 proto 骨架可用 `svr new api <name>`，默认输出到 `api/protos/`
 - 当前仓库根目录没有 `buf.typescript.gen.yaml`；直接执行 `make api-ts` 前应先补齐对应模板文件
+- `api/protos/template/service/v1/` 包含 `svr new api` 使用的 proto 模板
 
 ## 常用命令
 

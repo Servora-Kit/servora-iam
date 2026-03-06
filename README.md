@@ -36,8 +36,7 @@
 │   │   └── go/
 │   └── protos/
 │       ├── conf/
-│       ├── pagination/
-│       └── template/
+│       └── pagination/
 ├── app/
 │   ├── servora/service/             # 主服务（api/cmd/internal/web）
 │   │   ├── api/
@@ -48,7 +47,7 @@
 │   │   └── web/
 │   └── sayhello/service/            # gRPC 示例服务
 ├── cmd/
-│   └── svr/                         # CLI 工具（svr gen gorm / svr new api）
+│   └── svr/                         # CLI 工具（svr gen gorm）
 ├── docs/                            # design / knowledge / reference
 ├── manifests/                       # k8s / certs / grafana / loki / otel / prometheus
 ├── openspec/                        # OpenSpec 变更与归档
@@ -105,15 +104,14 @@ make compose.dev.down
 
 推荐顺序：
 
-1. 用 `svr new api <name>` 生成共享 proto 骨架（默认输出到 `api/protos/<name>/service/v1/`）
-2. 按需修改共享 proto 或服务私有 proto：
+1. 按需修改共享 proto 或服务私有 proto：
    - `api/protos/`
    - `app/servora/service/api/protos/`
    - `app/sayhello/service/api/protos/`
-3. 在仓库根目录执行 `make gen`
-4. 在服务目录实现业务代码：`internal/service -> internal/biz -> internal/data`
-5. 修改 Wire 依赖图后执行 `make wire`（或直接再跑一次 `make gen`）
-6. 运行测试、类型检查和 lint
+2. 在仓库根目录执行 `make gen`
+3. 在服务目录实现业务代码：`internal/service -> internal/biz -> internal/data`
+4. 修改 Wire 依赖图后执行 `make wire`（或直接再跑一次 `make gen`）
+5. 运行测试、类型检查和 lint
 
 ## 🛠️ 常用命令
 
@@ -182,20 +180,21 @@ make openapi
 ### `svr` 命令行工具
 
 ```bash
+# 新建 API proto 脚手架
+svr new api <name> <server_name>
+svr new api billing servora
+svr new api billing.invoice servora
+svr new api --help
+
 # GORM GEN 代码生成
 svr gen gorm <service-name...>
 svr gen gorm servora --dry-run
 svr gen gorm
 
-# Proto API 脚手架
-svr new api <name>
-svr new api say_hello
-svr new api billing.invoice
-svr new api user --output <dir>
-svr new api user --template <dir>
 ```
 
 > `svr` 命令默认从项目根目录执行。
+> `svr new api` 生成服务内 gRPC proto 骨架，输出到 `app/<server_name>/service/api/protos/<name>/service/v1/`。
 
 ### 前端命令（`app/servora/service/web/`）
 

@@ -9,6 +9,8 @@ import (
 	"unicode"
 
 	"github.com/spf13/cobra"
+
+	"github.com/horonlee/servora/cmd/svr/internal/discovery"
 )
 
 var nameRegex = regexp.MustCompile(`^[a-z][a-z0-9]*(_[a-z0-9]+)*(\.[a-z][a-z0-9]*(_[a-z0-9]+)*)*$`)
@@ -20,36 +22,59 @@ const defaultTemplateDir = "api/protos/template/service/v1"
 // NewApiCmd creates the "new api" subcommand.
 func NewApiCmd() *cobra.Command {
 	var templateDir string
-	var outputDir string
 
 	cmd := &cobra.Command{
-		Use:   "api <name>",
-		Short: "Scaffold a new proto API",
-		Long: `Scaffold a new gRPC service proto skeleton under api/protos/.
+		Use:   "api <name> <server_name>",
+		Short: "Scaffold a new proto API in a service directory",
+		Long: `Scaffold a new gRPC service proto skeleton under app/<server_name>/service/api/protos/.
 
 Name must be lowercase snake_case, optionally dot-separated for nesting:
-  svr new api user
-  svr new api say_hello
-  svr new api billing.invoice
+  svr new api billing servora
+  svr new api say_hello sayhello
+  svr new api billing.invoice servora
+
+Server name must correspond to an existing service under app/<server_name>/service.
 
 Must be run from the project root directory.`,
-		Args: cobra.ExactArgs(1),
+		Args: cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			name := args[0]
+			serverName := args[1]
+
 			if err := validateName(name); err != nil {
 				return err
 			}
 
-			if outputDir == "" {
-				outputDir = filepath.Join("api", "protos")
+			// Validate server exists using discovery
+			services, err := discovery.ListAvailableServices()
+			if err != nil {
+				return fmt.Errorf("failed to discover services: %w", err)
 			}
 
-			return runNewApi(name, outputDir, templateDir)
+			found := false
+			for _, svc := range services {
+				if svc == serverName {
+					found = true
+					break
+				}
+			}
+
+			if !found {
+				fmt.Fprintf(os.Stderr, "error: service %q not found\n", serverName)
+				fmt.Fprintf(os.Stderr, "\nAvailable services:\n")
+				for _, svc := range services {
+					fmt.Fprintf(os.Stderr, "  - %s\n", svc)
+				}
+				return fmt.Errorf("service %q does not exist", serverName)
+			}
+
+			// Build output directory: app/<server_name>/service/api/protos/<name>/service/v1/
+			outputRoot := filepath.Join("app", serverName, "service", "api", "protos")
+			return runNewApi(name, outputRoot, templateDir)
 		},
 	}
 
 	cmd.Flags().StringVar(&templateDir, "template", "", "Custom template directory (must contain template.proto and template_doc.proto)")
-	cmd.Flags().StringVar(&outputDir, "output", "", "Output root directory (default: ./api/protos)")
 
 	return cmd
 }
@@ -74,8 +99,7 @@ func runNewApi(name, outputRoot, templateDir string) error {
 
 	// Conflict check.
 	if _, err := os.Stat(dirPath); err == nil {
-		fmt.Fprintf(os.Stderr, "error: directory already exists: %s\n", dirPath)
-		os.Exit(1)
+		return fmt.Errorf("directory already exists: %s", dirPath)
 	}
 
 	// Load templates.
@@ -104,7 +128,12 @@ func runNewApi(name, outputRoot, templateDir string) error {
 		return fmt.Errorf("failed to write %s: %w", docFile, err)
 	}
 
-	fmt.Printf("Created:\n  %s\n  %s\n", mainFile, docFile)
+	fmt.Printf("✓ Created:\n  %s\n  %s\n", mainFile, docFile)
+	fmt.Printf("\nNext steps:\n")
+	fmt.Printf("  1. Run 'make gen' to generate Go code\n")
+	fmt.Printf("  2. If you need OpenAPI/TypeScript generation, check service-level config:\n")
+	fmt.Printf("     - api/buf.openapi.gen.yaml\n")
+	fmt.Printf("     - api/buf.typescript.gen.yaml\n")
 	return nil
 }
 

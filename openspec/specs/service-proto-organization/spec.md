@@ -27,7 +27,6 @@
 - **那么** 以下目录必须保留在 `api/protos/`：
   - `conf/v1/` - 配置定义
   - `pagination/v1/` - 分页公共类型
-  - `template/service/v1/` - 脚手架模板
   - `k8s/` - K8s 相关定义
 
 ### 需求:buf.yaml 必须聚合服务 proto
@@ -63,4 +62,3 @@
 - **当** 执行 `make build`
 - **那么** 所有服务（servora, sayhello）必须能够正常构建
 - **那么** 不得出现 import 路径错误
-
