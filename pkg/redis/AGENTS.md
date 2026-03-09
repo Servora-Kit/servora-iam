@@ -1,7 +1,6 @@
-<!-- Parent: ../AGENTS.md -->
-# Redis 客户端封装 (pkg/redis)
+# AGENTS.md - pkg/redis/
 
-**最后更新时间**: 2026-03-08
+<!-- Generated: 2026-03-09 | Commit: 1f79cd0 -->
 
 ## 模块目的
 

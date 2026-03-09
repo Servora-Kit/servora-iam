@@ -1,7 +1,6 @@
-# AGENTS.md - pkg 共享库层
+# AGENTS.md - pkg/
 
-<!-- Parent: ../AGENTS.md -->
-<!-- Generated: 2026-02-09 | Updated: 2026-03-06 -->
+<!-- Generated: 2026-03-09 | Commit: 1f79cd0 -->
 
 ## 目录概览
 

@@ -1,7 +1,6 @@
-<!-- Parent: ../AGENTS.md -->
-# 日志封装 (pkg/logger)
+# AGENTS.md - pkg/logger/
 
-**最后更新时间**: 2026-03-06
+<!-- Generated: 2026-03-09 | Commit: 1f79cd0 -->
 
 ## 模块目的
 
