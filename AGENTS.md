@@ -1,6 +1,6 @@
 # AGENTS.md - servora 项目根目录
 
-<!-- Generated: 2026-02-09 | Updated: 2026-03-07 -->
+<!-- Generated: 2026-03-09 | Commit: 1f79cd0 | Branch: example -->
 
 ## 项目概览
 

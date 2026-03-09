@@ -1,7 +1,6 @@
-# AGENTS.md - 共享 Proto 模块
+# AGENTS.md - api/protos/
 
-<!-- Parent: ../AGENTS.md -->
-<!-- Generated: 2026-02-09 | Updated: 2026-03-06 -->
+<!-- Generated: 2026-03-09 | Commit: 1f79cd0 -->
 
 ## 当前定位
 
