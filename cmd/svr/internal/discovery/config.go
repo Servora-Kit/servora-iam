@@ -20,7 +20,7 @@ type ServiceConfig struct {
 // LoadServiceConfig loads the bootstrap config for the given service.
 func LoadServiceConfig(serviceName string) (*ServiceConfig, error) {
 	servicePath := filepath.Join("app", serviceName, "service")
-	configPath := filepath.Join(servicePath, "configs")
+	configPath := filepath.Join(servicePath, "configs", "local")
 
 	bc, krCfg, err := config.LoadBootstrap(configPath, serviceName)
 	if err != nil {
@@ -44,11 +44,11 @@ func ValidateServiceExists(serviceName string) error {
 	return nil
 }
 
-// ValidateConfigExists checks that config.yaml exists for the service.
+// ValidateConfigExists checks that configs/local/ directory exists for the service.
 func ValidateConfigExists(serviceName string) error {
-	configFile := filepath.Join("app", serviceName, "service", "configs", "config.yaml")
-	if _, err := os.Stat(configFile); os.IsNotExist(err) {
-		return fmt.Errorf("config file not found at app/%s/service/configs/config.yaml", serviceName)
+	configDir := filepath.Join("app", serviceName, "service", "configs", "local")
+	if _, err := os.Stat(configDir); os.IsNotExist(err) {
+		return fmt.Errorf("config directory not found at app/%s/service/configs/local/", serviceName)
 	}
 	return nil
 }

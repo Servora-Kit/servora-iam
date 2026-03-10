@@ -193,8 +193,8 @@ func generateForService(serviceName string, dryRun bool) *serviceFailure {
 
 	// 4. Validate database config.
 	if err := discovery.ValidateDatabaseConfig(svcCfg.Bootstrap); err != nil {
-		msg := fmt.Sprintf("no database config found in app/%s/service/configs/config.yaml", serviceName)
-		hint := "\n  expected config.yaml to contain:\n    data:\n      database:\n        driver: mysql\n        source: <dsn>"
+		msg := fmt.Sprintf("no database config found in app/%s/service/configs/local/", serviceName)
+		hint := "\n  expected configs/local/bootstrap.yaml to contain:\n    data:\n      database:\n        driver: mysql\n        source: <dsn>"
 		ux.PrintError(serviceName, msg+hint)
 		return &serviceFailure{
 			service:   serviceName,
@@ -216,7 +216,7 @@ func generateForService(serviceName string, dryRun bool) *serviceFailure {
 		errType := errGenerationFailed
 		if strings.Contains(errMsg, "connect db failed") || strings.Contains(errMsg, "unsupported db driver") {
 			errType = errDBConnectFailed
-			hint := "\n  checklist:\n  - Is the database server running?\n  - Is the DSN in config.yaml correct?\n  - Is the driver supported? (mysql, postgres, sqlite)"
+			hint := "\n  checklist:\n  - Is the database server running?\n  - Is the DSN in configs/local/bootstrap.yaml correct?\n  - Is the driver supported? (mysql, postgres, sqlite)"
 			ux.PrintError(serviceName, errMsg+hint)
 		} else {
 			ux.PrintError(serviceName, errMsg)
