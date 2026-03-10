@@ -13,6 +13,7 @@
 package health
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"net/http"
@@ -56,9 +57,7 @@ func NewHandler(checkers ...Checker) *Handler {
 // 始终返回 HTTP 200，不执行任何 checker。
 func (h *Handler) LivenessHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(map[string]string{"status": "alive"})
+		writeJSON(w, http.StatusOK, map[string]string{"status": "alive"})
 	}
 }
 
@@ -66,11 +65,8 @@ func (h *Handler) LivenessHandler() http.HandlerFunc {
 // 执行所有注册的 checker，全部通过返回 200，任一失败返回 503。
 func (h *Handler) ReadinessHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-
 		if len(h.checkers) == 0 {
-			w.WriteHeader(http.StatusOK)
-			json.NewEncoder(w).Encode(map[string]any{
+			writeJSON(w, http.StatusOK, map[string]any{
 				"status": "ready",
 				"checks": map[string]string{},
 			})
@@ -99,12 +95,23 @@ func (h *Handler) ReadinessHandler() http.HandlerFunc {
 			httpStatus = http.StatusServiceUnavailable
 		}
 
-		w.WriteHeader(httpStatus)
-		json.NewEncoder(w).Encode(map[string]any{
+		writeJSON(w, httpStatus, map[string]any{
 			"status": status,
 			"checks": checks,
 		})
 	}
+}
+
+func writeJSON(w http.ResponseWriter, status int, payload any) {
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(payload); err != nil {
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+	_, _ = w.Write(buf.Bytes())
 }
 
 // pingChecker 通过 Pinger 接口实现 Checker。

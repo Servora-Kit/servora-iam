@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
-	"time"
 )
 
 type mockChecker struct {
@@ -17,27 +16,6 @@ type mockChecker struct {
 
 func (m *mockChecker) Name() string                  { return m.name }
 func (m *mockChecker) Check(_ context.Context) error { return m.err }
-
-type slowChecker struct {
-	name  string
-	delay time.Duration
-}
-
-func (s *slowChecker) Name() string { return s.name }
-func (s *slowChecker) Check(ctx context.Context) error {
-	select {
-	case <-time.After(s.delay):
-		return nil
-	case <-ctx.Done():
-		return ctx.Err()
-	}
-}
-
-type mockPinger struct {
-	err error
-}
-
-func (m *mockPinger) Ping(_ context.Context) error { return m.err }
 
 func parseJSON(t *testing.T, body []byte) map[string]any {
 	t.Helper()
