@@ -33,11 +33,11 @@ processors:
         value: service.name,level,module,operation
 
 exporters:
-  otlp/jaeger:
+  otlp_grpc/jaeger:
     endpoint: jaeger:4317
     tls:
       insecure: true
-  otlphttp/loki:
+  otlp_http/loki:
     endpoint: http://loki:3100/otlp
 
 extensions:
@@ -59,8 +59,8 @@ service:
     traces:
       receivers: [otlp]
       processors: [batch]
-      exporters: [otlp/jaeger]
+      exporters: [otlp_grpc/jaeger]
     logs:
       receivers: [filelog/servora, filelog/sayhello]
       processors: [attributes/log_hints, batch]
-      exporters: [otlphttp/loki]
+      exporters: [otlp_http/loki]
