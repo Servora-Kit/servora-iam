@@ -435,7 +435,7 @@ type UpdateUserRequest struct {
 	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	Email         string                 `protobuf:"bytes,3,opt,name=email,proto3" json:"email,omitempty"`
 	Password      string                 `protobuf:"bytes,4,opt,name=password,proto3" json:"password,omitempty"`
-	Role          string                 `protobuf:"bytes,10,opt,name=role,proto3" json:"role,omitempty"`
+	Role          string                 `protobuf:"bytes,5,opt,name=role,proto3" json:"role,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -554,7 +554,7 @@ type SaveUserRequest struct {
 	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	Email         string                 `protobuf:"bytes,2,opt,name=email,proto3" json:"email,omitempty"`
 	Password      string                 `protobuf:"bytes,3,opt,name=password,proto3" json:"password,omitempty"`
-	Role          string                 `protobuf:"bytes,9,opt,name=role,proto3" json:"role,omitempty"`
+	Role          string                 `protobuf:"bytes,4,opt,name=role,proto3" json:"role,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -688,23 +688,21 @@ const file_user_service_v1_user_proto_rawDesc = "" +
 	"\x11DeleteUserRequest\x12\x17\n" +
 	"\x02id\x18\x01 \x01(\x03B\a\xbaH\x04\"\x02 \x00R\x02id\".\n" +
 	"\x12DeleteUserResponse\x12\x18\n" +
-	"\asuccess\x18\x01 \x01(\bR\asuccess\"\xc2\x01\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess\"}\n" +
 	"\x11UpdateUserRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x14\n" +
 	"\x05email\x18\x03 \x01(\tR\x05email\x12\x1a\n" +
 	"\bpassword\x18\x04 \x01(\tR\bpassword\x12\x12\n" +
-	"\x04role\x18\n" +
-	" \x01(\tR\x04roleJ\x04\b\x05\x10\x06J\x04\b\x06\x10\aJ\x04\b\a\x10\bJ\x04\b\b\x10\tJ\x04\b\t\x10\n" +
-	"R\x05phoneR\x06avatarR\x03bioR\blocationR\awebsite\".\n" +
+	"\x04role\x18\x05 \x01(\tR\x04role\".\n" +
 	"\x12UpdateUserResponse\x12\x18\n" +
-	"\asuccess\x18\x01 \x01(\tR\asuccess\"\xcd\x01\n" +
+	"\asuccess\x18\x01 \x01(\tR\asuccess\"\x88\x01\n" +
 	"\x0fSaveUserRequest\x12\x1b\n" +
 	"\x04name\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x05R\x04name\x12\x1d\n" +
 	"\x05email\x18\x02 \x01(\tB\a\xbaH\x04r\x02`\x01R\x05email\x12%\n" +
 	"\bpassword\x18\x03 \x01(\tB\t\xbaH\x06r\x04\x10\x05\x18\n" +
 	"R\bpassword\x12\x12\n" +
-	"\x04role\x18\t \x01(\tR\x04roleJ\x04\b\x04\x10\x05J\x04\b\x05\x10\x06J\x04\b\x06\x10\aJ\x04\b\a\x10\bJ\x04\b\b\x10\tR\x05phoneR\x06avatarR\x03bioR\blocationR\awebsite\"\"\n" +
+	"\x04role\x18\x04 \x01(\tR\x04role\"\"\n" +
 	"\x10SaveUserResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id*\x85\x01\n" +
 	"\vErrorReason\x12\x18\n" +
