@@ -47,6 +47,7 @@ brew install k6
 - `P99_MS`：默认 `500`
 - `FAIL_RATE`：默认 `0.001`
 - `SCENARIOS`：仅对 `auth-scenarios.js` 生效，可选 `login,read,refresh`
+- `REFRESH_TOKENS`：仅对 `auth-scenarios.js` 生效，多个 refresh token 用逗号分隔
 
 ## 4. 运行示例
 
@@ -69,6 +70,12 @@ k6 run scripts/k6/hello-chain-test.js
 ```
 
 ### 4.3 鉴权场景
+
+默认情况下，`auth-scenarios.js`：
+
+- 有 `LOGIN_EMAIL` / `LOGIN_PASSWORD` 时，只启用 `login` 和 `read`
+- 有 `ACCESS_TOKEN` 时，只启用 `read`
+- 只有显式指定 `SCENARIOS=refresh`，或只提供 refresh token 时，才会压刷新接口
 
 登录压力 + 已登录接口验证依赖以下变量：
 
@@ -105,6 +112,23 @@ REFRESH_TOKEN=your-refresh-token \
 k6 run scripts/k6/auth-scenarios.js
 ```
 
+如果要单独压刷新接口，优先建议提供一个 refresh token 池，避免多个 VU 复用同一个 token：
+
+```bash
+SCENARIOS=refresh \
+REFRESH_TOKENS=token-a,token-b,token-c \
+k6 run scripts/k6/auth-scenarios.js
+```
+
+如果没有预生成 token 池，也可以提供登录凭证。脚本会在每次刷新前先登录一次以获取新的 refresh token，这样不会因为复用同一个 refresh token 让结果失真，但这更适合做接口可用性验证，不适合把结果直接当成纯 refresh 接口极限：
+
+```bash
+SCENARIOS=refresh \
+LOGIN_EMAIL=admin@example.com \
+LOGIN_PASSWORD=123456 \
+k6 run scripts/k6/auth-scenarios.js
+```
+
 ## 5. 推荐输出与记录方式
 
 建议每次压测都加一个 summary 导出：
@@ -123,3 +147,13 @@ k6 run --summary-export tmp/k6-summary.json scripts/k6/baseline-test.js
 2. 再跑 `hello-chain-test.js`，确认跨服务链路上限
 3. 最后跑 `auth-scenarios.js`，确认登录和已鉴权接口的成本
 4. 将本地模式与 Compose 模式分别记录并对比
+
+## 7. 鉴权脚本的阈值说明
+
+`auth-scenarios.js` 会按 `profile` 分别记录和判断阈值：
+
+- `login`
+- `auth-read`
+- `refresh`
+
+这样不会把登录、已登录读取、刷新三类请求混在同一个延迟分位里。

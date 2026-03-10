@@ -16,6 +16,10 @@ const LOGIN_EMAIL = __ENV.LOGIN_EMAIL || '';
 const LOGIN_PASSWORD = __ENV.LOGIN_PASSWORD || '';
 const ACCESS_TOKEN = __ENV.ACCESS_TOKEN || '';
 const REFRESH_TOKEN = __ENV.REFRESH_TOKEN || '';
+const REFRESH_TOKENS = (__ENV.REFRESH_TOKENS || '')
+  .split(',')
+  .map((value) => value.trim())
+  .filter(Boolean);
 
 function selectedScenarios() {
   const raw = __ENV.SCENARIOS || '';
@@ -27,16 +31,16 @@ function selectedScenarios() {
   }
 
   if (LOGIN_EMAIL && LOGIN_PASSWORD) {
-    return ['login', 'read', 'refresh'];
-  }
-  if (ACCESS_TOKEN && REFRESH_TOKEN) {
-    return ['read', 'refresh'];
+    return ['login', 'read'];
   }
   if (ACCESS_TOKEN) {
     return ['read'];
   }
+  if (REFRESH_TOKEN || REFRESH_TOKENS.length > 0) {
+    return ['refresh'];
+  }
 
-  return ['login', 'read', 'refresh'];
+  return ['login', 'read'];
 }
 
 const ENABLED_SCENARIOS = selectedScenarios();
@@ -82,6 +86,13 @@ function jsonParams(token, tags) {
   return { headers, tags };
 }
 
+function scenarioThresholds(profile) {
+  return {
+    [`http_req_failed{profile:${profile}}`]: [`rate<${FAIL_RATE}`],
+    [`http_req_duration{profile:${profile}}`]: [`p(95)<${P95_MS}`, `p(99)<${P99_MS}`],
+  };
+}
+
 function requireCredentials() {
   if (!LOGIN_EMAIL || !LOGIN_PASSWORD) {
     throw new Error('Set LOGIN_EMAIL and LOGIN_PASSWORD, or provide ACCESS_TOKEN/REFRESH_TOKEN.');
@@ -111,6 +122,54 @@ function loginOnce() {
   };
 }
 
+function refreshSetupData() {
+  const data = {
+    accessToken: ACCESS_TOKEN,
+    refreshToken: REFRESH_TOKEN,
+    refreshTokens: REFRESH_TOKENS,
+  };
+
+  if (data.refreshTokens.length > 0 || data.refreshToken) {
+    return data;
+  }
+
+  if (LOGIN_EMAIL && LOGIN_PASSWORD) {
+    const tokenPair = loginOnce();
+    return {
+      accessToken: tokenPair.accessToken,
+      refreshToken: tokenPair.refreshToken,
+      refreshTokens: [],
+    };
+  }
+
+  return data;
+}
+
+function currentRefreshToken(data) {
+  if (data.refreshTokens && data.refreshTokens.length > 0) {
+    return data.refreshTokens[(__VU - 1) % data.refreshTokens.length];
+  }
+  return data.refreshToken;
+}
+
+function issueRefreshTokenForThisIteration() {
+  const response = http.post(
+    `${BASE_URL}/v1/auth/login/email-password`,
+    JSON.stringify({ email: LOGIN_EMAIL, password: LOGIN_PASSWORD }),
+    jsonParams('', { endpoint: 'auth.login', profile: 'refresh-setup' })
+  );
+
+  check(response, {
+    'refresh setup login status is 200': (res) => res.status === 200,
+  });
+
+  if (response.status !== 200) {
+    throw new Error(`refresh setup login failed with status ${response.status}`);
+  }
+
+  return response.json().refreshToken;
+}
+
 export const options = {
   scenarios: {
     ...(hasScenario('login')
@@ -124,8 +183,9 @@ export const options = {
       : {}),
   },
   thresholds: {
-    http_req_failed: [`rate<${FAIL_RATE}`],
-    http_req_duration: [`p(95)<${P95_MS}`, `p(99)<${P99_MS}`],
+    ...(hasScenario('login') ? scenarioThresholds('login') : {}),
+    ...(hasScenario('read') ? scenarioThresholds('auth-read') : {}),
+    ...(hasScenario('refresh') ? scenarioThresholds('refresh') : {}),
   },
 };
 
@@ -134,16 +194,28 @@ export function setup() {
     return {
       accessToken: ACCESS_TOKEN,
       refreshToken: REFRESH_TOKEN,
+      refreshTokens: REFRESH_TOKENS,
     };
+  }
+
+  if (hasScenario('refresh') && !hasScenario('read')) {
+    return refreshSetupData();
   }
 
   if (ACCESS_TOKEN) {
     return {
       accessToken: ACCESS_TOKEN,
       refreshToken: REFRESH_TOKEN,
+      refreshTokens: REFRESH_TOKENS,
     };
   }
-  return loginOnce();
+
+  const tokenPair = loginOnce();
+  return {
+    accessToken: tokenPair.accessToken,
+    refreshToken: tokenPair.refreshToken,
+    refreshTokens: REFRESH_TOKENS,
+  };
 }
 
 export function loginByPassword() {
@@ -185,13 +257,20 @@ export function authenticatedRead(data) {
 }
 
 export function refreshTokenFlow(data) {
-  if (!data.refreshToken) {
-    throw new Error('No refresh token available. Provide REFRESH_TOKEN or allow setup() to login.');
+  let refreshToken = currentRefreshToken(data);
+  if (!refreshToken && LOGIN_EMAIL && LOGIN_PASSWORD) {
+    refreshToken = issueRefreshTokenForThisIteration();
+  }
+
+  if (!refreshToken) {
+    throw new Error(
+      'No refresh token available. Provide REFRESH_TOKEN, REFRESH_TOKENS, or LOGIN_EMAIL/LOGIN_PASSWORD.'
+    );
   }
 
   const response = http.post(
     `${BASE_URL}/v1/auth/refresh-token`,
-    JSON.stringify({ refreshToken: data.refreshToken }),
+    JSON.stringify({ refreshToken }),
     jsonParams('', { endpoint: 'auth.refresh', profile: 'refresh' })
   );
 
