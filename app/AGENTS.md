@@ -30,6 +30,7 @@ app/{service}/service/
 ## 关键约定
 
 - 服务目录中的 `make gen` 会执行 `wire + api + openapi + gen.ent`
+- 服务目录中的 `make build` 会先执行 `make gen`，再编译当前服务
 - 服务目录中的 `make api` 会回到仓库根目录跑 `make api-go`
 - 若存在 `api/buf.typescript.gen.yaml`，服务级 `make api` 会额外生成 TypeScript 客户端
 - 服务级 `make openapi` 读取本目录 `api/buf.openapi.gen.yaml`
@@ -38,6 +39,7 @@ app/{service}/service/
 
 ```bash
 cd app/servora/service && make run
+cd app/servora/service && make build
 cd app/servora/service && make wire
 cd app/servora/service && make gen.ent
 cd app/servora/service && make gen.gorm

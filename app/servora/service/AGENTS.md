@@ -48,6 +48,7 @@ app/servora/service/
 
 ```bash
 make gen
+make build
 make run
 make wire
 make gen.ent
@@ -69,5 +70,5 @@ cd web && bun lint
 ## 维护提示
 
 - 旧文档里的根目录 `web/`、`deployment/`、`config.go`、`AuthJWT.go` 等路径名已经不准确
-- 修改 proto 后用根目录或服务目录的 `make gen`，修改 Wire 依赖图后执行 `make wire`
+- 修改 proto 后用根目录或服务目录的 `make gen`；需要重新编译服务时直接执行 `make build`，修改 Wire 依赖图后执行 `make wire`
 - 不要手动编辑 `openapi.yaml`、`web/src/service/gen/`、`wire_gen.go`
