@@ -116,6 +116,7 @@ make compose.dev
 
 - `make compose.up`：仅启动基础设施（Consul、Postgres、Redis、OTel、Loki、Prometheus、Grafana 等）
 - `make compose.dev`：启动基础设施 + Air 开发容器（`servora`、`sayhello`）
+- 本地观测栈默认使用 Jaeger v2 单镜像（`jaegertracing/jaeger`），通过 OTel Collector 将 traces 转发到 Jaeger
 
 相关命令：
 
