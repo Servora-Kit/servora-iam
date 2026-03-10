@@ -14,10 +14,13 @@ import (
 	_ "go.uber.org/automaxprocs"
 )
 
-// go build -ldflags "-X main.Version=x.y.z"
+// Injected at build time via -ldflags:
+//
+//	-X main.Name=<service-name>.service
+//	-X main.Version=<git-tag>
 var (
-	Name     = "servora.service"
-	Version  = "v1.0.0"
+	Name     = "unknown.service"
+	Version  = "dev"
 	flagconf string
 )
 
