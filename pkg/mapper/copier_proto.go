@@ -4,45 +4,39 @@ import (
 	"github.com/jinzhu/copier"
 )
 
-// ProtoMapper 专门用于 Protobuf 消息与领域模型之间的转换
-// P = Protobuf message (API层)
-// D = Domain model (biz层)
-type ProtoMapper[P any, D any] struct {
+// CopierProtoMapper is a reflection-based mapper for Protobuf messages and domain models.
+// P = Protobuf message (API layer), D = Domain model (biz layer).
+type CopierProtoMapper[P any, D any] struct {
 	converters []copier.TypeConverter
 	options    copier.Option
 }
 
-// NewProtoMapper 创建一个新的 ProtoMapper 实例
-// 默认注册 timestamppb 转换器
-func NewProtoMapper[P any, D any]() *ProtoMapper[P, D] {
-	m := &ProtoMapper[P, D]{
+// NewCopierProtoMapper creates a new CopierProtoMapper with default timestamp converters.
+func NewCopierProtoMapper[P any, D any]() *CopierProtoMapper[P, D] {
+	m := &CopierProtoMapper[P, D]{
 		converters: make([]copier.TypeConverter, 0),
 		options: copier.Option{
 			IgnoreEmpty: false,
 			DeepCopy:    true,
 		},
 	}
-	// 默认注册 protobuf 常用转换器
 	m.converters = append(m.converters, NewTimestamppbConverterPair()...)
 	m.converters = append(m.converters, NewStringPointerConverterPair()...)
 	m.converters = append(m.converters, NewInt64PointerConverterPair()...)
 	return m
 }
 
-// RegisterConverter 注册单个类型转换器
-func (m *ProtoMapper[P, D]) RegisterConverter(converter copier.TypeConverter) *ProtoMapper[P, D] {
+func (m *CopierProtoMapper[P, D]) RegisterConverter(converter copier.TypeConverter) *CopierProtoMapper[P, D] {
 	m.converters = append(m.converters, converter)
 	return m
 }
 
-// RegisterConverters 批量注册类型转换器
-func (m *ProtoMapper[P, D]) RegisterConverters(converters []copier.TypeConverter) *ProtoMapper[P, D] {
+func (m *CopierProtoMapper[P, D]) RegisterConverters(converters []copier.TypeConverter) *CopierProtoMapper[P, D] {
 	m.converters = append(m.converters, converters...)
 	return m
 }
 
-// ToDomain 将 Protobuf 消息转换为领域模型
-func (m *ProtoMapper[P, D]) ToDomain(proto *P) *D {
+func (m *CopierProtoMapper[P, D]) ToDomain(proto *P) *D {
 	if proto == nil {
 		return nil
 	}
@@ -55,8 +49,7 @@ func (m *ProtoMapper[P, D]) ToDomain(proto *P) *D {
 	return &domain
 }
 
-// ToProto 将领域模型转换为 Protobuf 消息
-func (m *ProtoMapper[P, D]) ToProto(domain *D) *P {
+func (m *CopierProtoMapper[P, D]) ToProto(domain *D) *P {
 	if domain == nil {
 		return nil
 	}
@@ -69,8 +62,7 @@ func (m *ProtoMapper[P, D]) ToProto(domain *D) *P {
 	return &proto
 }
 
-// ToDomainList 批量转换 Protobuf 消息为领域模型
-func (m *ProtoMapper[P, D]) ToDomainList(protos []*P) []*D {
+func (m *CopierProtoMapper[P, D]) ToDomainList(protos []*P) []*D {
 	if len(protos) == 0 {
 		return nil
 	}
@@ -83,8 +75,7 @@ func (m *ProtoMapper[P, D]) ToDomainList(protos []*P) []*D {
 	return domains
 }
 
-// ToProtoList 批量转换领域模型为 Protobuf 消息
-func (m *ProtoMapper[P, D]) ToProtoList(domains []*D) []*P {
+func (m *CopierProtoMapper[P, D]) ToProtoList(domains []*D) []*P {
 	if len(domains) == 0 {
 		return nil
 	}

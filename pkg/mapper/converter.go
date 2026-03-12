@@ -15,7 +15,7 @@ func NewTimeConverterPair() []copier.TypeConverter {
 		{
 			SrcType: time.Time{},
 			DstType: (*time.Time)(nil),
-			Fn: func(src interface{}) (interface{}, error) {
+			Fn: func(src any) (any, error) {
 				t := src.(time.Time)
 				if t.IsZero() {
 					return nil, nil
@@ -27,7 +27,7 @@ func NewTimeConverterPair() []copier.TypeConverter {
 		{
 			SrcType: (*time.Time)(nil),
 			DstType: time.Time{},
-			Fn: func(src interface{}) (interface{}, error) {
+			Fn: func(src any) (any, error) {
 				if src == nil {
 					return time.Time{}, nil
 				}
@@ -49,7 +49,7 @@ func NewTimestamppbConverterPair() []copier.TypeConverter {
 		{
 			SrcType: time.Time{},
 			DstType: (*timestamppb.Timestamp)(nil),
-			Fn: func(src interface{}) (interface{}, error) {
+			Fn: func(src any) (any, error) {
 				t := src.(time.Time)
 				if t.IsZero() {
 					return nil, nil
@@ -61,7 +61,7 @@ func NewTimestamppbConverterPair() []copier.TypeConverter {
 		{
 			SrcType: (*timestamppb.Timestamp)(nil),
 			DstType: time.Time{},
-			Fn: func(src interface{}) (interface{}, error) {
+			Fn: func(src any) (any, error) {
 				if src == nil {
 					return time.Time{}, nil
 				}
@@ -82,7 +82,7 @@ func NewStringPointerConverterPair() []copier.TypeConverter {
 		{
 			SrcType: "",
 			DstType: (*string)(nil),
-			Fn: func(src interface{}) (interface{}, error) {
+			Fn: func(src any) (any, error) {
 				s := src.(string)
 				if s == "" {
 					return nil, nil
@@ -94,7 +94,7 @@ func NewStringPointerConverterPair() []copier.TypeConverter {
 		{
 			SrcType: (*string)(nil),
 			DstType: "",
-			Fn: func(src interface{}) (interface{}, error) {
+			Fn: func(src any) (any, error) {
 				if src == nil {
 					return "", nil
 				}
@@ -115,7 +115,7 @@ func NewInt64PointerConverterPair() []copier.TypeConverter {
 		{
 			SrcType: int64(0),
 			DstType: (*int64)(nil),
-			Fn: func(src interface{}) (interface{}, error) {
+			Fn: func(src any) (any, error) {
 				i := src.(int64)
 				return &i, nil
 			},
@@ -124,7 +124,7 @@ func NewInt64PointerConverterPair() []copier.TypeConverter {
 		{
 			SrcType: (*int64)(nil),
 			DstType: int64(0),
-			Fn: func(src interface{}) (interface{}, error) {
+			Fn: func(src any) (any, error) {
 				if src == nil {
 					return int64(0), nil
 				}
@@ -193,7 +193,7 @@ func (c *EnumConverter[DTO, Entity]) NewConverterPair() []copier.TypeConverter {
 		{
 			SrcType: entityZero,
 			DstType: dtoZero,
-			Fn: func(src interface{}) (interface{}, error) {
+			Fn: func(src any) (any, error) {
 				entity := src.(Entity)
 				if val, ok := c.valueMap[string(entity)]; ok {
 					return DTO(val), nil
@@ -205,7 +205,7 @@ func (c *EnumConverter[DTO, Entity]) NewConverterPair() []copier.TypeConverter {
 		{
 			SrcType: dtoZero,
 			DstType: entityZero,
-			Fn: func(src interface{}) (interface{}, error) {
+			Fn: func(src any) (any, error) {
 				dto := src.(DTO)
 				if name, ok := c.nameMap[int32(dto)]; ok {
 					return Entity(name), nil
@@ -228,7 +228,7 @@ func NewGenericConverterPair[A any, B any](
 		{
 			SrcType: aZero,
 			DstType: bZero,
-			Fn: func(src interface{}) (interface{}, error) {
+			Fn: func(src any) (any, error) {
 				a := src.(A)
 				return aToB(a)
 			},
@@ -236,7 +236,7 @@ func NewGenericConverterPair[A any, B any](
 		{
 			SrcType: bZero,
 			DstType: aZero,
-			Fn: func(src interface{}) (interface{}, error) {
+			Fn: func(src any) (any, error) {
 				b := src.(B)
 				return bToA(b)
 			},
@@ -268,8 +268,8 @@ func Val[T any](p *T) T {
 	return *p
 }
 
-// IsNil 检查 interface{} 是否为 nil（包括值为 nil 的指针）
-func IsNil(v interface{}) bool {
+// IsNil 检查 any 是否为 nil（包括值为 nil 的指针）
+func IsNil(v any) bool {
 	if v == nil {
 		return true
 	}
