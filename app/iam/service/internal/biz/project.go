@@ -19,6 +19,9 @@ type ProjectRepo interface {
 	ListByOrgID(ctx context.Context, orgID string, page, pageSize int32) ([]*entity.Project, int64, error)
 	Update(ctx context.Context, p *entity.Project) (*entity.Project, error)
 	Delete(ctx context.Context, id string) error
+	Purge(ctx context.Context, id string) error
+	Restore(ctx context.Context, id string) (*entity.Project, error)
+	GetByIDIncludingDeleted(ctx context.Context, id string) (*entity.Project, error)
 	AddMember(ctx context.Context, m *entity.ProjectMember) (*entity.ProjectMember, error)
 	RemoveMember(ctx context.Context, projID, userID string) error
 	ListMembers(ctx context.Context, projID string, page, pageSize int32) ([]*entity.ProjectMember, int64, error)
@@ -153,6 +156,19 @@ func (uc *ProjectUsecase) Update(ctx context.Context, p *entity.Project) (*entit
 }
 
 func (uc *ProjectUsecase) Delete(ctx context.Context, id string) error {
+	if _, err := uc.repo.GetByID(ctx, id); err != nil {
+		if dataent.IsNotFound(err) {
+			return projectpb.ErrorProjectNotFound("project %s not found", id)
+		}
+		return projectpb.ErrorProjectDeleteFailed("get: %v", err)
+	}
+	if err := uc.repo.Delete(ctx, id); err != nil {
+		return projectpb.ErrorProjectDeleteFailed("soft delete: %v", err)
+	}
+	return nil
+}
+
+func (uc *ProjectUsecase) Purge(ctx context.Context, id string) error {
 	proj, err := uc.repo.GetByID(ctx, id)
 	if err != nil {
 		if dataent.IsNotFound(err) {
@@ -181,10 +197,20 @@ func (uc *ProjectUsecase) Delete(ctx context.Context, id string) error {
 		uc.log.Warnf("delete project members: %v", err)
 	}
 
-	if err := uc.repo.Delete(ctx, id); err != nil {
+	if err := uc.repo.Purge(ctx, id); err != nil {
 		return projectpb.ErrorProjectDeleteFailed("delete: %v", err)
 	}
 	return nil
+}
+
+func (uc *ProjectUsecase) Restore(ctx context.Context, id string) (*entity.Project, error) {
+	if _, err := uc.repo.GetByIDIncludingDeleted(ctx, id); err != nil {
+		if dataent.IsNotFound(err) {
+			return nil, projectpb.ErrorProjectNotFound("project %s not found", id)
+		}
+		return nil, err
+	}
+	return uc.repo.Restore(ctx, id)
 }
 
 func (uc *ProjectUsecase) AddMember(ctx context.Context, m *entity.ProjectMember) (*entity.ProjectMember, error) {

@@ -23,6 +23,9 @@ type OrganizationRepo interface {
 	ListByUserID(ctx context.Context, userID string, page, pageSize int32) ([]*entity.Organization, int64, error)
 	Update(ctx context.Context, org *entity.Organization) (*entity.Organization, error)
 	Delete(ctx context.Context, id string) error
+	Purge(ctx context.Context, id string) error
+	Restore(ctx context.Context, id string) (*entity.Organization, error)
+	GetByIDIncludingDeleted(ctx context.Context, id string) (*entity.Organization, error)
 	AddMember(ctx context.Context, m *entity.OrganizationMember) (*entity.OrganizationMember, error)
 	RemoveMember(ctx context.Context, orgID, userID string) error
 	ListMembers(ctx context.Context, orgID string, page, pageSize int32) ([]*entity.OrganizationMember, int64, error)
@@ -173,8 +176,20 @@ func (uc *OrganizationUsecase) Delete(ctx context.Context, id string) error {
 		}
 		return orgpb.ErrorOrganizationDeleteFailed("get: %v", err)
 	}
+	if err := uc.repo.Delete(ctx, id); err != nil {
+		return orgpb.ErrorOrganizationDeleteFailed("soft delete: %v", err)
+	}
+	return nil
+}
 
-	// Cascade: delete child projects (each handles its own FGA cleanup)
+func (uc *OrganizationUsecase) Purge(ctx context.Context, id string) error {
+	if _, err := uc.repo.GetByID(ctx, id); err != nil {
+		if dataent.IsNotFound(err) {
+			return orgpb.ErrorOrganizationNotFound("organization %s not found", id)
+		}
+		return orgpb.ErrorOrganizationDeleteFailed("get: %v", err)
+	}
+
 	projects, err := uc.projRepo.ListAllByOrgID(ctx, id)
 	if err == nil {
 		for _, p := range projects {
@@ -182,7 +197,6 @@ func (uc *OrganizationUsecase) Delete(ctx context.Context, id string) error {
 		}
 	}
 
-	// Clean up organization member FGA tuples
 	members, _ := uc.repo.ListAllMembers(ctx, id)
 	if uc.fga != nil && len(members) > 0 {
 		var tuples []openfga.Tuple
@@ -204,10 +218,20 @@ func (uc *OrganizationUsecase) Delete(ctx context.Context, id string) error {
 		uc.log.Warnf("delete org members: %v", err)
 	}
 
-	if err := uc.repo.Delete(ctx, id); err != nil {
+	if err := uc.repo.Purge(ctx, id); err != nil {
 		return orgpb.ErrorOrganizationDeleteFailed("delete: %v", err)
 	}
 	return nil
+}
+
+func (uc *OrganizationUsecase) Restore(ctx context.Context, id string) (*entity.Organization, error) {
+	if _, err := uc.repo.GetByIDIncludingDeleted(ctx, id); err != nil {
+		if dataent.IsNotFound(err) {
+			return nil, orgpb.ErrorOrganizationNotFound("organization %s not found", id)
+		}
+		return nil, err
+	}
+	return uc.repo.Restore(ctx, id)
 }
 
 // deleteProjectCascade handles FGA + member cleanup for a single project during org cascade delete.
@@ -230,7 +254,7 @@ func (uc *OrganizationUsecase) deleteProjectCascade(ctx context.Context, proj *e
 	if _, err := uc.projRepo.DeleteAllMembers(ctx, proj.ID); err != nil {
 		uc.log.Warnf("cascade delete project %s members: %v", proj.ID, err)
 	}
-	if err := uc.projRepo.Delete(ctx, proj.ID); err != nil {
+	if err := uc.projRepo.Purge(ctx, proj.ID); err != nil {
 		uc.log.Warnf("cascade delete project %s: %v", proj.ID, err)
 	}
 }

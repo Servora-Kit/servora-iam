@@ -75,6 +75,21 @@ func (s *ProjectService) DeleteProject(ctx context.Context, req *projectpb.Delet
 	return &projectpb.DeleteProjectResponse{Success: true}, nil
 }
 
+func (s *ProjectService) PurgeProject(ctx context.Context, req *projectpb.PurgeProjectRequest) (*projectpb.PurgeProjectResponse, error) {
+	if err := s.uc.Purge(ctx, req.Id); err != nil {
+		return nil, err
+	}
+	return &projectpb.PurgeProjectResponse{Success: true}, nil
+}
+
+func (s *ProjectService) RestoreProject(ctx context.Context, req *projectpb.RestoreProjectRequest) (*projectpb.RestoreProjectResponse, error) {
+	p, err := s.uc.Restore(ctx, req.Id)
+	if err != nil {
+		return nil, err
+	}
+	return &projectpb.RestoreProjectResponse{Project: projectToProto(p)}, nil
+}
+
 func (s *ProjectService) AddMember(ctx context.Context, req *projectpb.AddMemberRequest) (*projectpb.AddMemberResponse, error) {
 	m, err := s.uc.AddMember(ctx, &entity.ProjectMember{
 		ProjectID: req.ProjectId,

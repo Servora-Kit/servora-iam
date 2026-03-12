@@ -124,3 +124,24 @@ func (s *UserService) DeleteUser(ctx context.Context, req *userpb.DeleteUserRequ
 	}
 	return &userpb.DeleteUserResponse{Success: success}, err
 }
+
+func (s *UserService) PurgeUser(ctx context.Context, req *userpb.PurgeUserRequest) (*userpb.PurgeUserResponse, error) {
+	success, err := s.uc.PurgeUser(ctx, &entity.User{ID: req.Id})
+	if err != nil {
+		return nil, err
+	}
+	return &userpb.PurgeUserResponse{Success: success}, nil
+}
+
+func (s *UserService) RestoreUser(ctx context.Context, req *userpb.RestoreUserRequest) (*userpb.RestoreUserResponse, error) {
+	u, err := s.uc.RestoreUser(ctx, req.Id)
+	if err != nil {
+		return nil, err
+	}
+	return &userpb.RestoreUserResponse{User: &userpb.UserInfo{
+		Id:    u.ID,
+		Name:  u.Name,
+		Email: u.Email,
+		Role:  u.Role,
+	}}, nil
+}

@@ -3,6 +3,7 @@ package data
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
@@ -61,7 +62,7 @@ func (r *userRepo) GetUserById(ctx context.Context, id string) (*entity.User, er
 	if err != nil {
 		return nil, fmt.Errorf("invalid user ID: %w", err)
 	}
-	entUser, err := r.data.entClient.User.Query().Where(user.IDEQ(uid)).Only(ctx)
+	entUser, err := r.data.entClient.User.Query().Where(user.IDEQ(uid)).Where(user.DeletedAtIsNil()).Only(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -73,11 +74,51 @@ func (r *userRepo) DeleteUser(ctx context.Context, u *entity.User) (*entity.User
 	if err != nil {
 		return nil, fmt.Errorf("invalid user ID: %w", err)
 	}
+	err = r.data.entClient.User.UpdateOneID(uid).
+		SetDeletedAt(time.Now()).
+		Exec(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return u, nil
+}
+
+func (r *userRepo) PurgeUser(ctx context.Context, u *entity.User) (*entity.User, error) {
+	uid, err := uuid.Parse(u.ID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid user ID: %w", err)
+	}
 	err = r.data.entClient.User.DeleteOneID(uid).Exec(ctx)
 	if err != nil {
 		return nil, err
 	}
 	return u, nil
+}
+
+func (r *userRepo) RestoreUser(ctx context.Context, id string) (*entity.User, error) {
+	uid, err := uuid.Parse(id)
+	if err != nil {
+		return nil, fmt.Errorf("invalid user ID: %w", err)
+	}
+	u, err := r.data.entClient.User.UpdateOneID(uid).
+		ClearDeletedAt().
+		Save(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return entUserToEntity(u), nil
+}
+
+func (r *userRepo) GetUserByIdIncludingDeleted(ctx context.Context, id string) (*entity.User, error) {
+	uid, err := uuid.Parse(id)
+	if err != nil {
+		return nil, fmt.Errorf("invalid user ID: %w", err)
+	}
+	entUser, err := r.data.entClient.User.Query().Where(user.IDEQ(uid)).Only(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return entUserToEntity(entUser), nil
 }
 
 func (r *userRepo) UpdateUser(ctx context.Context, u *entity.User) (*entity.User, error) {
@@ -108,7 +149,7 @@ func (r *userRepo) ListUsers(ctx context.Context, page int32, pageSize int32) ([
 	offset := int((page - 1) * pageSize)
 	limit := int(pageSize)
 
-	query := r.data.entClient.User.Query().Order(user.ByID(sql.OrderDesc()))
+	query := r.data.entClient.User.Query().Where(user.DeletedAtIsNil()).Order(user.ByID(sql.OrderDesc()))
 	total, err := query.Clone().Count(ctx)
 	if err != nil {
 		return nil, 0, err

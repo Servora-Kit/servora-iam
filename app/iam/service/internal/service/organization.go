@@ -76,6 +76,21 @@ func (s *OrganizationService) DeleteOrganization(ctx context.Context, req *orgpb
 	return &orgpb.DeleteOrganizationResponse{Success: true}, nil
 }
 
+func (s *OrganizationService) PurgeOrganization(ctx context.Context, req *orgpb.PurgeOrganizationRequest) (*orgpb.PurgeOrganizationResponse, error) {
+	if err := s.uc.Purge(ctx, req.Id); err != nil {
+		return nil, err
+	}
+	return &orgpb.PurgeOrganizationResponse{Success: true}, nil
+}
+
+func (s *OrganizationService) RestoreOrganization(ctx context.Context, req *orgpb.RestoreOrganizationRequest) (*orgpb.RestoreOrganizationResponse, error) {
+	org, err := s.uc.Restore(ctx, req.Id)
+	if err != nil {
+		return nil, err
+	}
+	return &orgpb.RestoreOrganizationResponse{Organization: orgToProto(org)}, nil
+}
+
 func (s *OrganizationService) AddMember(ctx context.Context, req *orgpb.AddMemberRequest) (*orgpb.AddMemberResponse, error) {
 	m, err := s.uc.AddMember(ctx, &entity.OrganizationMember{
 		OrganizationID: req.OrganizationId,

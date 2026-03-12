@@ -3,6 +3,7 @@ package data
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
@@ -54,6 +55,7 @@ func (r *projectRepo) GetByID(ctx context.Context, id string) (*entity.Project, 
 	}
 	p, err := r.data.entClient.Project.Query().
 		Where(project.IDEQ(uid)).
+		Where(project.DeletedAtIsNil()).
 		Only(ctx)
 	if err != nil {
 		return nil, err
@@ -71,6 +73,7 @@ func (r *projectRepo) GetByIDs(ctx context.Context, ids []string, page, pageSize
 
 	query := r.data.entClient.Project.Query().
 		Where(project.IDIn(uuids...)).
+		Where(project.DeletedAtIsNil()).
 		Order(project.ByCreatedAt(sql.OrderDesc()))
 
 	total, err := query.Clone().Count(ctx)
@@ -98,6 +101,7 @@ func (r *projectRepo) ListByOrgID(ctx context.Context, orgID string, page, pageS
 	}
 	query := r.data.entClient.Project.Query().
 		Where(project.OrganizationIDEQ(oid)).
+		Where(project.DeletedAtIsNil()).
 		Order(project.ByCreatedAt(sql.OrderDesc()))
 
 	total, err := query.Clone().Count(ctx)
@@ -142,7 +146,45 @@ func (r *projectRepo) Delete(ctx context.Context, id string) error {
 	if err != nil {
 		return fmt.Errorf("invalid project ID: %w", err)
 	}
+	return r.data.entClient.Project.UpdateOneID(uid).
+		SetDeletedAt(time.Now()).
+		Exec(ctx)
+}
+
+func (r *projectRepo) Purge(ctx context.Context, id string) error {
+	uid, err := uuid.Parse(id)
+	if err != nil {
+		return fmt.Errorf("invalid project ID: %w", err)
+	}
 	return r.data.entClient.Project.DeleteOneID(uid).Exec(ctx)
+}
+
+func (r *projectRepo) Restore(ctx context.Context, id string) (*entity.Project, error) {
+	uid, err := uuid.Parse(id)
+	if err != nil {
+		return nil, fmt.Errorf("invalid project ID: %w", err)
+	}
+	p, err := r.data.entClient.Project.UpdateOneID(uid).
+		ClearDeletedAt().
+		Save(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return entProjectToEntity(p), nil
+}
+
+func (r *projectRepo) GetByIDIncludingDeleted(ctx context.Context, id string) (*entity.Project, error) {
+	uid, err := uuid.Parse(id)
+	if err != nil {
+		return nil, fmt.Errorf("invalid project ID: %w", err)
+	}
+	p, err := r.data.entClient.Project.Query().
+		Where(project.IDEQ(uid)).
+		Only(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return entProjectToEntity(p), nil
 }
 
 func (r *projectRepo) AddMember(ctx context.Context, m *entity.ProjectMember) (*entity.ProjectMember, error) {
@@ -314,7 +356,9 @@ func (r *projectRepo) ListAllByOrgID(ctx context.Context, orgID string) ([]*enti
 		return nil, fmt.Errorf("invalid organization ID: %w", err)
 	}
 	projects, err := r.data.entClient.Project.Query().
-		Where(project.OrganizationIDEQ(oid)).All(ctx)
+		Where(project.OrganizationIDEQ(oid)).
+		Where(project.DeletedAtIsNil()).
+		All(ctx)
 	if err != nil {
 		return nil, err
 	}

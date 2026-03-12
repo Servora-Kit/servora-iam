@@ -3,6 +3,7 @@ package data
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
@@ -54,6 +55,7 @@ func (r *organizationRepo) GetByID(ctx context.Context, id string) (*entity.Orga
 	}
 	org, err := r.data.entClient.Organization.Query().
 		Where(organization.IDEQ(uid)).
+		Where(organization.DeletedAtIsNil()).
 		Only(ctx)
 	if err != nil {
 		return nil, err
@@ -64,6 +66,7 @@ func (r *organizationRepo) GetByID(ctx context.Context, id string) (*entity.Orga
 func (r *organizationRepo) GetBySlug(ctx context.Context, slug string) (*entity.Organization, error) {
 	org, err := r.data.entClient.Organization.Query().
 		Where(organization.SlugEQ(slug)).
+		Where(organization.DeletedAtIsNil()).
 		Only(ctx)
 	if err != nil {
 		return nil, err
@@ -81,6 +84,7 @@ func (r *organizationRepo) GetByIDs(ctx context.Context, ids []string, page, pag
 
 	query := r.data.entClient.Organization.Query().
 		Where(organization.IDIn(uuids...)).
+		Where(organization.DeletedAtIsNil()).
 		Order(organization.ByCreatedAt(sql.OrderDesc()))
 
 	total, err := query.Clone().Count(ctx)
@@ -124,6 +128,7 @@ func (r *organizationRepo) ListByUserID(ctx context.Context, userID string, page
 
 	query := r.data.entClient.Organization.Query().
 		Where(organization.IDIn(orgUUIDs...)).
+		Where(organization.DeletedAtIsNil()).
 		Order(organization.ByCreatedAt(sql.OrderDesc()))
 
 	total, err := query.Clone().Count(ctx)
@@ -168,7 +173,45 @@ func (r *organizationRepo) Delete(ctx context.Context, id string) error {
 	if err != nil {
 		return fmt.Errorf("invalid organization ID: %w", err)
 	}
+	return r.data.entClient.Organization.UpdateOneID(uid).
+		SetDeletedAt(time.Now()).
+		Exec(ctx)
+}
+
+func (r *organizationRepo) Purge(ctx context.Context, id string) error {
+	uid, err := uuid.Parse(id)
+	if err != nil {
+		return fmt.Errorf("invalid organization ID: %w", err)
+	}
 	return r.data.entClient.Organization.DeleteOneID(uid).Exec(ctx)
+}
+
+func (r *organizationRepo) Restore(ctx context.Context, id string) (*entity.Organization, error) {
+	uid, err := uuid.Parse(id)
+	if err != nil {
+		return nil, fmt.Errorf("invalid organization ID: %w", err)
+	}
+	org, err := r.data.entClient.Organization.UpdateOneID(uid).
+		ClearDeletedAt().
+		Save(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return entOrgToEntity(org), nil
+}
+
+func (r *organizationRepo) GetByIDIncludingDeleted(ctx context.Context, id string) (*entity.Organization, error) {
+	uid, err := uuid.Parse(id)
+	if err != nil {
+		return nil, fmt.Errorf("invalid organization ID: %w", err)
+	}
+	org, err := r.data.entClient.Organization.Query().
+		Where(organization.IDEQ(uid)).
+		Only(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return entOrgToEntity(org), nil
 }
 
 func (r *organizationRepo) AddMember(ctx context.Context, m *entity.OrganizationMember) (*entity.OrganizationMember, error) {

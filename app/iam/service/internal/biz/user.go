@@ -17,6 +17,9 @@ type UserRepo interface {
 	SaveUser(context.Context, *entity.User) (*entity.User, error)
 	GetUserById(context.Context, string) (*entity.User, error)
 	DeleteUser(context.Context, *entity.User) (*entity.User, error)
+	PurgeUser(context.Context, *entity.User) (*entity.User, error)
+	RestoreUser(context.Context, string) (*entity.User, error)
+	GetUserByIdIncludingDeleted(context.Context, string) (*entity.User, error)
 	UpdateUser(context.Context, *entity.User) (*entity.User, error)
 	ListUsers(context.Context, int32, int32) ([]*entity.User, int64, error)
 }
@@ -143,8 +146,17 @@ func (uc *UserUsecase) ListUsers(ctx context.Context, pagination *paginationpb.P
 	}, nil
 }
 
-func (uc *UserUsecase) DeleteUser(ctx context.Context, user *entity.User) (success bool, err error) {
-	// Clean up organization memberships + FGA tuples
+func (uc *UserUsecase) DeleteUser(ctx context.Context, user *entity.User) (bool, error) {
+	if _, err := uc.repo.GetUserById(ctx, user.ID); err != nil {
+		return false, userpb.ErrorUserNotFound("user not found")
+	}
+	if _, err := uc.repo.DeleteUser(ctx, user); err != nil {
+		return false, userpb.ErrorDeleteUserFailed("soft delete: %v", err)
+	}
+	return true, nil
+}
+
+func (uc *UserUsecase) PurgeUser(ctx context.Context, user *entity.User) (bool, error) {
 	orgMemberships, _ := uc.orgRepo.ListMembershipsByUserID(ctx, user.ID)
 	if uc.fga != nil && len(orgMemberships) > 0 {
 		var tuples []openfga.Tuple
@@ -162,7 +174,6 @@ func (uc *UserUsecase) DeleteUser(ctx context.Context, user *entity.User) (succe
 		uc.log.Warnf("delete user org memberships: %v", err)
 	}
 
-	// Clean up project memberships + FGA tuples
 	projMemberships, _ := uc.projRepo.ListMembershipsByUserID(ctx, user.ID)
 	if uc.fga != nil && len(projMemberships) > 0 {
 		var tuples []openfga.Tuple
@@ -179,22 +190,27 @@ func (uc *UserUsecase) DeleteUser(ctx context.Context, user *entity.User) (succe
 		uc.log.Warnf("delete user project memberships: %v", err)
 	}
 
-	// Clean up platform admin FGA tuple (if the user was a platform admin)
 	if uc.fga != nil && uc.platID != "" {
 		_ = uc.fga.DeleteTuples(ctx,
 			openfga.Tuple{User: "user:" + user.ID, Relation: "admin", Object: "platform:" + uc.platID},
 		)
 	}
 
-	// Delete refresh tokens
 	if err := uc.authRepo.DeleteUserRefreshTokens(ctx, user.ID); err != nil {
 		uc.log.Warnf("delete user refresh tokens: %v", err)
 	}
 
-	if _, err := uc.repo.DeleteUser(ctx, user); err != nil {
+	if _, err := uc.repo.PurgeUser(ctx, user); err != nil {
 		return false, userpb.ErrorDeleteUserFailed("failed to delete user: %v", err)
 	}
 	return true, nil
+}
+
+func (uc *UserUsecase) RestoreUser(ctx context.Context, id string) (*entity.User, error) {
+	if _, err := uc.repo.GetUserByIdIncludingDeleted(ctx, id); err != nil {
+		return nil, userpb.ErrorUserNotFound("user not found")
+	}
+	return uc.repo.RestoreUser(ctx, id)
 }
 
 func (uc *UserUsecase) checkUserExists(ctx context.Context, user *entity.User) error {
