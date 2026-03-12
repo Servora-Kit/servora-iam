@@ -555,6 +555,194 @@ func (x *LogoutResponse) GetSuccess() bool {
 	return false
 }
 
+// 修改密码请求
+type ChangePasswordRequest struct {
+	state              protoimpl.MessageState `protogen:"open.v1"`
+	CurrentPassword    string                 `protobuf:"bytes,1,opt,name=current_password,json=currentPassword,proto3" json:"current_password,omitempty"`
+	NewPassword        string                 `protobuf:"bytes,2,opt,name=new_password,json=newPassword,proto3" json:"new_password,omitempty"`
+	NewPasswordConfirm string                 `protobuf:"bytes,3,opt,name=new_password_confirm,json=newPasswordConfirm,proto3" json:"new_password_confirm,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
+}
+
+func (x *ChangePasswordRequest) Reset() {
+	*x = ChangePasswordRequest{}
+	mi := &file_auth_service_v1_auth_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ChangePasswordRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ChangePasswordRequest) ProtoMessage() {}
+
+func (x *ChangePasswordRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_auth_service_v1_auth_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ChangePasswordRequest.ProtoReflect.Descriptor instead.
+func (*ChangePasswordRequest) Descriptor() ([]byte, []int) {
+	return file_auth_service_v1_auth_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *ChangePasswordRequest) GetCurrentPassword() string {
+	if x != nil {
+		return x.CurrentPassword
+	}
+	return ""
+}
+
+func (x *ChangePasswordRequest) GetNewPassword() string {
+	if x != nil {
+		return x.NewPassword
+	}
+	return ""
+}
+
+func (x *ChangePasswordRequest) GetNewPasswordConfirm() string {
+	if x != nil {
+		return x.NewPasswordConfirm
+	}
+	return ""
+}
+
+// 修改密码响应
+type ChangePasswordResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Success       bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ChangePasswordResponse) Reset() {
+	*x = ChangePasswordResponse{}
+	mi := &file_auth_service_v1_auth_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ChangePasswordResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ChangePasswordResponse) ProtoMessage() {}
+
+func (x *ChangePasswordResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_auth_service_v1_auth_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ChangePasswordResponse.ProtoReflect.Descriptor instead.
+func (*ChangePasswordResponse) Descriptor() ([]byte, []int) {
+	return file_auth_service_v1_auth_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *ChangePasswordResponse) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
+// 全设备退出请求
+type LogoutAllDevicesRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *LogoutAllDevicesRequest) Reset() {
+	*x = LogoutAllDevicesRequest{}
+	mi := &file_auth_service_v1_auth_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LogoutAllDevicesRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LogoutAllDevicesRequest) ProtoMessage() {}
+
+func (x *LogoutAllDevicesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_auth_service_v1_auth_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LogoutAllDevicesRequest.ProtoReflect.Descriptor instead.
+func (*LogoutAllDevicesRequest) Descriptor() ([]byte, []int) {
+	return file_auth_service_v1_auth_proto_rawDescGZIP(), []int{10}
+}
+
+// 全设备退出响应
+type LogoutAllDevicesResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Success       bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *LogoutAllDevicesResponse) Reset() {
+	*x = LogoutAllDevicesResponse{}
+	mi := &file_auth_service_v1_auth_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LogoutAllDevicesResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LogoutAllDevicesResponse) ProtoMessage() {}
+
+func (x *LogoutAllDevicesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_auth_service_v1_auth_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LogoutAllDevicesResponse.ProtoReflect.Descriptor instead.
+func (*LogoutAllDevicesResponse) Descriptor() ([]byte, []int) {
+	return file_auth_service_v1_auth_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *LogoutAllDevicesResponse) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
 var File_auth_service_v1_auth_proto protoreflect.FileDescriptor
 
 const file_auth_service_v1_auth_proto_rawDesc = "" +
@@ -591,6 +779,17 @@ const file_auth_service_v1_auth_proto_rawDesc = "" +
 	"\rLogoutRequest\x12,\n" +
 	"\rrefresh_token\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\frefreshToken\"*\n" +
 	"\x0eLogoutResponse\x12\x18\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess\"\xb6\x01\n" +
+	"\x15ChangePasswordRequest\x122\n" +
+	"\x10current_password\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x0fcurrentPassword\x12,\n" +
+	"\fnew_password\x18\x02 \x01(\tB\t\xbaH\x06r\x04\x10\x05\x18\n" +
+	"R\vnewPassword\x12;\n" +
+	"\x14new_password_confirm\x18\x03 \x01(\tB\t\xbaH\x06r\x04\x10\x05\x18\n" +
+	"R\x12newPasswordConfirm\"2\n" +
+	"\x16ChangePasswordResponse\x12\x18\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess\"\x19\n" +
+	"\x17LogoutAllDevicesRequest\"4\n" +
+	"\x18LogoutAllDevicesResponse\x12\x18\n" +
 	"\asuccess\x18\x01 \x01(\bR\asuccess*\xb5\x02\n" +
 	"\vErrorReason\x12\x18\n" +
 	"\x0eUSER_NOT_FOUND\x10\x00\x1a\x04\xa8E\x94\x03\x12\x1d\n" +
@@ -602,12 +801,14 @@ const file_auth_service_v1_auth_proto_rawDesc = "" +
 	"\rMISSING_TOKEN\x10\x06\x1a\x04\xa8E\x91\x03\x12!\n" +
 	"\x17TOKEN_GENERATION_FAILED\x10\a\x1a\x04\xa8E\xf4\x03\x12\x16\n" +
 	"\fUNAUTHORIZED\x10\b\x1a\x04\xa8E\x93\x03\x12\x1f\n" +
-	"\x15INVALID_REFRESH_TOKEN\x10\t\x1a\x04\xa8E\x91\x03\x1a\x04\xa0E\xf4\x032\x8a\x03\n" +
+	"\x15INVALID_REFRESH_TOKEN\x10\t\x1a\x04\xa8E\x91\x03\x1a\x04\xa0E\xf4\x032\xd6\x04\n" +
 	"\vAuthService\x12^\n" +
 	"\rSignupByEmail\x12%.auth.service.v1.SignupByEmailRequest\x1a&.auth.service.v1.SignupByEmailResponse\x12s\n" +
 	"\x14LoginByEmailPassword\x12,.auth.service.v1.LoginByEmailPasswordRequest\x1a-.auth.service.v1.LoginByEmailPasswordResponse\x12[\n" +
 	"\fRefreshToken\x12$.auth.service.v1.RefreshTokenRequest\x1a%.auth.service.v1.RefreshTokenResponse\x12I\n" +
-	"\x06Logout\x12\x1e.auth.service.v1.LogoutRequest\x1a\x1f.auth.service.v1.LogoutResponseB\xc0\x01\n" +
+	"\x06Logout\x12\x1e.auth.service.v1.LogoutRequest\x1a\x1f.auth.service.v1.LogoutResponse\x12a\n" +
+	"\x0eChangePassword\x12&.auth.service.v1.ChangePasswordRequest\x1a'.auth.service.v1.ChangePasswordResponse\x12g\n" +
+	"\x10LogoutAllDevices\x12(.auth.service.v1.LogoutAllDevicesRequest\x1a).auth.service.v1.LogoutAllDevicesResponseB\xc0\x01\n" +
 	"\x13com.auth.service.v1B\tAuthProtoP\x01Z@github.com/Servora-Kit/servora/api/gen/go/auth/service/v1;authpb\xa2\x02\x03ASX\xaa\x02\x0fAuth.Service.V1\xca\x02\x0fAuth\\Service\\V1\xe2\x02\x1bAuth\\Service\\V1\\GPBMetadata\xea\x02\x11Auth::Service::V1b\x06proto3"
 
 var (
@@ -623,7 +824,7 @@ func file_auth_service_v1_auth_proto_rawDescGZIP() []byte {
 }
 
 var file_auth_service_v1_auth_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_auth_service_v1_auth_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+var file_auth_service_v1_auth_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
 var file_auth_service_v1_auth_proto_goTypes = []any{
 	(ErrorReason)(0),                     // 0: auth.service.v1.ErrorReason
 	(*SignupByEmailRequest)(nil),         // 1: auth.service.v1.SignupByEmailRequest
@@ -634,21 +835,29 @@ var file_auth_service_v1_auth_proto_goTypes = []any{
 	(*RefreshTokenResponse)(nil),         // 6: auth.service.v1.RefreshTokenResponse
 	(*LogoutRequest)(nil),                // 7: auth.service.v1.LogoutRequest
 	(*LogoutResponse)(nil),               // 8: auth.service.v1.LogoutResponse
+	(*ChangePasswordRequest)(nil),        // 9: auth.service.v1.ChangePasswordRequest
+	(*ChangePasswordResponse)(nil),       // 10: auth.service.v1.ChangePasswordResponse
+	(*LogoutAllDevicesRequest)(nil),      // 11: auth.service.v1.LogoutAllDevicesRequest
+	(*LogoutAllDevicesResponse)(nil),     // 12: auth.service.v1.LogoutAllDevicesResponse
 }
 var file_auth_service_v1_auth_proto_depIdxs = []int32{
-	1, // 0: auth.service.v1.AuthService.SignupByEmail:input_type -> auth.service.v1.SignupByEmailRequest
-	3, // 1: auth.service.v1.AuthService.LoginByEmailPassword:input_type -> auth.service.v1.LoginByEmailPasswordRequest
-	5, // 2: auth.service.v1.AuthService.RefreshToken:input_type -> auth.service.v1.RefreshTokenRequest
-	7, // 3: auth.service.v1.AuthService.Logout:input_type -> auth.service.v1.LogoutRequest
-	2, // 4: auth.service.v1.AuthService.SignupByEmail:output_type -> auth.service.v1.SignupByEmailResponse
-	4, // 5: auth.service.v1.AuthService.LoginByEmailPassword:output_type -> auth.service.v1.LoginByEmailPasswordResponse
-	6, // 6: auth.service.v1.AuthService.RefreshToken:output_type -> auth.service.v1.RefreshTokenResponse
-	8, // 7: auth.service.v1.AuthService.Logout:output_type -> auth.service.v1.LogoutResponse
-	4, // [4:8] is the sub-list for method output_type
-	0, // [0:4] is the sub-list for method input_type
-	0, // [0:0] is the sub-list for extension type_name
-	0, // [0:0] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+	1,  // 0: auth.service.v1.AuthService.SignupByEmail:input_type -> auth.service.v1.SignupByEmailRequest
+	3,  // 1: auth.service.v1.AuthService.LoginByEmailPassword:input_type -> auth.service.v1.LoginByEmailPasswordRequest
+	5,  // 2: auth.service.v1.AuthService.RefreshToken:input_type -> auth.service.v1.RefreshTokenRequest
+	7,  // 3: auth.service.v1.AuthService.Logout:input_type -> auth.service.v1.LogoutRequest
+	9,  // 4: auth.service.v1.AuthService.ChangePassword:input_type -> auth.service.v1.ChangePasswordRequest
+	11, // 5: auth.service.v1.AuthService.LogoutAllDevices:input_type -> auth.service.v1.LogoutAllDevicesRequest
+	2,  // 6: auth.service.v1.AuthService.SignupByEmail:output_type -> auth.service.v1.SignupByEmailResponse
+	4,  // 7: auth.service.v1.AuthService.LoginByEmailPassword:output_type -> auth.service.v1.LoginByEmailPasswordResponse
+	6,  // 8: auth.service.v1.AuthService.RefreshToken:output_type -> auth.service.v1.RefreshTokenResponse
+	8,  // 9: auth.service.v1.AuthService.Logout:output_type -> auth.service.v1.LogoutResponse
+	10, // 10: auth.service.v1.AuthService.ChangePassword:output_type -> auth.service.v1.ChangePasswordResponse
+	12, // 11: auth.service.v1.AuthService.LogoutAllDevices:output_type -> auth.service.v1.LogoutAllDevicesResponse
+	6,  // [6:12] is the sub-list for method output_type
+	0,  // [0:6] is the sub-list for method input_type
+	0,  // [0:0] is the sub-list for extension type_name
+	0,  // [0:0] is the sub-list for extension extendee
+	0,  // [0:0] is the sub-list for field type_name
 }
 
 func init() { file_auth_service_v1_auth_proto_init() }
@@ -662,7 +871,7 @@ func file_auth_service_v1_auth_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_auth_service_v1_auth_proto_rawDesc), len(file_auth_service_v1_auth_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   8,
+			NumMessages:   12,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

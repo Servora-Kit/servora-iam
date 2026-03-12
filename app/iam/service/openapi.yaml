@@ -192,6 +192,48 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/DeleteOrganizationResponse'
+    /v1/organizations/{id}/purge:
+        delete:
+            tags:
+                - OrganizationService
+            operationId: OrganizationService_PurgeOrganization
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/PurgeOrganizationResponse'
+    /v1/organizations/{id}/restore:
+        post:
+            tags:
+                - OrganizationService
+            operationId: OrganizationService_RestoreOrganization
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/RestoreOrganizationRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/RestoreOrganizationResponse'
     /v1/organizations/{organizationId}/members:
         get:
             tags:
@@ -417,6 +459,48 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/DeleteProjectResponse'
+    /v1/projects/{id}/purge:
+        delete:
+            tags:
+                - ProjectService
+            operationId: ProjectService_PurgeProject
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/PurgeProjectResponse'
+    /v1/projects/{id}/restore:
+        post:
+            tags:
+                - ProjectService
+            operationId: ProjectService_RestoreProject
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/RestoreProjectRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/RestoreProjectResponse'
     /v1/projects/{projectId}/members:
         get:
             tags:
@@ -613,6 +697,48 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/CurrentUserInfoResponse'
+    /v1/user/purge/{id}:
+        delete:
+            tags:
+                - UserService
+            operationId: UserService_PurgeUser
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/PurgeUserResponse'
+    /v1/user/restore/{id}:
+        post:
+            tags:
+                - UserService
+            operationId: UserService_RestoreUser
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/RestoreUserRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/RestoreUserResponse'
     /v1/user/save:
         post:
             tags:
@@ -733,6 +859,8 @@ components:
                 id:
                     type: string
                 name:
+                    type: string
+                email:
                     type: string
                 role:
                     type: string
@@ -941,6 +1069,21 @@ components:
                 updatedAt:
                     type: string
                     format: date-time
+        PurgeOrganizationResponse:
+            type: object
+            properties:
+                success:
+                    type: boolean
+        PurgeProjectResponse:
+            type: object
+            properties:
+                success:
+                    type: boolean
+        PurgeUserResponse:
+            type: object
+            properties:
+                success:
+                    type: boolean
         RefreshTokenRequest:
             type: object
             properties:
@@ -962,6 +1105,36 @@ components:
             properties:
                 success:
                     type: boolean
+        RestoreOrganizationRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+        RestoreOrganizationResponse:
+            type: object
+            properties:
+                organization:
+                    $ref: '#/components/schemas/OrganizationInfo'
+        RestoreProjectRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+        RestoreProjectResponse:
+            type: object
+            properties:
+                project:
+                    $ref: '#/components/schemas/ProjectInfo'
+        RestoreUserRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+        RestoreUserResponse:
+            type: object
+            properties:
+                user:
+                    $ref: '#/components/schemas/UserInfo'
         SaveUserRequest:
             type: object
             properties:
@@ -1071,8 +1244,8 @@ components:
         UpdateUserResponse:
             type: object
             properties:
-                success:
-                    type: string
+                user:
+                    $ref: '#/components/schemas/UserInfo'
         UserInfo:
             type: object
             properties:

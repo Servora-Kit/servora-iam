@@ -48,4 +48,24 @@ service AuthService {
       mode: AUTHZ_MODE_NONE
     };
   }
+
+  rpc ChangePassword(auth.service.v1.ChangePasswordRequest) returns (auth.service.v1.ChangePasswordResponse) {
+    option (google.api.http) = {
+      post: "/v1/auth/change-password"
+      body: "*"
+    };
+    option (servora.authz.v1.rule) = {
+      mode: AUTHZ_MODE_NONE
+    };
+  }
+
+  rpc LogoutAllDevices(auth.service.v1.LogoutAllDevicesRequest) returns (auth.service.v1.LogoutAllDevicesResponse) {
+    option (google.api.http) = {
+      post: "/v1/auth/logout-all"
+      body: "*"
+    };
+    option (servora.authz.v1.rule) = {
+      mode: AUTHZ_MODE_NONE
+    };
+  }
 }

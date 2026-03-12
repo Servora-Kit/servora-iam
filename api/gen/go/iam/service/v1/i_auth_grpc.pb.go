@@ -24,6 +24,8 @@ const (
 	AuthService_LoginByEmailPassword_FullMethodName = "/iam.service.v1.AuthService/LoginByEmailPassword"
 	AuthService_RefreshToken_FullMethodName         = "/iam.service.v1.AuthService/RefreshToken"
 	AuthService_Logout_FullMethodName               = "/iam.service.v1.AuthService/Logout"
+	AuthService_ChangePassword_FullMethodName       = "/iam.service.v1.AuthService/ChangePassword"
+	AuthService_LogoutAllDevices_FullMethodName     = "/iam.service.v1.AuthService/LogoutAllDevices"
 )
 
 // AuthServiceClient is the client API for AuthService service.
@@ -34,6 +36,8 @@ type AuthServiceClient interface {
 	LoginByEmailPassword(ctx context.Context, in *v1.LoginByEmailPasswordRequest, opts ...grpc.CallOption) (*v1.LoginByEmailPasswordResponse, error)
 	RefreshToken(ctx context.Context, in *v1.RefreshTokenRequest, opts ...grpc.CallOption) (*v1.RefreshTokenResponse, error)
 	Logout(ctx context.Context, in *v1.LogoutRequest, opts ...grpc.CallOption) (*v1.LogoutResponse, error)
+	ChangePassword(ctx context.Context, in *v1.ChangePasswordRequest, opts ...grpc.CallOption) (*v1.ChangePasswordResponse, error)
+	LogoutAllDevices(ctx context.Context, in *v1.LogoutAllDevicesRequest, opts ...grpc.CallOption) (*v1.LogoutAllDevicesResponse, error)
 }
 
 type authServiceClient struct {
@@ -84,6 +88,26 @@ func (c *authServiceClient) Logout(ctx context.Context, in *v1.LogoutRequest, op
 	return out, nil
 }
 
+func (c *authServiceClient) ChangePassword(ctx context.Context, in *v1.ChangePasswordRequest, opts ...grpc.CallOption) (*v1.ChangePasswordResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(v1.ChangePasswordResponse)
+	err := c.cc.Invoke(ctx, AuthService_ChangePassword_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *authServiceClient) LogoutAllDevices(ctx context.Context, in *v1.LogoutAllDevicesRequest, opts ...grpc.CallOption) (*v1.LogoutAllDevicesResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(v1.LogoutAllDevicesResponse)
+	err := c.cc.Invoke(ctx, AuthService_LogoutAllDevices_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AuthServiceServer is the server API for AuthService service.
 // All implementations must embed UnimplementedAuthServiceServer
 // for forward compatibility.
@@ -92,6 +116,8 @@ type AuthServiceServer interface {
 	LoginByEmailPassword(context.Context, *v1.LoginByEmailPasswordRequest) (*v1.LoginByEmailPasswordResponse, error)
 	RefreshToken(context.Context, *v1.RefreshTokenRequest) (*v1.RefreshTokenResponse, error)
 	Logout(context.Context, *v1.LogoutRequest) (*v1.LogoutResponse, error)
+	ChangePassword(context.Context, *v1.ChangePasswordRequest) (*v1.ChangePasswordResponse, error)
+	LogoutAllDevices(context.Context, *v1.LogoutAllDevicesRequest) (*v1.LogoutAllDevicesResponse, error)
 	mustEmbedUnimplementedAuthServiceServer()
 }
 
@@ -113,6 +139,12 @@ func (UnimplementedAuthServiceServer) RefreshToken(context.Context, *v1.RefreshT
 }
 func (UnimplementedAuthServiceServer) Logout(context.Context, *v1.LogoutRequest) (*v1.LogoutResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method Logout not implemented")
+}
+func (UnimplementedAuthServiceServer) ChangePassword(context.Context, *v1.ChangePasswordRequest) (*v1.ChangePasswordResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ChangePassword not implemented")
+}
+func (UnimplementedAuthServiceServer) LogoutAllDevices(context.Context, *v1.LogoutAllDevicesRequest) (*v1.LogoutAllDevicesResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method LogoutAllDevices not implemented")
 }
 func (UnimplementedAuthServiceServer) mustEmbedUnimplementedAuthServiceServer() {}
 func (UnimplementedAuthServiceServer) testEmbeddedByValue()                     {}
@@ -207,6 +239,42 @@ func _AuthService_Logout_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AuthService_ChangePassword_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(v1.ChangePasswordRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthServiceServer).ChangePassword(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AuthService_ChangePassword_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthServiceServer).ChangePassword(ctx, req.(*v1.ChangePasswordRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AuthService_LogoutAllDevices_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(v1.LogoutAllDevicesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthServiceServer).LogoutAllDevices(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AuthService_LogoutAllDevices_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthServiceServer).LogoutAllDevices(ctx, req.(*v1.LogoutAllDevicesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AuthService_ServiceDesc is the grpc.ServiceDesc for AuthService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -229,6 +297,14 @@ var AuthService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Logout",
 			Handler:    _AuthService_Logout_Handler,
+		},
+		{
+			MethodName: "ChangePassword",
+			Handler:    _AuthService_ChangePassword_Handler,
+		},
+		{
+			MethodName: "LogoutAllDevices",
+			Handler:    _AuthService_LogoutAllDevices_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

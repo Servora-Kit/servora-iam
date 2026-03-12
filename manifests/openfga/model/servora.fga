@@ -27,3 +27,4 @@ type project
     define can_view: viewer
     define can_edit: developer
     define can_admin: admin
+    define can_manage_members: admin

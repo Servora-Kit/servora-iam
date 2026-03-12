@@ -48,7 +48,8 @@ message CurrentUserInfoRequest {}
 message CurrentUserInfoResponse {
   string id = 1;
   string name = 2;
-  string role = 3;
+  string email = 3;
+  string role = 4;
 }
 
 message ListUsersRequest {
@@ -93,7 +94,7 @@ message UpdateUserRequest {
 }
 
 message UpdateUserResponse {
-  string success = 1;
+  UserInfo user = 1;
 }
 
 message SaveUserRequest {

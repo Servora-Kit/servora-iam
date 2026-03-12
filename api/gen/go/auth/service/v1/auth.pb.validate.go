@@ -886,3 +886,421 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = LogoutResponseValidationError{}
+
+// Validate checks the field values on ChangePasswordRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ChangePasswordRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ChangePasswordRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ChangePasswordRequestMultiError, or nil if none found.
+func (m *ChangePasswordRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ChangePasswordRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for CurrentPassword
+
+	// no validation rules for NewPassword
+
+	// no validation rules for NewPasswordConfirm
+
+	if len(errors) > 0 {
+		return ChangePasswordRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// ChangePasswordRequestMultiError is an error wrapping multiple validation
+// errors returned by ChangePasswordRequest.ValidateAll() if the designated
+// constraints aren't met.
+type ChangePasswordRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ChangePasswordRequestMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ChangePasswordRequestMultiError) AllErrors() []error { return m }
+
+// ChangePasswordRequestValidationError is the validation error returned by
+// ChangePasswordRequest.Validate if the designated constraints aren't met.
+type ChangePasswordRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ChangePasswordRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ChangePasswordRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ChangePasswordRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ChangePasswordRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ChangePasswordRequestValidationError) ErrorName() string {
+	return "ChangePasswordRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ChangePasswordRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sChangePasswordRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ChangePasswordRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ChangePasswordRequestValidationError{}
+
+// Validate checks the field values on ChangePasswordResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ChangePasswordResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ChangePasswordResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ChangePasswordResponseMultiError, or nil if none found.
+func (m *ChangePasswordResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ChangePasswordResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Success
+
+	if len(errors) > 0 {
+		return ChangePasswordResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// ChangePasswordResponseMultiError is an error wrapping multiple validation
+// errors returned by ChangePasswordResponse.ValidateAll() if the designated
+// constraints aren't met.
+type ChangePasswordResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ChangePasswordResponseMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ChangePasswordResponseMultiError) AllErrors() []error { return m }
+
+// ChangePasswordResponseValidationError is the validation error returned by
+// ChangePasswordResponse.Validate if the designated constraints aren't met.
+type ChangePasswordResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ChangePasswordResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ChangePasswordResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ChangePasswordResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ChangePasswordResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ChangePasswordResponseValidationError) ErrorName() string {
+	return "ChangePasswordResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ChangePasswordResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sChangePasswordResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ChangePasswordResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ChangePasswordResponseValidationError{}
+
+// Validate checks the field values on LogoutAllDevicesRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *LogoutAllDevicesRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on LogoutAllDevicesRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// LogoutAllDevicesRequestMultiError, or nil if none found.
+func (m *LogoutAllDevicesRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *LogoutAllDevicesRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return LogoutAllDevicesRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// LogoutAllDevicesRequestMultiError is an error wrapping multiple validation
+// errors returned by LogoutAllDevicesRequest.ValidateAll() if the designated
+// constraints aren't met.
+type LogoutAllDevicesRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m LogoutAllDevicesRequestMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m LogoutAllDevicesRequestMultiError) AllErrors() []error { return m }
+
+// LogoutAllDevicesRequestValidationError is the validation error returned by
+// LogoutAllDevicesRequest.Validate if the designated constraints aren't met.
+type LogoutAllDevicesRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e LogoutAllDevicesRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e LogoutAllDevicesRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e LogoutAllDevicesRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e LogoutAllDevicesRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e LogoutAllDevicesRequestValidationError) ErrorName() string {
+	return "LogoutAllDevicesRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e LogoutAllDevicesRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sLogoutAllDevicesRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = LogoutAllDevicesRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = LogoutAllDevicesRequestValidationError{}
+
+// Validate checks the field values on LogoutAllDevicesResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *LogoutAllDevicesResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on LogoutAllDevicesResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// LogoutAllDevicesResponseMultiError, or nil if none found.
+func (m *LogoutAllDevicesResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *LogoutAllDevicesResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Success
+
+	if len(errors) > 0 {
+		return LogoutAllDevicesResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// LogoutAllDevicesResponseMultiError is an error wrapping multiple validation
+// errors returned by LogoutAllDevicesResponse.ValidateAll() if the designated
+// constraints aren't met.
+type LogoutAllDevicesResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m LogoutAllDevicesResponseMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m LogoutAllDevicesResponseMultiError) AllErrors() []error { return m }
+
+// LogoutAllDevicesResponseValidationError is the validation error returned by
+// LogoutAllDevicesResponse.Validate if the designated constraints aren't met.
+type LogoutAllDevicesResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e LogoutAllDevicesResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e LogoutAllDevicesResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e LogoutAllDevicesResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e LogoutAllDevicesResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e LogoutAllDevicesResponseValidationError) ErrorName() string {
+	return "LogoutAllDevicesResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e LogoutAllDevicesResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sLogoutAllDevicesResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = LogoutAllDevicesResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = LogoutAllDevicesResponseValidationError{}

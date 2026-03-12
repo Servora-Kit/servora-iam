@@ -39,6 +39,8 @@ service AuthService {
   rpc LoginByEmailPassword(LoginByEmailPasswordRequest) returns (LoginByEmailPasswordResponse);
   rpc RefreshToken(RefreshTokenRequest) returns (RefreshTokenResponse);
   rpc Logout(LogoutRequest) returns (LogoutResponse);
+  rpc ChangePassword(ChangePasswordRequest) returns (ChangePasswordResponse);
+  rpc LogoutAllDevices(LogoutAllDevicesRequest) returns (LogoutAllDevicesResponse);
 }
 
 // 邮箱注册请求
@@ -101,5 +103,31 @@ message LogoutRequest {
 
 // 登出响应
 message LogoutResponse {
+  bool success = 1;
+}
+
+// 修改密码请求
+message ChangePasswordRequest {
+  string current_password = 1 [(buf.validate.field).string.min_len = 1];
+  string new_password = 2 [(buf.validate.field).string = {
+    min_len: 5
+    max_len: 10
+  }];
+  string new_password_confirm = 3 [(buf.validate.field).string = {
+    min_len: 5
+    max_len: 10
+  }];
+}
+
+// 修改密码响应
+message ChangePasswordResponse {
+  bool success = 1;
+}
+
+// 全设备退出请求
+message LogoutAllDevicesRequest {}
+
+// 全设备退出响应
+message LogoutAllDevicesResponse {
   bool success = 1;
 }

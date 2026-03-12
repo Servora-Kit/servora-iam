@@ -189,7 +189,8 @@ type CurrentUserInfoResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	Role          string                 `protobuf:"bytes,3,opt,name=role,proto3" json:"role,omitempty"`
+	Email         string                 `protobuf:"bytes,3,opt,name=email,proto3" json:"email,omitempty"`
+	Role          string                 `protobuf:"bytes,4,opt,name=role,proto3" json:"role,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -234,6 +235,13 @@ func (x *CurrentUserInfoResponse) GetId() string {
 func (x *CurrentUserInfoResponse) GetName() string {
 	if x != nil {
 		return x.Name
+	}
+	return ""
+}
+
+func (x *CurrentUserInfoResponse) GetEmail() string {
+	if x != nil {
+		return x.Email
 	}
 	return ""
 }
@@ -683,7 +691,7 @@ func (x *UpdateUserRequest) GetRole() string {
 
 type UpdateUserResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Success       string                 `protobuf:"bytes,1,opt,name=success,proto3" json:"success,omitempty"`
+	User          *UserInfo              `protobuf:"bytes,1,opt,name=user,proto3" json:"user,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -718,11 +726,11 @@ func (*UpdateUserResponse) Descriptor() ([]byte, []int) {
 	return file_user_service_v1_user_proto_rawDescGZIP(), []int{12}
 }
 
-func (x *UpdateUserResponse) GetSuccess() string {
+func (x *UpdateUserResponse) GetUser() *UserInfo {
 	if x != nil {
-		return x.Success
+		return x.User
 	}
-	return ""
+	return nil
 }
 
 type SaveUserRequest struct {
@@ -847,11 +855,12 @@ const file_user_service_v1_user_proto_rawDesc = "" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x14\n" +
 	"\x05email\x18\x03 \x01(\tR\x05email\x12\x12\n" +
 	"\x04role\x18\x04 \x01(\tR\x04role\"\x18\n" +
-	"\x16CurrentUserInfoRequest\"Q\n" +
+	"\x16CurrentUserInfoRequest\"g\n" +
 	"\x17CurrentUserInfoResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name\x12\x12\n" +
-	"\x04role\x18\x03 \x01(\tR\x04role\"Q\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12\x14\n" +
+	"\x05email\x18\x03 \x01(\tR\x05email\x12\x12\n" +
+	"\x04role\x18\x04 \x01(\tR\x04role\"Q\n" +
 	"\x10ListUsersRequest\x12=\n" +
 	"\n" +
 	"pagination\x18\x01 \x01(\v2\x1d.pagination.PaginationRequestR\n" +
@@ -878,9 +887,9 @@ const file_user_service_v1_user_proto_rawDesc = "" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x14\n" +
 	"\x05email\x18\x03 \x01(\tR\x05email\x12\x1a\n" +
 	"\bpassword\x18\x04 \x01(\tR\bpassword\x12\x12\n" +
-	"\x04role\x18\x05 \x01(\tR\x04role\".\n" +
-	"\x12UpdateUserResponse\x12\x18\n" +
-	"\asuccess\x18\x01 \x01(\tR\asuccess\"\x88\x01\n" +
+	"\x04role\x18\x05 \x01(\tR\x04role\"C\n" +
+	"\x12UpdateUserResponse\x12-\n" +
+	"\x04user\x18\x01 \x01(\v2\x19.user.service.v1.UserInfoR\x04user\"\x88\x01\n" +
 	"\x0fSaveUserRequest\x12\x1b\n" +
 	"\x04name\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x05R\x04name\x12\x1d\n" +
 	"\x05email\x18\x02 \x01(\tB\a\xbaH\x04r\x02`\x01R\x05email\x12%\n" +
@@ -945,25 +954,26 @@ var file_user_service_v1_user_proto_depIdxs = []int32{
 	1,  // 1: user.service.v1.ListUsersResponse.users:type_name -> user.service.v1.UserInfo
 	17, // 2: user.service.v1.ListUsersResponse.pagination:type_name -> pagination.PaginationResponse
 	1,  // 3: user.service.v1.RestoreUserResponse.user:type_name -> user.service.v1.UserInfo
-	2,  // 4: user.service.v1.UserService.CurrentUserInfo:input_type -> user.service.v1.CurrentUserInfoRequest
-	4,  // 5: user.service.v1.UserService.ListUsers:input_type -> user.service.v1.ListUsersRequest
-	12, // 6: user.service.v1.UserService.UpdateUser:input_type -> user.service.v1.UpdateUserRequest
-	14, // 7: user.service.v1.UserService.SaveUser:input_type -> user.service.v1.SaveUserRequest
-	6,  // 8: user.service.v1.UserService.DeleteUser:input_type -> user.service.v1.DeleteUserRequest
-	8,  // 9: user.service.v1.UserService.PurgeUser:input_type -> user.service.v1.PurgeUserRequest
-	10, // 10: user.service.v1.UserService.RestoreUser:input_type -> user.service.v1.RestoreUserRequest
-	3,  // 11: user.service.v1.UserService.CurrentUserInfo:output_type -> user.service.v1.CurrentUserInfoResponse
-	5,  // 12: user.service.v1.UserService.ListUsers:output_type -> user.service.v1.ListUsersResponse
-	13, // 13: user.service.v1.UserService.UpdateUser:output_type -> user.service.v1.UpdateUserResponse
-	15, // 14: user.service.v1.UserService.SaveUser:output_type -> user.service.v1.SaveUserResponse
-	7,  // 15: user.service.v1.UserService.DeleteUser:output_type -> user.service.v1.DeleteUserResponse
-	9,  // 16: user.service.v1.UserService.PurgeUser:output_type -> user.service.v1.PurgeUserResponse
-	11, // 17: user.service.v1.UserService.RestoreUser:output_type -> user.service.v1.RestoreUserResponse
-	11, // [11:18] is the sub-list for method output_type
-	4,  // [4:11] is the sub-list for method input_type
-	4,  // [4:4] is the sub-list for extension type_name
-	4,  // [4:4] is the sub-list for extension extendee
-	0,  // [0:4] is the sub-list for field type_name
+	1,  // 4: user.service.v1.UpdateUserResponse.user:type_name -> user.service.v1.UserInfo
+	2,  // 5: user.service.v1.UserService.CurrentUserInfo:input_type -> user.service.v1.CurrentUserInfoRequest
+	4,  // 6: user.service.v1.UserService.ListUsers:input_type -> user.service.v1.ListUsersRequest
+	12, // 7: user.service.v1.UserService.UpdateUser:input_type -> user.service.v1.UpdateUserRequest
+	14, // 8: user.service.v1.UserService.SaveUser:input_type -> user.service.v1.SaveUserRequest
+	6,  // 9: user.service.v1.UserService.DeleteUser:input_type -> user.service.v1.DeleteUserRequest
+	8,  // 10: user.service.v1.UserService.PurgeUser:input_type -> user.service.v1.PurgeUserRequest
+	10, // 11: user.service.v1.UserService.RestoreUser:input_type -> user.service.v1.RestoreUserRequest
+	3,  // 12: user.service.v1.UserService.CurrentUserInfo:output_type -> user.service.v1.CurrentUserInfoResponse
+	5,  // 13: user.service.v1.UserService.ListUsers:output_type -> user.service.v1.ListUsersResponse
+	13, // 14: user.service.v1.UserService.UpdateUser:output_type -> user.service.v1.UpdateUserResponse
+	15, // 15: user.service.v1.UserService.SaveUser:output_type -> user.service.v1.SaveUserResponse
+	7,  // 16: user.service.v1.UserService.DeleteUser:output_type -> user.service.v1.DeleteUserResponse
+	9,  // 17: user.service.v1.UserService.PurgeUser:output_type -> user.service.v1.PurgeUserResponse
+	11, // 18: user.service.v1.UserService.RestoreUser:output_type -> user.service.v1.RestoreUserResponse
+	12, // [12:19] is the sub-list for method output_type
+	5,  // [5:12] is the sub-list for method input_type
+	5,  // [5:5] is the sub-list for extension type_name
+	5,  // [5:5] is the sub-list for extension extendee
+	0,  // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_user_service_v1_user_proto_init() }
