@@ -5,6 +5,7 @@ import (
 
 	"github.com/Servora-Kit/servora/cmd/svr/internal/cmd/gen"
 	"github.com/Servora-Kit/servora/cmd/svr/internal/cmd/new"
+	"github.com/Servora-Kit/servora/cmd/svr/internal/cmd/openfga"
 )
 
 var rootCmd = &cobra.Command{
@@ -16,6 +17,7 @@ var rootCmd = &cobra.Command{
 func init() {
 	gen.Register(rootCmd)
 	new.Register(rootCmd)
+	openfga.Register(rootCmd)
 }
 
 func Execute() error {
