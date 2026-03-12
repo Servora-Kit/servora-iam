@@ -9,6 +9,7 @@ import (
 
 	"github.com/Servora-Kit/servora/api/gen/go/conf/v1"
 	"github.com/Servora-Kit/servora/pkg/logger"
+	climw "github.com/Servora-Kit/servora/pkg/transport/client/middleware"
 
 	"github.com/go-kratos/kratos/v2/middleware"
 	"github.com/go-kratos/kratos/v2/middleware/circuitbreaker"
@@ -92,6 +93,7 @@ func createGrpcConnection(ctx context.Context, serviceName string, grpcConfigs m
 		recovery.Recovery(),
 		logging.Client(l),
 		circuitbreaker.Client(),
+		climw.TokenPropagation(),
 	}
 
 	if traceCfg != nil && traceCfg.Endpoint != "" {

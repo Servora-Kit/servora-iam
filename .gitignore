@@ -28,6 +28,7 @@ Thumbs.db
 *.cert
 *.crt
 *.key
+*.pem
 *.log
 bin/
 logs/
@@ -96,4 +97,5 @@ __screenshots__/
 
 test-results/
 playwright-report/
-app/servora/service/server
+app/iam/service/server
+configs/keys/
