@@ -32,6 +32,26 @@ func (_u *OrganizationUpdate) Where(ps ...predicate.Organization) *OrganizationU
 	return _u
 }
 
+// SetDeletedAt sets the "deleted_at" field.
+func (_u *OrganizationUpdate) SetDeletedAt(v time.Time) *OrganizationUpdate {
+	_u.mutation.SetDeletedAt(v)
+	return _u
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (_u *OrganizationUpdate) SetNillableDeletedAt(v *time.Time) *OrganizationUpdate {
+	if v != nil {
+		_u.SetDeletedAt(*v)
+	}
+	return _u
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (_u *OrganizationUpdate) ClearDeletedAt() *OrganizationUpdate {
+	_u.mutation.ClearDeletedAt()
+	return _u
+}
+
 // SetPlatformID sets the "platform_id" field.
 func (_u *OrganizationUpdate) SetPlatformID(v uuid.UUID) *OrganizationUpdate {
 	_u.mutation.SetPlatformID(v)
@@ -259,6 +279,12 @@ func (_u *OrganizationUpdate) sqlSave(ctx context.Context) (_node int, err error
 			}
 		}
 	}
+	if value, ok := _u.mutation.DeletedAt(); ok {
+		_spec.SetField(organization.FieldDeletedAt, field.TypeTime, value)
+	}
+	if _u.mutation.DeletedAtCleared() {
+		_spec.ClearField(organization.FieldDeletedAt, field.TypeTime)
+	}
 	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(organization.FieldName, field.TypeString, value)
 	}
@@ -411,6 +437,26 @@ type OrganizationUpdateOne struct {
 	fields   []string
 	hooks    []Hook
 	mutation *OrganizationMutation
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (_u *OrganizationUpdateOne) SetDeletedAt(v time.Time) *OrganizationUpdateOne {
+	_u.mutation.SetDeletedAt(v)
+	return _u
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (_u *OrganizationUpdateOne) SetNillableDeletedAt(v *time.Time) *OrganizationUpdateOne {
+	if v != nil {
+		_u.SetDeletedAt(*v)
+	}
+	return _u
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (_u *OrganizationUpdateOne) ClearDeletedAt() *OrganizationUpdateOne {
+	_u.mutation.ClearDeletedAt()
+	return _u
 }
 
 // SetPlatformID sets the "platform_id" field.
@@ -669,6 +715,12 @@ func (_u *OrganizationUpdateOne) sqlSave(ctx context.Context) (_node *Organizati
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := _u.mutation.DeletedAt(); ok {
+		_spec.SetField(organization.FieldDeletedAt, field.TypeTime, value)
+	}
+	if _u.mutation.DeletedAtCleared() {
+		_spec.ClearField(organization.FieldDeletedAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(organization.FieldName, field.TypeString, value)

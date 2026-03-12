@@ -26,7 +26,9 @@ const OperationProjectServiceDeleteProject = "/iam.service.v1.ProjectService/Del
 const OperationProjectServiceGetProject = "/iam.service.v1.ProjectService/GetProject"
 const OperationProjectServiceListMembers = "/iam.service.v1.ProjectService/ListMembers"
 const OperationProjectServiceListProjects = "/iam.service.v1.ProjectService/ListProjects"
+const OperationProjectServicePurgeProject = "/iam.service.v1.ProjectService/PurgeProject"
 const OperationProjectServiceRemoveMember = "/iam.service.v1.ProjectService/RemoveMember"
+const OperationProjectServiceRestoreProject = "/iam.service.v1.ProjectService/RestoreProject"
 const OperationProjectServiceUpdateMemberRole = "/iam.service.v1.ProjectService/UpdateMemberRole"
 const OperationProjectServiceUpdateProject = "/iam.service.v1.ProjectService/UpdateProject"
 
@@ -37,7 +39,9 @@ type ProjectServiceHTTPServer interface {
 	GetProject(context.Context, *v1.GetProjectRequest) (*v1.GetProjectResponse, error)
 	ListMembers(context.Context, *v1.ListMembersRequest) (*v1.ListMembersResponse, error)
 	ListProjects(context.Context, *v1.ListProjectsRequest) (*v1.ListProjectsResponse, error)
+	PurgeProject(context.Context, *v1.PurgeProjectRequest) (*v1.PurgeProjectResponse, error)
 	RemoveMember(context.Context, *v1.RemoveMemberRequest) (*v1.RemoveMemberResponse, error)
+	RestoreProject(context.Context, *v1.RestoreProjectRequest) (*v1.RestoreProjectResponse, error)
 	UpdateMemberRole(context.Context, *v1.UpdateMemberRoleRequest) (*v1.UpdateMemberRoleResponse, error)
 	UpdateProject(context.Context, *v1.UpdateProjectRequest) (*v1.UpdateProjectResponse, error)
 }
@@ -49,6 +53,8 @@ func RegisterProjectServiceHTTPServer(s *http.Server, srv ProjectServiceHTTPServ
 	r.GET("/v1/organizations/{organization_id}/projects", _ProjectService_ListProjects0_HTTP_Handler(srv))
 	r.PUT("/v1/projects/{id}", _ProjectService_UpdateProject0_HTTP_Handler(srv))
 	r.DELETE("/v1/projects/{id}", _ProjectService_DeleteProject0_HTTP_Handler(srv))
+	r.DELETE("/v1/projects/{id}/purge", _ProjectService_PurgeProject0_HTTP_Handler(srv))
+	r.POST("/v1/projects/{id}/restore", _ProjectService_RestoreProject0_HTTP_Handler(srv))
 	r.POST("/v1/projects/{project_id}/members", _ProjectService_AddMember1_HTTP_Handler(srv))
 	r.DELETE("/v1/projects/{project_id}/members/{user_id}", _ProjectService_RemoveMember1_HTTP_Handler(srv))
 	r.GET("/v1/projects/{project_id}/members", _ProjectService_ListMembers1_HTTP_Handler(srv))
@@ -168,6 +174,53 @@ func _ProjectService_DeleteProject0_HTTP_Handler(srv ProjectServiceHTTPServer) f
 	}
 }
 
+func _ProjectService_PurgeProject0_HTTP_Handler(srv ProjectServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in v1.PurgeProjectRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationProjectServicePurgeProject)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.PurgeProject(ctx, req.(*v1.PurgeProjectRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*v1.PurgeProjectResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _ProjectService_RestoreProject0_HTTP_Handler(srv ProjectServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in v1.RestoreProjectRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationProjectServiceRestoreProject)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.RestoreProject(ctx, req.(*v1.RestoreProjectRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*v1.RestoreProjectResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
 func _ProjectService_AddMember1_HTTP_Handler(srv ProjectServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in v1.AddMemberRequest
@@ -269,7 +322,9 @@ type ProjectServiceHTTPClient interface {
 	GetProject(ctx context.Context, req *v1.GetProjectRequest, opts ...http.CallOption) (rsp *v1.GetProjectResponse, err error)
 	ListMembers(ctx context.Context, req *v1.ListMembersRequest, opts ...http.CallOption) (rsp *v1.ListMembersResponse, err error)
 	ListProjects(ctx context.Context, req *v1.ListProjectsRequest, opts ...http.CallOption) (rsp *v1.ListProjectsResponse, err error)
+	PurgeProject(ctx context.Context, req *v1.PurgeProjectRequest, opts ...http.CallOption) (rsp *v1.PurgeProjectResponse, err error)
 	RemoveMember(ctx context.Context, req *v1.RemoveMemberRequest, opts ...http.CallOption) (rsp *v1.RemoveMemberResponse, err error)
+	RestoreProject(ctx context.Context, req *v1.RestoreProjectRequest, opts ...http.CallOption) (rsp *v1.RestoreProjectResponse, err error)
 	UpdateMemberRole(ctx context.Context, req *v1.UpdateMemberRoleRequest, opts ...http.CallOption) (rsp *v1.UpdateMemberRoleResponse, err error)
 	UpdateProject(ctx context.Context, req *v1.UpdateProjectRequest, opts ...http.CallOption) (rsp *v1.UpdateProjectResponse, err error)
 }
@@ -360,6 +415,19 @@ func (c *ProjectServiceHTTPClientImpl) ListProjects(ctx context.Context, in *v1.
 	return &out, nil
 }
 
+func (c *ProjectServiceHTTPClientImpl) PurgeProject(ctx context.Context, in *v1.PurgeProjectRequest, opts ...http.CallOption) (*v1.PurgeProjectResponse, error) {
+	var out v1.PurgeProjectResponse
+	pattern := "/v1/projects/{id}/purge"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationProjectServicePurgeProject))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "DELETE", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
 func (c *ProjectServiceHTTPClientImpl) RemoveMember(ctx context.Context, in *v1.RemoveMemberRequest, opts ...http.CallOption) (*v1.RemoveMemberResponse, error) {
 	var out v1.RemoveMemberResponse
 	pattern := "/v1/projects/{project_id}/members/{user_id}"
@@ -367,6 +435,19 @@ func (c *ProjectServiceHTTPClientImpl) RemoveMember(ctx context.Context, in *v1.
 	opts = append(opts, http.Operation(OperationProjectServiceRemoveMember))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "DELETE", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *ProjectServiceHTTPClientImpl) RestoreProject(ctx context.Context, in *v1.RestoreProjectRequest, opts ...http.CallOption) (*v1.RestoreProjectResponse, error) {
+	var out v1.RestoreProjectResponse
+	pattern := "/v1/projects/{id}/restore"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationProjectServiceRestoreProject))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {
 		return nil, err
 	}

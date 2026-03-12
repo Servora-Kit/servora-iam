@@ -27,7 +27,7 @@ var File_iam_service_v1_i_project_proto protoreflect.FileDescriptor
 
 const file_iam_service_v1_i_project_proto_rawDesc = "" +
 	"\n" +
-	"\x1eiam/service/v1/i_project.proto\x12\x0eiam.service.v1\x1a\x1cgoogle/api/annotations.proto\x1a project/service/v1/project.proto\x1a\x1cservora/authz/v1/authz.proto2\xab\v\n" +
+	"\x1eiam/service/v1/i_project.proto\x12\x0eiam.service.v1\x1a\x1cgoogle/api/annotations.proto\x1a project/service/v1/project.proto\x1a\x1cservora/authz/v1/authz.proto2\xe0\r\n" +
 	"\x0eProjectService\x12\x96\x01\n" +
 	"\rCreateProject\x12(.project.service.v1.CreateProjectRequest\x1a).project.service.v1.CreateProjectResponse\"0\xa2\xbb\x18\x15\b\x02\x10\r\"\x0forganization_id\x82\xd3\xe4\x93\x02\x11:\x01*\"\f/v1/projects\x12\x82\x01\n" +
 	"\n" +
@@ -36,7 +36,9 @@ const file_iam_service_v1_i_project_proto_rawDesc = "" +
 	"\fListProjects\x12'.project.service.v1.ListProjectsRequest\x1a(.project.service.v1.ListProjectsResponse\"M\xa2\xbb\x18\x15\b\x02\x10\n" +
 	"\"\x0forganization_id\x82\xd3\xe4\x93\x02.\x12,/v1/organizations/{organization_id}/projects\x12\x8e\x01\n" +
 	"\rUpdateProject\x12(.project.service.v1.UpdateProjectRequest\x1a).project.service.v1.UpdateProjectResponse\"(\xa2\xbb\x18\b\b\x03\x10\v\"\x02id\x82\xd3\xe4\x93\x02\x16:\x01*\x1a\x11/v1/projects/{id}\x12\x8b\x01\n" +
-	"\rDeleteProject\x12(.project.service.v1.DeleteProjectRequest\x1a).project.service.v1.DeleteProjectResponse\"%\xa2\xbb\x18\b\b\x03\x10\f\"\x02id\x82\xd3\xe4\x93\x02\x13*\x11/v1/projects/{id}\x12\x9a\x01\n" +
+	"\rDeleteProject\x12(.project.service.v1.DeleteProjectRequest\x1a).project.service.v1.DeleteProjectResponse\"%\xa2\xbb\x18\b\b\x03\x10\f\"\x02id\x82\xd3\xe4\x93\x02\x13*\x11/v1/projects/{id}\x12\x92\x01\n" +
+	"\fPurgeProject\x12'.project.service.v1.PurgeProjectRequest\x1a(.project.service.v1.PurgeProjectResponse\"/\xa2\xbb\x18\f\b\x04\x10\x02\x18\x01\"\x04root\x82\xd3\xe4\x93\x02\x19*\x17/v1/projects/{id}/purge\x12\x9d\x01\n" +
+	"\x0eRestoreProject\x12).project.service.v1.RestoreProjectRequest\x1a*.project.service.v1.RestoreProjectResponse\"4\xa2\xbb\x18\f\b\x04\x10\x02\x18\x01\"\x04root\x82\xd3\xe4\x93\x02\x1e:\x01*\"\x19/v1/projects/{id}/restore\x12\x9a\x01\n" +
 	"\tAddMember\x12$.project.service.v1.AddMemberRequest\x1a%.project.service.v1.AddMemberResponse\"@\xa2\xbb\x18\x10\b\x03\x10\f\"\n" +
 	"project_id\x82\xd3\xe4\x93\x02&:\x01*\"!/v1/projects/{project_id}/members\x12\xaa\x01\n" +
 	"\fRemoveMember\x12'.project.service.v1.RemoveMemberRequest\x1a(.project.service.v1.RemoveMemberResponse\"G\xa2\xbb\x18\x10\b\x03\x10\f\"\n" +
@@ -54,19 +56,23 @@ var file_iam_service_v1_i_project_proto_goTypes = []any{
 	(*v1.ListProjectsRequest)(nil),      // 2: project.service.v1.ListProjectsRequest
 	(*v1.UpdateProjectRequest)(nil),     // 3: project.service.v1.UpdateProjectRequest
 	(*v1.DeleteProjectRequest)(nil),     // 4: project.service.v1.DeleteProjectRequest
-	(*v1.AddMemberRequest)(nil),         // 5: project.service.v1.AddMemberRequest
-	(*v1.RemoveMemberRequest)(nil),      // 6: project.service.v1.RemoveMemberRequest
-	(*v1.ListMembersRequest)(nil),       // 7: project.service.v1.ListMembersRequest
-	(*v1.UpdateMemberRoleRequest)(nil),  // 8: project.service.v1.UpdateMemberRoleRequest
-	(*v1.CreateProjectResponse)(nil),    // 9: project.service.v1.CreateProjectResponse
-	(*v1.GetProjectResponse)(nil),       // 10: project.service.v1.GetProjectResponse
-	(*v1.ListProjectsResponse)(nil),     // 11: project.service.v1.ListProjectsResponse
-	(*v1.UpdateProjectResponse)(nil),    // 12: project.service.v1.UpdateProjectResponse
-	(*v1.DeleteProjectResponse)(nil),    // 13: project.service.v1.DeleteProjectResponse
-	(*v1.AddMemberResponse)(nil),        // 14: project.service.v1.AddMemberResponse
-	(*v1.RemoveMemberResponse)(nil),     // 15: project.service.v1.RemoveMemberResponse
-	(*v1.ListMembersResponse)(nil),      // 16: project.service.v1.ListMembersResponse
-	(*v1.UpdateMemberRoleResponse)(nil), // 17: project.service.v1.UpdateMemberRoleResponse
+	(*v1.PurgeProjectRequest)(nil),      // 5: project.service.v1.PurgeProjectRequest
+	(*v1.RestoreProjectRequest)(nil),    // 6: project.service.v1.RestoreProjectRequest
+	(*v1.AddMemberRequest)(nil),         // 7: project.service.v1.AddMemberRequest
+	(*v1.RemoveMemberRequest)(nil),      // 8: project.service.v1.RemoveMemberRequest
+	(*v1.ListMembersRequest)(nil),       // 9: project.service.v1.ListMembersRequest
+	(*v1.UpdateMemberRoleRequest)(nil),  // 10: project.service.v1.UpdateMemberRoleRequest
+	(*v1.CreateProjectResponse)(nil),    // 11: project.service.v1.CreateProjectResponse
+	(*v1.GetProjectResponse)(nil),       // 12: project.service.v1.GetProjectResponse
+	(*v1.ListProjectsResponse)(nil),     // 13: project.service.v1.ListProjectsResponse
+	(*v1.UpdateProjectResponse)(nil),    // 14: project.service.v1.UpdateProjectResponse
+	(*v1.DeleteProjectResponse)(nil),    // 15: project.service.v1.DeleteProjectResponse
+	(*v1.PurgeProjectResponse)(nil),     // 16: project.service.v1.PurgeProjectResponse
+	(*v1.RestoreProjectResponse)(nil),   // 17: project.service.v1.RestoreProjectResponse
+	(*v1.AddMemberResponse)(nil),        // 18: project.service.v1.AddMemberResponse
+	(*v1.RemoveMemberResponse)(nil),     // 19: project.service.v1.RemoveMemberResponse
+	(*v1.ListMembersResponse)(nil),      // 20: project.service.v1.ListMembersResponse
+	(*v1.UpdateMemberRoleResponse)(nil), // 21: project.service.v1.UpdateMemberRoleResponse
 }
 var file_iam_service_v1_i_project_proto_depIdxs = []int32{
 	0,  // 0: iam.service.v1.ProjectService.CreateProject:input_type -> project.service.v1.CreateProjectRequest
@@ -74,21 +80,25 @@ var file_iam_service_v1_i_project_proto_depIdxs = []int32{
 	2,  // 2: iam.service.v1.ProjectService.ListProjects:input_type -> project.service.v1.ListProjectsRequest
 	3,  // 3: iam.service.v1.ProjectService.UpdateProject:input_type -> project.service.v1.UpdateProjectRequest
 	4,  // 4: iam.service.v1.ProjectService.DeleteProject:input_type -> project.service.v1.DeleteProjectRequest
-	5,  // 5: iam.service.v1.ProjectService.AddMember:input_type -> project.service.v1.AddMemberRequest
-	6,  // 6: iam.service.v1.ProjectService.RemoveMember:input_type -> project.service.v1.RemoveMemberRequest
-	7,  // 7: iam.service.v1.ProjectService.ListMembers:input_type -> project.service.v1.ListMembersRequest
-	8,  // 8: iam.service.v1.ProjectService.UpdateMemberRole:input_type -> project.service.v1.UpdateMemberRoleRequest
-	9,  // 9: iam.service.v1.ProjectService.CreateProject:output_type -> project.service.v1.CreateProjectResponse
-	10, // 10: iam.service.v1.ProjectService.GetProject:output_type -> project.service.v1.GetProjectResponse
-	11, // 11: iam.service.v1.ProjectService.ListProjects:output_type -> project.service.v1.ListProjectsResponse
-	12, // 12: iam.service.v1.ProjectService.UpdateProject:output_type -> project.service.v1.UpdateProjectResponse
-	13, // 13: iam.service.v1.ProjectService.DeleteProject:output_type -> project.service.v1.DeleteProjectResponse
-	14, // 14: iam.service.v1.ProjectService.AddMember:output_type -> project.service.v1.AddMemberResponse
-	15, // 15: iam.service.v1.ProjectService.RemoveMember:output_type -> project.service.v1.RemoveMemberResponse
-	16, // 16: iam.service.v1.ProjectService.ListMembers:output_type -> project.service.v1.ListMembersResponse
-	17, // 17: iam.service.v1.ProjectService.UpdateMemberRole:output_type -> project.service.v1.UpdateMemberRoleResponse
-	9,  // [9:18] is the sub-list for method output_type
-	0,  // [0:9] is the sub-list for method input_type
+	5,  // 5: iam.service.v1.ProjectService.PurgeProject:input_type -> project.service.v1.PurgeProjectRequest
+	6,  // 6: iam.service.v1.ProjectService.RestoreProject:input_type -> project.service.v1.RestoreProjectRequest
+	7,  // 7: iam.service.v1.ProjectService.AddMember:input_type -> project.service.v1.AddMemberRequest
+	8,  // 8: iam.service.v1.ProjectService.RemoveMember:input_type -> project.service.v1.RemoveMemberRequest
+	9,  // 9: iam.service.v1.ProjectService.ListMembers:input_type -> project.service.v1.ListMembersRequest
+	10, // 10: iam.service.v1.ProjectService.UpdateMemberRole:input_type -> project.service.v1.UpdateMemberRoleRequest
+	11, // 11: iam.service.v1.ProjectService.CreateProject:output_type -> project.service.v1.CreateProjectResponse
+	12, // 12: iam.service.v1.ProjectService.GetProject:output_type -> project.service.v1.GetProjectResponse
+	13, // 13: iam.service.v1.ProjectService.ListProjects:output_type -> project.service.v1.ListProjectsResponse
+	14, // 14: iam.service.v1.ProjectService.UpdateProject:output_type -> project.service.v1.UpdateProjectResponse
+	15, // 15: iam.service.v1.ProjectService.DeleteProject:output_type -> project.service.v1.DeleteProjectResponse
+	16, // 16: iam.service.v1.ProjectService.PurgeProject:output_type -> project.service.v1.PurgeProjectResponse
+	17, // 17: iam.service.v1.ProjectService.RestoreProject:output_type -> project.service.v1.RestoreProjectResponse
+	18, // 18: iam.service.v1.ProjectService.AddMember:output_type -> project.service.v1.AddMemberResponse
+	19, // 19: iam.service.v1.ProjectService.RemoveMember:output_type -> project.service.v1.RemoveMemberResponse
+	20, // 20: iam.service.v1.ProjectService.ListMembers:output_type -> project.service.v1.ListMembersResponse
+	21, // 21: iam.service.v1.ProjectService.UpdateMemberRole:output_type -> project.service.v1.UpdateMemberRoleResponse
+	11, // [11:22] is the sub-list for method output_type
+	0,  // [0:11] is the sub-list for method input_type
 	0,  // [0:0] is the sub-list for extension type_name
 	0,  // [0:0] is the sub-list for extension extendee
 	0,  // [0:0] is the sub-list for field type_name

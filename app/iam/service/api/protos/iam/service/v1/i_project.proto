@@ -60,6 +60,29 @@ service ProjectService {
     };
   }
 
+  rpc PurgeProject(project.service.v1.PurgeProjectRequest) returns (project.service.v1.PurgeProjectResponse) {
+    option (google.api.http) = {delete: "/v1/projects/{id}/purge"};
+    option (servora.authz.v1.rule) = {
+      mode: AUTHZ_MODE_OBJECT
+      object_type: OBJECT_TYPE_PLATFORM
+      relation: RELATION_ADMIN
+      id_field: "root"
+    };
+  }
+
+  rpc RestoreProject(project.service.v1.RestoreProjectRequest) returns (project.service.v1.RestoreProjectResponse) {
+    option (google.api.http) = {
+      post: "/v1/projects/{id}/restore"
+      body: "*"
+    };
+    option (servora.authz.v1.rule) = {
+      mode: AUTHZ_MODE_OBJECT
+      object_type: OBJECT_TYPE_PLATFORM
+      relation: RELATION_ADMIN
+      id_field: "root"
+    };
+  }
+
   rpc AddMember(project.service.v1.AddMemberRequest) returns (project.service.v1.AddMemberResponse) {
     option (google.api.http) = {
       post: "/v1/projects/{project_id}/members"

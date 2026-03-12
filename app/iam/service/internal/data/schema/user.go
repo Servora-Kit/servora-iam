@@ -8,6 +8,7 @@ import (
 	"entgo.io/ent/schema"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
+	entmixin "github.com/Servora-Kit/servora/pkg/ent/mixin"
 	"github.com/google/uuid"
 )
 
@@ -29,6 +30,12 @@ func (User) Fields() []ent.Field {
 		field.String("role").MaxLen(32).Default("user"),
 		field.Time("created_at").Default(time.Now).Immutable(),
 		field.Time("updated_at").Default(time.Now).UpdateDefault(time.Now),
+	}
+}
+
+func (User) Mixin() []ent.Mixin {
+	return []ent.Mixin{
+		entmixin.SoftDeleteMixin{},
 	}
 }
 

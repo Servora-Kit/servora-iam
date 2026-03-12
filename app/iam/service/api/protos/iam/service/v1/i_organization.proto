@@ -56,6 +56,29 @@ service OrganizationService {
     };
   }
 
+  rpc PurgeOrganization(organization.service.v1.PurgeOrganizationRequest) returns (organization.service.v1.PurgeOrganizationResponse) {
+    option (google.api.http) = {delete: "/v1/organizations/{id}/purge"};
+    option (servora.authz.v1.rule) = {
+      mode: AUTHZ_MODE_OBJECT
+      object_type: OBJECT_TYPE_PLATFORM
+      relation: RELATION_ADMIN
+      id_field: "root"
+    };
+  }
+
+  rpc RestoreOrganization(organization.service.v1.RestoreOrganizationRequest) returns (organization.service.v1.RestoreOrganizationResponse) {
+    option (google.api.http) = {
+      post: "/v1/organizations/{id}/restore"
+      body: "*"
+    };
+    option (servora.authz.v1.rule) = {
+      mode: AUTHZ_MODE_OBJECT
+      object_type: OBJECT_TYPE_PLATFORM
+      relation: RELATION_ADMIN
+      id_field: "root"
+    };
+  }
+
   rpc AddMember(organization.service.v1.AddMemberRequest) returns (organization.service.v1.AddMemberResponse) {
     option (google.api.http) = {
       post: "/v1/organizations/{organization_id}/members"

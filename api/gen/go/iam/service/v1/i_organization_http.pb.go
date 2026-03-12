@@ -26,7 +26,9 @@ const OperationOrganizationServiceDeleteOrganization = "/iam.service.v1.Organiza
 const OperationOrganizationServiceGetOrganization = "/iam.service.v1.OrganizationService/GetOrganization"
 const OperationOrganizationServiceListMembers = "/iam.service.v1.OrganizationService/ListMembers"
 const OperationOrganizationServiceListOrganizations = "/iam.service.v1.OrganizationService/ListOrganizations"
+const OperationOrganizationServicePurgeOrganization = "/iam.service.v1.OrganizationService/PurgeOrganization"
 const OperationOrganizationServiceRemoveMember = "/iam.service.v1.OrganizationService/RemoveMember"
+const OperationOrganizationServiceRestoreOrganization = "/iam.service.v1.OrganizationService/RestoreOrganization"
 const OperationOrganizationServiceUpdateMemberRole = "/iam.service.v1.OrganizationService/UpdateMemberRole"
 const OperationOrganizationServiceUpdateOrganization = "/iam.service.v1.OrganizationService/UpdateOrganization"
 
@@ -37,7 +39,9 @@ type OrganizationServiceHTTPServer interface {
 	GetOrganization(context.Context, *v1.GetOrganizationRequest) (*v1.GetOrganizationResponse, error)
 	ListMembers(context.Context, *v1.ListMembersRequest) (*v1.ListMembersResponse, error)
 	ListOrganizations(context.Context, *v1.ListOrganizationsRequest) (*v1.ListOrganizationsResponse, error)
+	PurgeOrganization(context.Context, *v1.PurgeOrganizationRequest) (*v1.PurgeOrganizationResponse, error)
 	RemoveMember(context.Context, *v1.RemoveMemberRequest) (*v1.RemoveMemberResponse, error)
+	RestoreOrganization(context.Context, *v1.RestoreOrganizationRequest) (*v1.RestoreOrganizationResponse, error)
 	UpdateMemberRole(context.Context, *v1.UpdateMemberRoleRequest) (*v1.UpdateMemberRoleResponse, error)
 	UpdateOrganization(context.Context, *v1.UpdateOrganizationRequest) (*v1.UpdateOrganizationResponse, error)
 }
@@ -49,6 +53,8 @@ func RegisterOrganizationServiceHTTPServer(s *http.Server, srv OrganizationServi
 	r.GET("/v1/organizations", _OrganizationService_ListOrganizations0_HTTP_Handler(srv))
 	r.PUT("/v1/organizations/{id}", _OrganizationService_UpdateOrganization0_HTTP_Handler(srv))
 	r.DELETE("/v1/organizations/{id}", _OrganizationService_DeleteOrganization0_HTTP_Handler(srv))
+	r.DELETE("/v1/organizations/{id}/purge", _OrganizationService_PurgeOrganization0_HTTP_Handler(srv))
+	r.POST("/v1/organizations/{id}/restore", _OrganizationService_RestoreOrganization0_HTTP_Handler(srv))
 	r.POST("/v1/organizations/{organization_id}/members", _OrganizationService_AddMember0_HTTP_Handler(srv))
 	r.DELETE("/v1/organizations/{organization_id}/members/{user_id}", _OrganizationService_RemoveMember0_HTTP_Handler(srv))
 	r.GET("/v1/organizations/{organization_id}/members", _OrganizationService_ListMembers0_HTTP_Handler(srv))
@@ -165,6 +171,53 @@ func _OrganizationService_DeleteOrganization0_HTTP_Handler(srv OrganizationServi
 	}
 }
 
+func _OrganizationService_PurgeOrganization0_HTTP_Handler(srv OrganizationServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in v1.PurgeOrganizationRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationOrganizationServicePurgeOrganization)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.PurgeOrganization(ctx, req.(*v1.PurgeOrganizationRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*v1.PurgeOrganizationResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _OrganizationService_RestoreOrganization0_HTTP_Handler(srv OrganizationServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in v1.RestoreOrganizationRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationOrganizationServiceRestoreOrganization)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.RestoreOrganization(ctx, req.(*v1.RestoreOrganizationRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*v1.RestoreOrganizationResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
 func _OrganizationService_AddMember0_HTTP_Handler(srv OrganizationServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in v1.AddMemberRequest
@@ -266,7 +319,9 @@ type OrganizationServiceHTTPClient interface {
 	GetOrganization(ctx context.Context, req *v1.GetOrganizationRequest, opts ...http.CallOption) (rsp *v1.GetOrganizationResponse, err error)
 	ListMembers(ctx context.Context, req *v1.ListMembersRequest, opts ...http.CallOption) (rsp *v1.ListMembersResponse, err error)
 	ListOrganizations(ctx context.Context, req *v1.ListOrganizationsRequest, opts ...http.CallOption) (rsp *v1.ListOrganizationsResponse, err error)
+	PurgeOrganization(ctx context.Context, req *v1.PurgeOrganizationRequest, opts ...http.CallOption) (rsp *v1.PurgeOrganizationResponse, err error)
 	RemoveMember(ctx context.Context, req *v1.RemoveMemberRequest, opts ...http.CallOption) (rsp *v1.RemoveMemberResponse, err error)
+	RestoreOrganization(ctx context.Context, req *v1.RestoreOrganizationRequest, opts ...http.CallOption) (rsp *v1.RestoreOrganizationResponse, err error)
 	UpdateMemberRole(ctx context.Context, req *v1.UpdateMemberRoleRequest, opts ...http.CallOption) (rsp *v1.UpdateMemberRoleResponse, err error)
 	UpdateOrganization(ctx context.Context, req *v1.UpdateOrganizationRequest, opts ...http.CallOption) (rsp *v1.UpdateOrganizationResponse, err error)
 }
@@ -357,6 +412,19 @@ func (c *OrganizationServiceHTTPClientImpl) ListOrganizations(ctx context.Contex
 	return &out, nil
 }
 
+func (c *OrganizationServiceHTTPClientImpl) PurgeOrganization(ctx context.Context, in *v1.PurgeOrganizationRequest, opts ...http.CallOption) (*v1.PurgeOrganizationResponse, error) {
+	var out v1.PurgeOrganizationResponse
+	pattern := "/v1/organizations/{id}/purge"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationOrganizationServicePurgeOrganization))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "DELETE", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
 func (c *OrganizationServiceHTTPClientImpl) RemoveMember(ctx context.Context, in *v1.RemoveMemberRequest, opts ...http.CallOption) (*v1.RemoveMemberResponse, error) {
 	var out v1.RemoveMemberResponse
 	pattern := "/v1/organizations/{organization_id}/members/{user_id}"
@@ -364,6 +432,19 @@ func (c *OrganizationServiceHTTPClientImpl) RemoveMember(ctx context.Context, in
 	opts = append(opts, http.Operation(OperationOrganizationServiceRemoveMember))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "DELETE", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *OrganizationServiceHTTPClientImpl) RestoreOrganization(ctx context.Context, in *v1.RestoreOrganizationRequest, opts ...http.CallOption) (*v1.RestoreOrganizationResponse, error) {
+	var out v1.RestoreOrganizationResponse
+	pattern := "/v1/organizations/{id}/restore"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationOrganizationServiceRestoreOrganization))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {
 		return nil, err
 	}

@@ -336,12 +336,12 @@ func (_q *ProjectQuery) WithMembers(opts ...func(*ProjectMemberQuery)) *ProjectQ
 // Example:
 //
 //	var v []struct {
-//		OrganizationID uuid.UUID `json:"organization_id,omitempty"`
+//		DeletedAt time.Time `json:"deleted_at,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.Project.Query().
-//		GroupBy(project.FieldOrganizationID).
+//		GroupBy(project.FieldDeletedAt).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 func (_q *ProjectQuery) GroupBy(field string, fields ...string) *ProjectGroupBy {
@@ -359,11 +359,11 @@ func (_q *ProjectQuery) GroupBy(field string, fields ...string) *ProjectGroupBy 
 // Example:
 //
 //	var v []struct {
-//		OrganizationID uuid.UUID `json:"organization_id,omitempty"`
+//		DeletedAt time.Time `json:"deleted_at,omitempty"`
 //	}
 //
 //	client.Project.Query().
-//		Select(project.FieldOrganizationID).
+//		Select(project.FieldDeletedAt).
 //		Scan(ctx, &v)
 func (_q *ProjectQuery) Select(fields ...string) *ProjectSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)

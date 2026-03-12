@@ -25,6 +25,8 @@ const (
 	ProjectService_ListProjects_FullMethodName     = "/iam.service.v1.ProjectService/ListProjects"
 	ProjectService_UpdateProject_FullMethodName    = "/iam.service.v1.ProjectService/UpdateProject"
 	ProjectService_DeleteProject_FullMethodName    = "/iam.service.v1.ProjectService/DeleteProject"
+	ProjectService_PurgeProject_FullMethodName     = "/iam.service.v1.ProjectService/PurgeProject"
+	ProjectService_RestoreProject_FullMethodName   = "/iam.service.v1.ProjectService/RestoreProject"
 	ProjectService_AddMember_FullMethodName        = "/iam.service.v1.ProjectService/AddMember"
 	ProjectService_RemoveMember_FullMethodName     = "/iam.service.v1.ProjectService/RemoveMember"
 	ProjectService_ListMembers_FullMethodName      = "/iam.service.v1.ProjectService/ListMembers"
@@ -40,6 +42,8 @@ type ProjectServiceClient interface {
 	ListProjects(ctx context.Context, in *v1.ListProjectsRequest, opts ...grpc.CallOption) (*v1.ListProjectsResponse, error)
 	UpdateProject(ctx context.Context, in *v1.UpdateProjectRequest, opts ...grpc.CallOption) (*v1.UpdateProjectResponse, error)
 	DeleteProject(ctx context.Context, in *v1.DeleteProjectRequest, opts ...grpc.CallOption) (*v1.DeleteProjectResponse, error)
+	PurgeProject(ctx context.Context, in *v1.PurgeProjectRequest, opts ...grpc.CallOption) (*v1.PurgeProjectResponse, error)
+	RestoreProject(ctx context.Context, in *v1.RestoreProjectRequest, opts ...grpc.CallOption) (*v1.RestoreProjectResponse, error)
 	AddMember(ctx context.Context, in *v1.AddMemberRequest, opts ...grpc.CallOption) (*v1.AddMemberResponse, error)
 	RemoveMember(ctx context.Context, in *v1.RemoveMemberRequest, opts ...grpc.CallOption) (*v1.RemoveMemberResponse, error)
 	ListMembers(ctx context.Context, in *v1.ListMembersRequest, opts ...grpc.CallOption) (*v1.ListMembersResponse, error)
@@ -104,6 +108,26 @@ func (c *projectServiceClient) DeleteProject(ctx context.Context, in *v1.DeleteP
 	return out, nil
 }
 
+func (c *projectServiceClient) PurgeProject(ctx context.Context, in *v1.PurgeProjectRequest, opts ...grpc.CallOption) (*v1.PurgeProjectResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(v1.PurgeProjectResponse)
+	err := c.cc.Invoke(ctx, ProjectService_PurgeProject_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *projectServiceClient) RestoreProject(ctx context.Context, in *v1.RestoreProjectRequest, opts ...grpc.CallOption) (*v1.RestoreProjectResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(v1.RestoreProjectResponse)
+	err := c.cc.Invoke(ctx, ProjectService_RestoreProject_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *projectServiceClient) AddMember(ctx context.Context, in *v1.AddMemberRequest, opts ...grpc.CallOption) (*v1.AddMemberResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(v1.AddMemberResponse)
@@ -153,6 +177,8 @@ type ProjectServiceServer interface {
 	ListProjects(context.Context, *v1.ListProjectsRequest) (*v1.ListProjectsResponse, error)
 	UpdateProject(context.Context, *v1.UpdateProjectRequest) (*v1.UpdateProjectResponse, error)
 	DeleteProject(context.Context, *v1.DeleteProjectRequest) (*v1.DeleteProjectResponse, error)
+	PurgeProject(context.Context, *v1.PurgeProjectRequest) (*v1.PurgeProjectResponse, error)
+	RestoreProject(context.Context, *v1.RestoreProjectRequest) (*v1.RestoreProjectResponse, error)
 	AddMember(context.Context, *v1.AddMemberRequest) (*v1.AddMemberResponse, error)
 	RemoveMember(context.Context, *v1.RemoveMemberRequest) (*v1.RemoveMemberResponse, error)
 	ListMembers(context.Context, *v1.ListMembersRequest) (*v1.ListMembersResponse, error)
@@ -181,6 +207,12 @@ func (UnimplementedProjectServiceServer) UpdateProject(context.Context, *v1.Upda
 }
 func (UnimplementedProjectServiceServer) DeleteProject(context.Context, *v1.DeleteProjectRequest) (*v1.DeleteProjectResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method DeleteProject not implemented")
+}
+func (UnimplementedProjectServiceServer) PurgeProject(context.Context, *v1.PurgeProjectRequest) (*v1.PurgeProjectResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method PurgeProject not implemented")
+}
+func (UnimplementedProjectServiceServer) RestoreProject(context.Context, *v1.RestoreProjectRequest) (*v1.RestoreProjectResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method RestoreProject not implemented")
 }
 func (UnimplementedProjectServiceServer) AddMember(context.Context, *v1.AddMemberRequest) (*v1.AddMemberResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method AddMember not implemented")
@@ -305,6 +337,42 @@ func _ProjectService_DeleteProject_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ProjectService_PurgeProject_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(v1.PurgeProjectRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProjectServiceServer).PurgeProject(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ProjectService_PurgeProject_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProjectServiceServer).PurgeProject(ctx, req.(*v1.PurgeProjectRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ProjectService_RestoreProject_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(v1.RestoreProjectRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProjectServiceServer).RestoreProject(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ProjectService_RestoreProject_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProjectServiceServer).RestoreProject(ctx, req.(*v1.RestoreProjectRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _ProjectService_AddMember_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(v1.AddMemberRequest)
 	if err := dec(in); err != nil {
@@ -403,6 +471,14 @@ var ProjectService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteProject",
 			Handler:    _ProjectService_DeleteProject_Handler,
+		},
+		{
+			MethodName: "PurgeProject",
+			Handler:    _ProjectService_PurgeProject_Handler,
+		},
+		{
+			MethodName: "RestoreProject",
+			Handler:    _ProjectService_RestoreProject_Handler,
 		},
 		{
 			MethodName: "AddMember",

@@ -19,6 +19,8 @@ type Organization struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID uuid.UUID `json:"id,omitempty"`
+	// DeletedAt holds the value of the "deleted_at" field.
+	DeletedAt *time.Time `json:"deleted_at,omitempty"`
 	// PlatformID holds the value of the "platform_id" field.
 	PlatformID uuid.UUID `json:"platform_id,omitempty"`
 	// Name holds the value of the "name" field.
@@ -86,7 +88,7 @@ func (*Organization) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case organization.FieldName, organization.FieldSlug, organization.FieldDisplayName:
 			values[i] = new(sql.NullString)
-		case organization.FieldCreatedAt, organization.FieldUpdatedAt:
+		case organization.FieldDeletedAt, organization.FieldCreatedAt, organization.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
 		case organization.FieldID, organization.FieldPlatformID:
 			values[i] = new(uuid.UUID)
@@ -110,6 +112,13 @@ func (_m *Organization) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value != nil {
 				_m.ID = *value
+			}
+		case organization.FieldDeletedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field deleted_at", values[i])
+			} else if value.Valid {
+				_m.DeletedAt = new(time.Time)
+				*_m.DeletedAt = value.Time
 			}
 		case organization.FieldPlatformID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
@@ -199,6 +208,11 @@ func (_m *Organization) String() string {
 	var builder strings.Builder
 	builder.WriteString("Organization(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
+	if v := _m.DeletedAt; v != nil {
+		builder.WriteString("deleted_at=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
+	builder.WriteString(", ")
 	builder.WriteString("platform_id=")
 	builder.WriteString(fmt.Sprintf("%v", _m.PlatformID))
 	builder.WriteString(", ")

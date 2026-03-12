@@ -1566,6 +1566,449 @@ var _ interface {
 	ErrorName() string
 } = DeleteProjectResponseValidationError{}
 
+// Validate checks the field values on PurgeProjectRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *PurgeProjectRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on PurgeProjectRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// PurgeProjectRequestMultiError, or nil if none found.
+func (m *PurgeProjectRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *PurgeProjectRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Id
+
+	if len(errors) > 0 {
+		return PurgeProjectRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// PurgeProjectRequestMultiError is an error wrapping multiple validation
+// errors returned by PurgeProjectRequest.ValidateAll() if the designated
+// constraints aren't met.
+type PurgeProjectRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m PurgeProjectRequestMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m PurgeProjectRequestMultiError) AllErrors() []error { return m }
+
+// PurgeProjectRequestValidationError is the validation error returned by
+// PurgeProjectRequest.Validate if the designated constraints aren't met.
+type PurgeProjectRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e PurgeProjectRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e PurgeProjectRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e PurgeProjectRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e PurgeProjectRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e PurgeProjectRequestValidationError) ErrorName() string {
+	return "PurgeProjectRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e PurgeProjectRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sPurgeProjectRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = PurgeProjectRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = PurgeProjectRequestValidationError{}
+
+// Validate checks the field values on PurgeProjectResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *PurgeProjectResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on PurgeProjectResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// PurgeProjectResponseMultiError, or nil if none found.
+func (m *PurgeProjectResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *PurgeProjectResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Success
+
+	if len(errors) > 0 {
+		return PurgeProjectResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// PurgeProjectResponseMultiError is an error wrapping multiple validation
+// errors returned by PurgeProjectResponse.ValidateAll() if the designated
+// constraints aren't met.
+type PurgeProjectResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m PurgeProjectResponseMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m PurgeProjectResponseMultiError) AllErrors() []error { return m }
+
+// PurgeProjectResponseValidationError is the validation error returned by
+// PurgeProjectResponse.Validate if the designated constraints aren't met.
+type PurgeProjectResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e PurgeProjectResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e PurgeProjectResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e PurgeProjectResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e PurgeProjectResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e PurgeProjectResponseValidationError) ErrorName() string {
+	return "PurgeProjectResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e PurgeProjectResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sPurgeProjectResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = PurgeProjectResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = PurgeProjectResponseValidationError{}
+
+// Validate checks the field values on RestoreProjectRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *RestoreProjectRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on RestoreProjectRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// RestoreProjectRequestMultiError, or nil if none found.
+func (m *RestoreProjectRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *RestoreProjectRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Id
+
+	if len(errors) > 0 {
+		return RestoreProjectRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// RestoreProjectRequestMultiError is an error wrapping multiple validation
+// errors returned by RestoreProjectRequest.ValidateAll() if the designated
+// constraints aren't met.
+type RestoreProjectRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m RestoreProjectRequestMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m RestoreProjectRequestMultiError) AllErrors() []error { return m }
+
+// RestoreProjectRequestValidationError is the validation error returned by
+// RestoreProjectRequest.Validate if the designated constraints aren't met.
+type RestoreProjectRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e RestoreProjectRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e RestoreProjectRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e RestoreProjectRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e RestoreProjectRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e RestoreProjectRequestValidationError) ErrorName() string {
+	return "RestoreProjectRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e RestoreProjectRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sRestoreProjectRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = RestoreProjectRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = RestoreProjectRequestValidationError{}
+
+// Validate checks the field values on RestoreProjectResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *RestoreProjectResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on RestoreProjectResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// RestoreProjectResponseMultiError, or nil if none found.
+func (m *RestoreProjectResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *RestoreProjectResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if all {
+		switch v := interface{}(m.GetProject()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, RestoreProjectResponseValidationError{
+					field:  "Project",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, RestoreProjectResponseValidationError{
+					field:  "Project",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetProject()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return RestoreProjectResponseValidationError{
+				field:  "Project",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if len(errors) > 0 {
+		return RestoreProjectResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// RestoreProjectResponseMultiError is an error wrapping multiple validation
+// errors returned by RestoreProjectResponse.ValidateAll() if the designated
+// constraints aren't met.
+type RestoreProjectResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m RestoreProjectResponseMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m RestoreProjectResponseMultiError) AllErrors() []error { return m }
+
+// RestoreProjectResponseValidationError is the validation error returned by
+// RestoreProjectResponse.Validate if the designated constraints aren't met.
+type RestoreProjectResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e RestoreProjectResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e RestoreProjectResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e RestoreProjectResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e RestoreProjectResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e RestoreProjectResponseValidationError) ErrorName() string {
+	return "RestoreProjectResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e RestoreProjectResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sRestoreProjectResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = RestoreProjectResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = RestoreProjectResponseValidationError{}
+
 // Validate checks the field values on AddMemberRequest with the rules defined
 // in the proto definition for this message. If any rules are violated, the
 // first error encountered is returned, or nil if there are no violations.

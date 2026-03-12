@@ -22,18 +22,19 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// AuthzMode defines how the AuthZ middleware resolves the target object.
+// AuthzMode 定义了 AuthZ 中间件如何解析目标对象。
 type AuthzMode int32
 
 const (
+	// 未指定
 	AuthzMode_AUTHZ_MODE_UNSPECIFIED AuthzMode = 0
-	// Skip authorization entirely (public endpoint).
+	// 完全跳过鉴权（公开接口）。
 	AuthzMode_AUTHZ_MODE_NONE AuthzMode = 1
-	// Resolve organization_id from the request and check relation on organization:{id}.
+	// 从请求中解析 organization_id，并校验 organization:{id} 上的关系。
 	AuthzMode_AUTHZ_MODE_ORGANIZATION AuthzMode = 2
-	// Resolve project_id from the request and check relation on project:{id}.
+	// 从请求中解析 project_id，并校验 project:{id} 上的关系。
 	AuthzMode_AUTHZ_MODE_PROJECT AuthzMode = 3
-	// Resolve object_type + object_id from the request and check relation on {type}:{id}.
+	// 从请求中解析 object_type 和 object_id，并校验 {type}:{id} 上的关系。
 	AuthzMode_AUTHZ_MODE_OBJECT AuthzMode = 4
 )
 
@@ -82,14 +83,18 @@ func (AuthzMode) EnumDescriptor() ([]byte, []int) {
 	return file_servora_authz_v1_authz_proto_rawDescGZIP(), []int{0}
 }
 
-// ObjectType enumerates the resource types in the OpenFGA model.
+// ObjectType 枚举了 OpenFGA 模型中的资源类型。
 type ObjectType int32
 
 const (
-	ObjectType_OBJECT_TYPE_UNSPECIFIED  ObjectType = 0
-	ObjectType_OBJECT_TYPE_PLATFORM     ObjectType = 1
+	// 未指定
+	ObjectType_OBJECT_TYPE_UNSPECIFIED ObjectType = 0
+	// 平台
+	ObjectType_OBJECT_TYPE_PLATFORM ObjectType = 1
+	// 组织
 	ObjectType_OBJECT_TYPE_ORGANIZATION ObjectType = 2
-	ObjectType_OBJECT_TYPE_PROJECT      ObjectType = 3
+	// 项目
+	ObjectType_OBJECT_TYPE_PROJECT ObjectType = 3
 )
 
 // Enum value maps for ObjectType.
@@ -135,23 +140,23 @@ func (ObjectType) EnumDescriptor() ([]byte, []int) {
 	return file_servora_authz_v1_authz_proto_rawDescGZIP(), []int{1}
 }
 
-// Relation enumerates all assignable roles and computed permissions in the OpenFGA model.
+// Relation 枚举了 OpenFGA 模型中所有可分配的角色和计算所得的权限。
 type Relation int32
 
 const (
 	Relation_RELATION_UNSPECIFIED Relation = 0
-	// --- Assignable roles ---
-	Relation_RELATION_OWNER     Relation = 1
-	Relation_RELATION_ADMIN     Relation = 2
-	Relation_RELATION_MEMBER    Relation = 3
-	Relation_RELATION_DEVELOPER Relation = 4
-	Relation_RELATION_VIEWER    Relation = 5
-	// --- Computed permissions (resolved by the OpenFGA model) ---
-	Relation_RELATION_CAN_VIEW           Relation = 10
-	Relation_RELATION_CAN_EDIT           Relation = 11
-	Relation_RELATION_CAN_ADMIN          Relation = 12
-	Relation_RELATION_CAN_MANAGE         Relation = 13
-	Relation_RELATION_CAN_MANAGE_MEMBERS Relation = 14
+	// --- 可分配角色 ---
+	Relation_RELATION_OWNER     Relation = 1 // 拥有者
+	Relation_RELATION_ADMIN     Relation = 2 // 管理员
+	Relation_RELATION_MEMBER    Relation = 3 // 成员
+	Relation_RELATION_DEVELOPER Relation = 4 // 开发者
+	Relation_RELATION_VIEWER    Relation = 5 // 只读者
+	// --- 计算权限（由 OpenFGA 模型解析） ---
+	Relation_RELATION_CAN_VIEW           Relation = 10 // 可查看
+	Relation_RELATION_CAN_EDIT           Relation = 11 // 可编辑
+	Relation_RELATION_CAN_ADMIN          Relation = 12 // 可管理
+	Relation_RELATION_CAN_MANAGE         Relation = 13 // 可运营
+	Relation_RELATION_CAN_MANAGE_MEMBERS Relation = 14 // 可管理成员
 )
 
 // Enum value maps for Relation.
@@ -211,16 +216,16 @@ func (Relation) EnumDescriptor() ([]byte, []int) {
 	return file_servora_authz_v1_authz_proto_rawDescGZIP(), []int{2}
 }
 
-// AuthzRule is attached to an RPC method to declare its authorization requirement.
+// AuthzRule 用于绑定到 RPC 方法，声明其授权需求。
 type AuthzRule struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// How to resolve the target object (organization / project / custom object).
+	// 目标对象的解析方式（组织/项目/自定义对象）。
 	Mode AuthzMode `protobuf:"varint,1,opt,name=mode,proto3,enum=servora.authz.v1.AuthzMode" json:"mode,omitempty"`
-	// The relation (permission) required on the resolved object.
+	// 需要在目标对象上拥有的关系（权限）。
 	Relation Relation `protobuf:"varint,2,opt,name=relation,proto3,enum=servora.authz.v1.Relation" json:"relation,omitempty"`
-	// For AUTHZ_MODE_OBJECT: the explicit object type to check against.
+	// 对于 AUTHZ_MODE_OBJECT：需要校验的具体对象类型。
 	ObjectType ObjectType `protobuf:"varint,3,opt,name=object_type,json=objectType,proto3,enum=servora.authz.v1.ObjectType" json:"object_type,omitempty"`
-	// The request field name that carries the resource ID (e.g. "id", "organization_id").
+	// 请求中携带资源 ID 的字段名（如 "id", "organization_id"）。
 	IdField       string `protobuf:"bytes,4,opt,name=id_field,json=idField,proto3" json:"id_field,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -297,7 +302,7 @@ var file_servora_authz_v1_authz_proto_extTypes = []protoimpl.ExtensionInfo{
 
 // Extension fields to descriptorpb.MethodOptions.
 var (
-	// rule declares the authorization requirement for an RPC method.
+	// rule 声明了 RPC 方法的授权需求。
 	//
 	// optional servora.authz.v1.AuthzRule rule = 50100;
 	E_Rule = &file_servora_authz_v1_authz_proto_extTypes[0]

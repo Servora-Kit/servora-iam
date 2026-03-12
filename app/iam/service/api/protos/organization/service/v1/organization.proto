@@ -29,6 +29,8 @@ service OrganizationService {
   rpc ListOrganizations(ListOrganizationsRequest) returns (ListOrganizationsResponse);
   rpc UpdateOrganization(UpdateOrganizationRequest) returns (UpdateOrganizationResponse);
   rpc DeleteOrganization(DeleteOrganizationRequest) returns (DeleteOrganizationResponse);
+  rpc PurgeOrganization(PurgeOrganizationRequest) returns (PurgeOrganizationResponse);
+  rpc RestoreOrganization(RestoreOrganizationRequest) returns (RestoreOrganizationResponse);
   rpc AddMember(AddMemberRequest) returns (AddMemberResponse);
   rpc RemoveMember(RemoveMemberRequest) returns (RemoveMemberResponse);
   rpc ListMembers(ListMembersRequest) returns (ListMembersResponse);
@@ -101,6 +103,22 @@ message DeleteOrganizationRequest {
 
 message DeleteOrganizationResponse {
   bool success = 1;
+}
+
+message PurgeOrganizationRequest {
+  string id = 1 [(buf.validate.field).string.uuid = true];
+}
+
+message PurgeOrganizationResponse {
+  bool success = 1;
+}
+
+message RestoreOrganizationRequest {
+  string id = 1 [(buf.validate.field).string.uuid = true];
+}
+
+message RestoreOrganizationResponse {
+  OrganizationInfo organization = 1;
 }
 
 message AddMemberRequest {

@@ -58,4 +58,27 @@ service UserService {
       id_field: "root"
     };
   }
+
+  rpc PurgeUser(user.service.v1.PurgeUserRequest) returns (user.service.v1.PurgeUserResponse) {
+    option (google.api.http) = {delete: "/v1/user/purge/{id}"};
+    option (servora.authz.v1.rule) = {
+      mode: AUTHZ_MODE_OBJECT
+      object_type: OBJECT_TYPE_PLATFORM
+      relation: RELATION_ADMIN
+      id_field: "root"
+    };
+  }
+
+  rpc RestoreUser(user.service.v1.RestoreUserRequest) returns (user.service.v1.RestoreUserResponse) {
+    option (google.api.http) = {
+      post: "/v1/user/restore/{id}"
+      body: "*"
+    };
+    option (servora.authz.v1.rule) = {
+      mode: AUTHZ_MODE_OBJECT
+      object_type: OBJECT_TYPE_PLATFORM
+      relation: RELATION_ADMIN
+      id_field: "root"
+    };
+  }
 }

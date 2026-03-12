@@ -29,6 +29,8 @@ service ProjectService {
   rpc ListProjects(ListProjectsRequest) returns (ListProjectsResponse);
   rpc UpdateProject(UpdateProjectRequest) returns (UpdateProjectResponse);
   rpc DeleteProject(DeleteProjectRequest) returns (DeleteProjectResponse);
+  rpc PurgeProject(PurgeProjectRequest) returns (PurgeProjectResponse);
+  rpc RestoreProject(RestoreProjectRequest) returns (RestoreProjectResponse);
   rpc AddMember(AddMemberRequest) returns (AddMemberResponse);
   rpc RemoveMember(RemoveMemberRequest) returns (RemoveMemberResponse);
   rpc ListMembers(ListMembersRequest) returns (ListMembersResponse);
@@ -104,6 +106,22 @@ message DeleteProjectRequest {
 
 message DeleteProjectResponse {
   bool success = 1;
+}
+
+message PurgeProjectRequest {
+  string id = 1 [(buf.validate.field).string.uuid = true];
+}
+
+message PurgeProjectResponse {
+  bool success = 1;
+}
+
+message RestoreProjectRequest {
+  string id = 1 [(buf.validate.field).string.uuid = true];
+}
+
+message RestoreProjectResponse {
+  ProjectInfo project = 1;
 }
 
 message AddMemberRequest {

@@ -12,6 +12,7 @@ var (
 	// OrganizationsColumns holds the columns for the "organizations" table.
 	OrganizationsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
 		{Name: "name", Type: field.TypeString, Size: 128},
 		{Name: "slug", Type: field.TypeString, Unique: true, Size: 128},
 		{Name: "display_name", Type: field.TypeString, Nullable: true, Size: 255},
@@ -27,7 +28,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "organizations_platforms_organizations",
-				Columns:    []*schema.Column{OrganizationsColumns[6]},
+				Columns:    []*schema.Column{OrganizationsColumns[7]},
 				RefColumns: []*schema.Column{PlatformsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -86,6 +87,7 @@ var (
 	// ProjectsColumns holds the columns for the "projects" table.
 	ProjectsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
 		{Name: "name", Type: field.TypeString, Size: 128},
 		{Name: "slug", Type: field.TypeString, Size: 128},
 		{Name: "description", Type: field.TypeString, Nullable: true, Size: 512},
@@ -101,7 +103,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "projects_organizations_projects",
-				Columns:    []*schema.Column{ProjectsColumns[6]},
+				Columns:    []*schema.Column{ProjectsColumns[7]},
 				RefColumns: []*schema.Column{OrganizationsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -110,7 +112,7 @@ var (
 			{
 				Name:    "project_organization_id_slug",
 				Unique:  true,
-				Columns: []*schema.Column{ProjectsColumns[6], ProjectsColumns[2]},
+				Columns: []*schema.Column{ProjectsColumns[7], ProjectsColumns[3]},
 			},
 		},
 	}
@@ -153,6 +155,7 @@ var (
 	// UsersColumns holds the columns for the "users" table.
 	UsersColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
 		{Name: "name", Type: field.TypeString, Unique: true, Size: 64},
 		{Name: "email", Type: field.TypeString, Unique: true, Size: 128},
 		{Name: "password", Type: field.TypeString, Size: 255},
