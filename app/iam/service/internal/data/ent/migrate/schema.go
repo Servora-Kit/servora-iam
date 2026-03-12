@@ -9,6 +9,103 @@ import (
 )
 
 var (
+	// OrganizationsColumns holds the columns for the "organizations" table.
+	OrganizationsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "platform_id", Type: field.TypeUUID},
+		{Name: "name", Type: field.TypeString, Size: 128},
+		{Name: "slug", Type: field.TypeString, Unique: true, Size: 128},
+		{Name: "display_name", Type: field.TypeString, Nullable: true, Size: 255},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+	}
+	// OrganizationsTable holds the schema information for the "organizations" table.
+	OrganizationsTable = &schema.Table{
+		Name:       "organizations",
+		Columns:    OrganizationsColumns,
+		PrimaryKey: []*schema.Column{OrganizationsColumns[0]},
+	}
+	// OrganizationMembersColumns holds the columns for the "organization_members" table.
+	OrganizationMembersColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "organization_id", Type: field.TypeUUID},
+		{Name: "user_id", Type: field.TypeUUID},
+		{Name: "role", Type: field.TypeString, Size: 32, Default: "member"},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+	}
+	// OrganizationMembersTable holds the schema information for the "organization_members" table.
+	OrganizationMembersTable = &schema.Table{
+		Name:       "organization_members",
+		Columns:    OrganizationMembersColumns,
+		PrimaryKey: []*schema.Column{OrganizationMembersColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "organizationmember_organization_id_user_id",
+				Unique:  true,
+				Columns: []*schema.Column{OrganizationMembersColumns[1], OrganizationMembersColumns[2]},
+			},
+		},
+	}
+	// PlatformsColumns holds the columns for the "platforms" table.
+	PlatformsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "slug", Type: field.TypeString, Unique: true, Size: 64},
+		{Name: "name", Type: field.TypeString, Size: 128},
+		{Name: "type", Type: field.TypeString, Size: 32, Default: "system"},
+		{Name: "created_at", Type: field.TypeTime},
+	}
+	// PlatformsTable holds the schema information for the "platforms" table.
+	PlatformsTable = &schema.Table{
+		Name:       "platforms",
+		Columns:    PlatformsColumns,
+		PrimaryKey: []*schema.Column{PlatformsColumns[0]},
+	}
+	// ProjectsColumns holds the columns for the "projects" table.
+	ProjectsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "organization_id", Type: field.TypeUUID},
+		{Name: "name", Type: field.TypeString, Size: 128},
+		{Name: "slug", Type: field.TypeString, Size: 128},
+		{Name: "description", Type: field.TypeString, Nullable: true, Size: 512},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+	}
+	// ProjectsTable holds the schema information for the "projects" table.
+	ProjectsTable = &schema.Table{
+		Name:       "projects",
+		Columns:    ProjectsColumns,
+		PrimaryKey: []*schema.Column{ProjectsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "project_organization_id_slug",
+				Unique:  true,
+				Columns: []*schema.Column{ProjectsColumns[1], ProjectsColumns[3]},
+			},
+		},
+	}
+	// ProjectMembersColumns holds the columns for the "project_members" table.
+	ProjectMembersColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "project_id", Type: field.TypeUUID},
+		{Name: "user_id", Type: field.TypeUUID},
+		{Name: "role", Type: field.TypeString, Size: 32, Default: "viewer"},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+	}
+	// ProjectMembersTable holds the schema information for the "project_members" table.
+	ProjectMembersTable = &schema.Table{
+		Name:       "project_members",
+		Columns:    ProjectMembersColumns,
+		PrimaryKey: []*schema.Column{ProjectMembersColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "projectmember_project_id_user_id",
+				Unique:  true,
+				Columns: []*schema.Column{ProjectMembersColumns[1], ProjectMembersColumns[2]},
+			},
+		},
+	}
 	// UsersColumns holds the columns for the "users" table.
 	UsersColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID},
@@ -27,11 +124,31 @@ var (
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
+		OrganizationsTable,
+		OrganizationMembersTable,
+		PlatformsTable,
+		ProjectsTable,
+		ProjectMembersTable,
 		UsersTable,
 	}
 )
 
 func init() {
+	OrganizationsTable.Annotation = &entsql.Annotation{
+		Table: "organizations",
+	}
+	OrganizationMembersTable.Annotation = &entsql.Annotation{
+		Table: "organization_members",
+	}
+	PlatformsTable.Annotation = &entsql.Annotation{
+		Table: "platforms",
+	}
+	ProjectsTable.Annotation = &entsql.Annotation{
+		Table: "projects",
+	}
+	ProjectMembersTable.Annotation = &entsql.Annotation{
+		Table: "project_members",
+	}
 	UsersTable.Annotation = &entsql.Annotation{
 		Table: "users",
 	}

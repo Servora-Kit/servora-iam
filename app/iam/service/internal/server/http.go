@@ -7,11 +7,13 @@ import (
 
 	"github.com/Servora-Kit/servora/api/gen/go/conf/v1"
 	iamv1 "github.com/Servora-Kit/servora/api/gen/go/iam/service/v1"
+	"github.com/Servora-Kit/servora/app/iam/service/internal/biz"
 	"github.com/Servora-Kit/servora/app/iam/service/internal/service"
 	"github.com/Servora-Kit/servora/pkg/governance/telemetry"
 	"github.com/Servora-Kit/servora/pkg/health"
 	"github.com/Servora-Kit/servora/pkg/jwks"
 	"github.com/Servora-Kit/servora/pkg/logger"
+	"github.com/Servora-Kit/servora/pkg/openfga"
 	"github.com/Servora-Kit/servora/pkg/redis"
 	"github.com/Servora-Kit/servora/pkg/transport/server/http"
 	svrmw "github.com/Servora-Kit/servora/pkg/transport/server/middleware"
@@ -24,6 +26,8 @@ func NewHTTPMiddleware(
 	m *telemetry.Metrics,
 	l logger.Logger,
 	km *jwks.KeyManager,
+	fga *openfga.Client,
+	platID biz.PlatformRootID,
 ) HTTPMiddleware {
 	ms := svrmw.NewChainBuilder(logger.With(l, logger.WithModule("http/server/iam-service"))).
 		WithTrace(trace).
@@ -40,13 +44,34 @@ func NewHTTPMiddleware(
 
 	authn := svrmw.Authn(svrmw.WithVerifier(km.Verifier()))
 
+	authzRules := convertAuthzRules(iamv1.AuthzRules)
+	authz := svrmw.Authz(
+		svrmw.WithFGAClient(fga),
+		svrmw.WithAuthzRules(authzRules),
+		svrmw.WithPlatformRootID(string(platID)),
+	)
+
 	ms = append(ms,
 		selector.Server(authn).
 			Match(publicWhitelist.MatchFunc()).
 			Build(),
+		authz,
 	)
 
 	return ms
+}
+
+func convertAuthzRules(src map[string]iamv1.AuthzRuleEntry) map[string]svrmw.AuthzRuleEntry {
+	dst := make(map[string]svrmw.AuthzRuleEntry, len(src))
+	for op, r := range src {
+		dst[op] = svrmw.AuthzRuleEntry{
+			Mode:       r.Mode,
+			Relation:   r.Relation,
+			ObjectType: r.ObjectType,
+			IDField:    r.IDField,
+		}
+	}
+	return dst
 }
 
 func NewHealthHandler(redisClient *redis.Client) *health.Handler {
@@ -66,6 +91,8 @@ func NewHTTPServer(
 	auth *service.AuthService,
 	user *service.UserService,
 	test *service.TestService,
+	org *service.OrganizationService,
+	proj *service.ProjectService,
 ) *khttp.Server {
 	hlog := logger.With(l, logger.WithModule("http/server/iam-service"))
 
@@ -90,6 +117,8 @@ func NewHTTPServer(
 			func(s *khttp.Server) { iamv1.RegisterAuthServiceHTTPServer(s, auth) },
 			func(s *khttp.Server) { iamv1.RegisterUserServiceHTTPServer(s, user) },
 			func(s *khttp.Server) { iamv1.RegisterTestServiceHTTPServer(s, test) },
+			func(s *khttp.Server) { iamv1.RegisterOrganizationServiceHTTPServer(s, org) },
+			func(s *khttp.Server) { iamv1.RegisterProjectServiceHTTPServer(s, proj) },
 			func(s *khttp.Server) {
 				s.Handle("/.well-known/jwks.json", jwks.NewJWKSHandler(km))
 				s.Handle("/.well-known/openid-configuration", jwks.NewOIDCDiscoveryHandler(issuerURL))

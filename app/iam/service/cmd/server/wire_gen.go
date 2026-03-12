@@ -39,17 +39,21 @@ func wireApp(confServer *conf.Server, discovery *conf.Discovery, confRegistry *c
 	if err != nil {
 		return nil, nil, err
 	}
-	httpMiddleware := server.NewHTTPMiddleware(trace, telemetryMetrics, logger, keyManager)
+	openfgaClient := server.NewOpenFGAClient(app, logger)
+	entClient, err := data.NewDBClient(confData, app, logger)
+	if err != nil {
+		return nil, nil, err
+	}
+	platformRootID, err := data.NewPlatformRootID(entClient, openfgaClient, app, logger)
+	if err != nil {
+		return nil, nil, err
+	}
+	httpMiddleware := server.NewHTTPMiddleware(trace, telemetryMetrics, logger, keyManager, openfgaClient, platformRootID)
 	redisClient, cleanup, err := data.NewRedis(confData, logger)
 	if err != nil {
 		return nil, nil, err
 	}
 	handler := server.NewHealthHandler(redisClient)
-	entClient, err := data.NewDBClient(confData, app, logger)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
 	registryDiscovery := registry.NewDiscovery(discovery)
 	clientClient, err := client.NewClient(confData, trace, registryDiscovery, logger)
 	if err != nil {
@@ -62,7 +66,11 @@ func wireApp(confServer *conf.Server, discovery *conf.Discovery, confRegistry *c
 		return nil, nil, err
 	}
 	authRepo := data.NewAuthRepo(dataData, logger)
-	authUsecase := biz.NewAuthUsecase(authRepo, logger, app, keyManager)
+	organizationRepo := data.NewOrganizationRepo(dataData, logger)
+	organizationUsecase := biz.NewOrganizationUsecase(organizationRepo, openfgaClient, logger, platformRootID)
+	projectRepo := data.NewProjectRepo(dataData, logger)
+	projectUsecase := biz.NewProjectUsecase(projectRepo, openfgaClient, logger)
+	authUsecase := biz.NewAuthUsecase(authRepo, logger, app, keyManager, organizationUsecase, projectUsecase)
 	authService := service.NewAuthService(authUsecase)
 	userRepo := data.NewUserRepo(dataData, logger)
 	userUsecase := biz.NewUserUsecase(userRepo, logger, app, authRepo)
@@ -70,7 +78,9 @@ func wireApp(confServer *conf.Server, discovery *conf.Discovery, confRegistry *c
 	testRepo := data.NewTestRepo(dataData, logger)
 	testUsecase := biz.NewTestUsecase(testRepo, logger)
 	testService := service.NewTestService(testUsecase)
-	httpServer := server.NewHTTPServer(confServer, app, httpMiddleware, telemetryMetrics, logger, handler, keyManager, authService, userService, testService)
+	organizationService := service.NewOrganizationService(organizationUsecase)
+	projectService := service.NewProjectService(projectUsecase)
+	httpServer := server.NewHTTPServer(confServer, app, httpMiddleware, telemetryMetrics, logger, handler, keyManager, authService, userService, testService, organizationService, projectService)
 	kratosApp := newApp(svcIdentity, logger, registrar, grpcServer, httpServer)
 	return kratosApp, func() {
 		cleanup2()

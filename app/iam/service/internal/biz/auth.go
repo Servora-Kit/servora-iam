@@ -18,25 +18,23 @@ import (
 )
 
 type AuthUsecase struct {
-	repo            AuthRepo
-	log             *logger.Helper
-	cfg             *conf.App
-	keyManager      *jwks.KeyManager
-	adminRegistered bool
+	repo    AuthRepo
+	log     *logger.Helper
+	cfg     *conf.App
+	keyManager *jwks.KeyManager
+	orgUC   *OrganizationUsecase
+	projUC  *ProjectUsecase
 }
 
-func NewAuthUsecase(repo AuthRepo, l logger.Logger, cfg *conf.App, km *jwks.KeyManager) *AuthUsecase {
-	uc := &AuthUsecase{
+func NewAuthUsecase(repo AuthRepo, l logger.Logger, cfg *conf.App, km *jwks.KeyManager, orgUC *OrganizationUsecase, projUC *ProjectUsecase) *AuthUsecase {
+	return &AuthUsecase{
 		repo:       repo,
 		log:        logger.NewHelper(l, logger.WithModule("auth/biz/iam-service")),
 		cfg:        cfg,
 		keyManager: km,
+		orgUC:      orgUC,
+		projUC:     projUC,
 	}
-	admin, err := repo.GetUserByUserName(context.Background(), "admin")
-	if err == nil && admin != nil {
-		uc.adminRegistered = true
-	}
-	return uc
 }
 
 type UserClaims struct {
@@ -69,20 +67,12 @@ type AuthRepo interface {
 }
 
 func (uc *AuthUsecase) SignupByEmail(ctx context.Context, user *entity.User) (*entity.User, error) {
-	if !uc.adminRegistered {
-		if user.Name != "admin" {
-			return nil, authpb.ErrorInvalidCredentials("the first user must be named admin")
-		}
-		user.Role = "admin"
-	} else {
-		existingUser, err := uc.repo.GetUserByUserName(ctx, user.Name)
-		if err != nil && !dataent.IsNotFound(err) {
-			return nil, authpb.ErrorUserNotFound("failed to check username: %v", err)
-		}
-		if existingUser != nil {
-			return nil, authpb.ErrorUserAlreadyExists("username already exists")
-		}
-		user.Role = "user"
+	existingUser, err := uc.repo.GetUserByUserName(ctx, user.Name)
+	if err != nil && !dataent.IsNotFound(err) {
+		return nil, authpb.ErrorUserNotFound("failed to check username: %v", err)
+	}
+	if existingUser != nil {
+		return nil, authpb.ErrorUserAlreadyExists("username already exists")
 	}
 
 	existingEmail, err := uc.repo.GetUserByEmail(ctx, user.Email)
@@ -93,11 +83,23 @@ func (uc *AuthUsecase) SignupByEmail(ctx context.Context, user *entity.User) (*e
 		return nil, authpb.ErrorUserAlreadyExists("email already exists")
 	}
 
+	user.Role = "user"
 	createdUser, err := uc.repo.SaveUser(ctx, user)
-	if err == nil && !uc.adminRegistered && user.Name == "admin" {
-		uc.adminRegistered = true
+	if err != nil {
+		return nil, err
 	}
-	return createdUser, err
+
+	slug := helpers.Slugify(createdUser.Name)
+	org, err := uc.orgUC.CreateDefault(ctx, createdUser.ID, createdUser.Name+"'s Organization", slug+"-org")
+	if err != nil {
+		uc.log.Warnf("auto-create default org failed for user %s: %v", createdUser.ID, err)
+	} else {
+		if _, err := uc.projUC.CreateDefault(ctx, createdUser.ID, org.ID, "Default Project", "default"); err != nil {
+			uc.log.Warnf("auto-create default project failed for user %s: %v", createdUser.ID, err)
+		}
+	}
+
+	return createdUser, nil
 }
 
 func (uc *AuthUsecase) generateAccessToken(claims *UserClaims) (string, error) {

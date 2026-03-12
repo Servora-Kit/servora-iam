@@ -1,0 +1,293 @@
+package data
+
+import (
+	"context"
+	"fmt"
+
+	"entgo.io/ent/dialect/sql"
+	"github.com/google/uuid"
+
+	"github.com/Servora-Kit/servora/app/iam/service/internal/biz"
+	"github.com/Servora-Kit/servora/app/iam/service/internal/biz/entity"
+	"github.com/Servora-Kit/servora/app/iam/service/internal/data/ent"
+	"github.com/Servora-Kit/servora/app/iam/service/internal/data/ent/organization"
+	"github.com/Servora-Kit/servora/app/iam/service/internal/data/ent/organizationmember"
+	"github.com/Servora-Kit/servora/app/iam/service/internal/data/ent/user"
+	"github.com/Servora-Kit/servora/pkg/logger"
+)
+
+type organizationRepo struct {
+	data *Data
+	log  *logger.Helper
+}
+
+func NewOrganizationRepo(data *Data, l logger.Logger) biz.OrganizationRepo {
+	return &organizationRepo{
+		data: data,
+		log:  logger.NewHelper(l, logger.WithModule("organization/data/iam-service")),
+	}
+}
+
+func (r *organizationRepo) Create(ctx context.Context, org *entity.Organization) (*entity.Organization, error) {
+	platformID, err := uuid.Parse(org.PlatformID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid platform ID: %w", err)
+	}
+	b := r.data.entClient.Organization.Create().
+		SetPlatformID(platformID).
+		SetName(org.Name).
+		SetSlug(org.Slug)
+	if org.DisplayName != "" {
+		b.SetDisplayName(org.DisplayName)
+	}
+	created, err := b.Save(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("create organization: %w", err)
+	}
+	return entOrgToEntity(created), nil
+}
+
+func (r *organizationRepo) GetByID(ctx context.Context, id string) (*entity.Organization, error) {
+	uid, err := uuid.Parse(id)
+	if err != nil {
+		return nil, fmt.Errorf("invalid organization ID: %w", err)
+	}
+	org, err := r.data.entClient.Organization.Query().
+		Where(organization.IDEQ(uid)).
+		Only(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return entOrgToEntity(org), nil
+}
+
+func (r *organizationRepo) GetBySlug(ctx context.Context, slug string) (*entity.Organization, error) {
+	org, err := r.data.entClient.Organization.Query().
+		Where(organization.SlugEQ(slug)).
+		Only(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return entOrgToEntity(org), nil
+}
+
+func (r *organizationRepo) ListByUserID(ctx context.Context, userID string, page, pageSize int32) ([]*entity.Organization, int64, error) {
+	uid, err := uuid.Parse(userID)
+	if err != nil {
+		return nil, 0, fmt.Errorf("invalid user ID: %w", err)
+	}
+
+	memberOrgIDs, err := r.data.entClient.OrganizationMember.Query().
+		Where(organizationmember.UserIDEQ(uid)).
+		Select(organizationmember.FieldOrganizationID).
+		Strings(ctx)
+	if err != nil {
+		return nil, 0, fmt.Errorf("list member orgs: %w", err)
+	}
+
+	orgUUIDs := make([]uuid.UUID, 0, len(memberOrgIDs))
+	for _, idStr := range memberOrgIDs {
+		if oid, e := uuid.Parse(idStr); e == nil {
+			orgUUIDs = append(orgUUIDs, oid)
+		}
+	}
+
+	query := r.data.entClient.Organization.Query().
+		Where(organization.IDIn(orgUUIDs...)).
+		Order(organization.ByCreatedAt(sql.OrderDesc()))
+
+	total, err := query.Clone().Count(ctx)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	offset := int((page - 1) * pageSize)
+	orgs, err := query.Offset(offset).Limit(int(pageSize)).All(ctx)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	result := make([]*entity.Organization, 0, len(orgs))
+	for _, o := range orgs {
+		result = append(result, entOrgToEntity(o))
+	}
+	return result, int64(total), nil
+}
+
+func (r *organizationRepo) Update(ctx context.Context, org *entity.Organization) (*entity.Organization, error) {
+	uid, err := uuid.Parse(org.ID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid organization ID: %w", err)
+	}
+	b := r.data.entClient.Organization.UpdateOneID(uid)
+	if org.Name != "" {
+		b.SetName(org.Name)
+	}
+	if org.DisplayName != "" {
+		b.SetDisplayName(org.DisplayName)
+	}
+	updated, err := b.Save(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("update organization: %w", err)
+	}
+	return entOrgToEntity(updated), nil
+}
+
+func (r *organizationRepo) Delete(ctx context.Context, id string) error {
+	uid, err := uuid.Parse(id)
+	if err != nil {
+		return fmt.Errorf("invalid organization ID: %w", err)
+	}
+	return r.data.entClient.Organization.DeleteOneID(uid).Exec(ctx)
+}
+
+func (r *organizationRepo) AddMember(ctx context.Context, m *entity.OrganizationMember) (*entity.OrganizationMember, error) {
+	orgID, err := uuid.Parse(m.OrganizationID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid organization ID: %w", err)
+	}
+	userID, err := uuid.Parse(m.UserID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid user ID: %w", err)
+	}
+	created, err := r.data.entClient.OrganizationMember.Create().
+		SetOrganizationID(orgID).
+		SetUserID(userID).
+		SetRole(m.Role).
+		Save(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("add organization member: %w", err)
+	}
+	return r.enrichMember(ctx, created)
+}
+
+func (r *organizationRepo) RemoveMember(ctx context.Context, orgID, userID string) error {
+	oid, err := uuid.Parse(orgID)
+	if err != nil {
+		return fmt.Errorf("invalid organization ID: %w", err)
+	}
+	uid, err := uuid.Parse(userID)
+	if err != nil {
+		return fmt.Errorf("invalid user ID: %w", err)
+	}
+	_, err = r.data.entClient.OrganizationMember.Delete().
+		Where(
+			organizationmember.OrganizationIDEQ(oid),
+			organizationmember.UserIDEQ(uid),
+		).Exec(ctx)
+	return err
+}
+
+func (r *organizationRepo) ListMembers(ctx context.Context, orgID string, page, pageSize int32) ([]*entity.OrganizationMember, int64, error) {
+	oid, err := uuid.Parse(orgID)
+	if err != nil {
+		return nil, 0, fmt.Errorf("invalid organization ID: %w", err)
+	}
+	query := r.data.entClient.OrganizationMember.Query().
+		Where(organizationmember.OrganizationIDEQ(oid)).
+		Order(organizationmember.ByCreatedAt(sql.OrderDesc()))
+
+	total, err := query.Clone().Count(ctx)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	offset := int((page - 1) * pageSize)
+	members, err := query.Offset(offset).Limit(int(pageSize)).All(ctx)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	result := make([]*entity.OrganizationMember, 0, len(members))
+	for _, m := range members {
+		enriched, err := r.enrichMember(ctx, m)
+		if err != nil {
+			r.log.Warnf("enrich member %s failed: %v", m.ID, err)
+			continue
+		}
+		result = append(result, enriched)
+	}
+	return result, int64(total), nil
+}
+
+func (r *organizationRepo) GetMember(ctx context.Context, orgID, userID string) (*entity.OrganizationMember, error) {
+	oid, err := uuid.Parse(orgID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid organization ID: %w", err)
+	}
+	uid, err := uuid.Parse(userID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid user ID: %w", err)
+	}
+	m, err := r.data.entClient.OrganizationMember.Query().
+		Where(
+			organizationmember.OrganizationIDEQ(oid),
+			organizationmember.UserIDEQ(uid),
+		).Only(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return r.enrichMember(ctx, m)
+}
+
+func (r *organizationRepo) UpdateMemberRole(ctx context.Context, orgID, userID, role string) (*entity.OrganizationMember, error) {
+	oid, err := uuid.Parse(orgID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid organization ID: %w", err)
+	}
+	uid, err := uuid.Parse(userID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid user ID: %w", err)
+	}
+	affected, err := r.data.entClient.OrganizationMember.Update().
+		Where(
+			organizationmember.OrganizationIDEQ(oid),
+			organizationmember.UserIDEQ(uid),
+		).
+		SetRole(role).
+		Save(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("update member role: %w", err)
+	}
+	if affected == 0 {
+		return nil, fmt.Errorf("member not found")
+	}
+	return r.GetMember(ctx, orgID, userID)
+}
+
+func (r *organizationRepo) enrichMember(ctx context.Context, m *ent.OrganizationMember) (*entity.OrganizationMember, error) {
+	u, err := r.data.entClient.User.Query().Where(user.IDEQ(m.UserID)).Only(ctx)
+	if err != nil {
+		return &entity.OrganizationMember{
+			ID:             m.ID.String(),
+			OrganizationID: m.OrganizationID.String(),
+			UserID:         m.UserID.String(),
+			Role:           m.Role,
+			CreatedAt:      m.CreatedAt,
+		}, nil
+	}
+	return &entity.OrganizationMember{
+		ID:             m.ID.String(),
+		OrganizationID: m.OrganizationID.String(),
+		UserID:         m.UserID.String(),
+		UserName:       u.Name,
+		UserEmail:      u.Email,
+		Role:           m.Role,
+		CreatedAt:      m.CreatedAt,
+	}, nil
+}
+
+func entOrgToEntity(o *ent.Organization) *entity.Organization {
+	e := &entity.Organization{
+		ID:         o.ID.String(),
+		PlatformID: o.PlatformID.String(),
+		Name:       o.Name,
+		Slug:       o.Slug,
+		CreatedAt:  o.CreatedAt,
+		UpdatedAt:  o.UpdatedAt,
+	}
+	if o.DisplayName != nil {
+		e.DisplayName = *o.DisplayName
+	}
+	return e
+}

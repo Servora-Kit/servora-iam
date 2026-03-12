@@ -19,7 +19,7 @@ import (
 //	-X main.Name=<service-name>.service
 //	-X main.Version=<git-tag>
 var (
-	Name     = "unknown.service"
+	Name     = "iam.service"
 	Version  = "dev"
 	flagconf string
 )

@@ -5,6 +5,11 @@ package ent
 import (
 	"time"
 
+	"github.com/Servora-Kit/servora/app/iam/service/internal/data/ent/organization"
+	"github.com/Servora-Kit/servora/app/iam/service/internal/data/ent/organizationmember"
+	"github.com/Servora-Kit/servora/app/iam/service/internal/data/ent/platform"
+	"github.com/Servora-Kit/servora/app/iam/service/internal/data/ent/project"
+	"github.com/Servora-Kit/servora/app/iam/service/internal/data/ent/projectmember"
 	"github.com/Servora-Kit/servora/app/iam/service/internal/data/ent/user"
 	"github.com/Servora-Kit/servora/app/iam/service/internal/data/schema"
 	"github.com/google/uuid"
@@ -14,6 +19,130 @@ import (
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
+	organizationFields := schema.Organization{}.Fields()
+	_ = organizationFields
+	// organizationDescName is the schema descriptor for name field.
+	organizationDescName := organizationFields[2].Descriptor()
+	// organization.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	organization.NameValidator = organizationDescName.Validators[0].(func(string) error)
+	// organizationDescSlug is the schema descriptor for slug field.
+	organizationDescSlug := organizationFields[3].Descriptor()
+	// organization.SlugValidator is a validator for the "slug" field. It is called by the builders before save.
+	organization.SlugValidator = organizationDescSlug.Validators[0].(func(string) error)
+	// organizationDescDisplayName is the schema descriptor for display_name field.
+	organizationDescDisplayName := organizationFields[4].Descriptor()
+	// organization.DisplayNameValidator is a validator for the "display_name" field. It is called by the builders before save.
+	organization.DisplayNameValidator = organizationDescDisplayName.Validators[0].(func(string) error)
+	// organizationDescCreatedAt is the schema descriptor for created_at field.
+	organizationDescCreatedAt := organizationFields[5].Descriptor()
+	// organization.DefaultCreatedAt holds the default value on creation for the created_at field.
+	organization.DefaultCreatedAt = organizationDescCreatedAt.Default.(func() time.Time)
+	// organizationDescUpdatedAt is the schema descriptor for updated_at field.
+	organizationDescUpdatedAt := organizationFields[6].Descriptor()
+	// organization.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	organization.DefaultUpdatedAt = organizationDescUpdatedAt.Default.(func() time.Time)
+	// organization.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	organization.UpdateDefaultUpdatedAt = organizationDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// organizationDescID is the schema descriptor for id field.
+	organizationDescID := organizationFields[0].Descriptor()
+	// organization.DefaultID holds the default value on creation for the id field.
+	organization.DefaultID = organizationDescID.Default.(func() uuid.UUID)
+	organizationmemberFields := schema.OrganizationMember{}.Fields()
+	_ = organizationmemberFields
+	// organizationmemberDescRole is the schema descriptor for role field.
+	organizationmemberDescRole := organizationmemberFields[3].Descriptor()
+	// organizationmember.DefaultRole holds the default value on creation for the role field.
+	organizationmember.DefaultRole = organizationmemberDescRole.Default.(string)
+	// organizationmember.RoleValidator is a validator for the "role" field. It is called by the builders before save.
+	organizationmember.RoleValidator = organizationmemberDescRole.Validators[0].(func(string) error)
+	// organizationmemberDescCreatedAt is the schema descriptor for created_at field.
+	organizationmemberDescCreatedAt := organizationmemberFields[4].Descriptor()
+	// organizationmember.DefaultCreatedAt holds the default value on creation for the created_at field.
+	organizationmember.DefaultCreatedAt = organizationmemberDescCreatedAt.Default.(func() time.Time)
+	// organizationmemberDescUpdatedAt is the schema descriptor for updated_at field.
+	organizationmemberDescUpdatedAt := organizationmemberFields[5].Descriptor()
+	// organizationmember.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	organizationmember.DefaultUpdatedAt = organizationmemberDescUpdatedAt.Default.(func() time.Time)
+	// organizationmember.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	organizationmember.UpdateDefaultUpdatedAt = organizationmemberDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// organizationmemberDescID is the schema descriptor for id field.
+	organizationmemberDescID := organizationmemberFields[0].Descriptor()
+	// organizationmember.DefaultID holds the default value on creation for the id field.
+	organizationmember.DefaultID = organizationmemberDescID.Default.(func() uuid.UUID)
+	platformFields := schema.Platform{}.Fields()
+	_ = platformFields
+	// platformDescSlug is the schema descriptor for slug field.
+	platformDescSlug := platformFields[1].Descriptor()
+	// platform.SlugValidator is a validator for the "slug" field. It is called by the builders before save.
+	platform.SlugValidator = platformDescSlug.Validators[0].(func(string) error)
+	// platformDescName is the schema descriptor for name field.
+	platformDescName := platformFields[2].Descriptor()
+	// platform.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	platform.NameValidator = platformDescName.Validators[0].(func(string) error)
+	// platformDescType is the schema descriptor for type field.
+	platformDescType := platformFields[3].Descriptor()
+	// platform.DefaultType holds the default value on creation for the type field.
+	platform.DefaultType = platformDescType.Default.(string)
+	// platform.TypeValidator is a validator for the "type" field. It is called by the builders before save.
+	platform.TypeValidator = platformDescType.Validators[0].(func(string) error)
+	// platformDescCreatedAt is the schema descriptor for created_at field.
+	platformDescCreatedAt := platformFields[4].Descriptor()
+	// platform.DefaultCreatedAt holds the default value on creation for the created_at field.
+	platform.DefaultCreatedAt = platformDescCreatedAt.Default.(func() time.Time)
+	// platformDescID is the schema descriptor for id field.
+	platformDescID := platformFields[0].Descriptor()
+	// platform.DefaultID holds the default value on creation for the id field.
+	platform.DefaultID = platformDescID.Default.(func() uuid.UUID)
+	projectFields := schema.Project{}.Fields()
+	_ = projectFields
+	// projectDescName is the schema descriptor for name field.
+	projectDescName := projectFields[2].Descriptor()
+	// project.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	project.NameValidator = projectDescName.Validators[0].(func(string) error)
+	// projectDescSlug is the schema descriptor for slug field.
+	projectDescSlug := projectFields[3].Descriptor()
+	// project.SlugValidator is a validator for the "slug" field. It is called by the builders before save.
+	project.SlugValidator = projectDescSlug.Validators[0].(func(string) error)
+	// projectDescDescription is the schema descriptor for description field.
+	projectDescDescription := projectFields[4].Descriptor()
+	// project.DescriptionValidator is a validator for the "description" field. It is called by the builders before save.
+	project.DescriptionValidator = projectDescDescription.Validators[0].(func(string) error)
+	// projectDescCreatedAt is the schema descriptor for created_at field.
+	projectDescCreatedAt := projectFields[5].Descriptor()
+	// project.DefaultCreatedAt holds the default value on creation for the created_at field.
+	project.DefaultCreatedAt = projectDescCreatedAt.Default.(func() time.Time)
+	// projectDescUpdatedAt is the schema descriptor for updated_at field.
+	projectDescUpdatedAt := projectFields[6].Descriptor()
+	// project.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	project.DefaultUpdatedAt = projectDescUpdatedAt.Default.(func() time.Time)
+	// project.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	project.UpdateDefaultUpdatedAt = projectDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// projectDescID is the schema descriptor for id field.
+	projectDescID := projectFields[0].Descriptor()
+	// project.DefaultID holds the default value on creation for the id field.
+	project.DefaultID = projectDescID.Default.(func() uuid.UUID)
+	projectmemberFields := schema.ProjectMember{}.Fields()
+	_ = projectmemberFields
+	// projectmemberDescRole is the schema descriptor for role field.
+	projectmemberDescRole := projectmemberFields[3].Descriptor()
+	// projectmember.DefaultRole holds the default value on creation for the role field.
+	projectmember.DefaultRole = projectmemberDescRole.Default.(string)
+	// projectmember.RoleValidator is a validator for the "role" field. It is called by the builders before save.
+	projectmember.RoleValidator = projectmemberDescRole.Validators[0].(func(string) error)
+	// projectmemberDescCreatedAt is the schema descriptor for created_at field.
+	projectmemberDescCreatedAt := projectmemberFields[4].Descriptor()
+	// projectmember.DefaultCreatedAt holds the default value on creation for the created_at field.
+	projectmember.DefaultCreatedAt = projectmemberDescCreatedAt.Default.(func() time.Time)
+	// projectmemberDescUpdatedAt is the schema descriptor for updated_at field.
+	projectmemberDescUpdatedAt := projectmemberFields[5].Descriptor()
+	// projectmember.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	projectmember.DefaultUpdatedAt = projectmemberDescUpdatedAt.Default.(func() time.Time)
+	// projectmember.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	projectmember.UpdateDefaultUpdatedAt = projectmemberDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// projectmemberDescID is the schema descriptor for id field.
+	projectmemberDescID := projectmemberFields[0].Descriptor()
+	// projectmember.DefaultID holds the default value on creation for the id field.
+	projectmember.DefaultID = projectmemberDescID.Default.(func() uuid.UUID)
 	userFields := schema.User{}.Fields()
 	_ = userFields
 	// userDescName is the schema descriptor for name field.
