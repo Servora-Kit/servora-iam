@@ -79,7 +79,7 @@ type typeB struct {
 }
 
 func newTestMapper() *Mapper[typeA, typeB] {
-	return NewMapper[typeA, typeB](
+	return NewMapper(
 		func(a *typeA) *typeB {
 			return &typeB{Ident: string(rune(a.ID + '0')), Label: a.Name}
 		},
@@ -137,7 +137,7 @@ func TestMapper_EmptySlice(t *testing.T) {
 }
 
 func TestForwardMapper_ReverseReturnsNil(t *testing.T) {
-	m := NewForwardMapper[typeA, typeB](func(a *typeA) *typeB {
+	m := NewForwardMapper(func(a *typeA) *typeB {
 		return &typeB{Ident: "x", Label: a.Name}
 	})
 	b := m.Map(&typeA{Name: "test"})
