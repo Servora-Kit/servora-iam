@@ -85,6 +85,22 @@ func (r *authnRepo) UpdatePassword(ctx context.Context, userID string, hashedPas
 	return err
 }
 
+func (r *authnRepo) UpdateEmailVerified(ctx context.Context, userID string, verified bool) error {
+	uid, err := uuid.Parse(userID)
+	if err != nil {
+		return fmt.Errorf("invalid user ID: %w", err)
+	}
+	q := r.data.Ent(ctx).User.UpdateOneID(uid).SetEmailVerified(verified)
+	if verified {
+		now := time.Now()
+		q = q.SetEmailVerifiedAt(now)
+	} else {
+		q = q.ClearEmailVerifiedAt()
+	}
+	_, err = q.Save(ctx)
+	return err
+}
+
 func (r *authnRepo) SaveRefreshToken(ctx context.Context, userID string, token string, expiration time.Duration) error {
 	tokenKey := fmt.Sprintf("refresh_token:%s", token)
 	if err := r.data.redis.Set(ctx, tokenKey, userID, expiration); err != nil {

@@ -27,9 +27,10 @@ var File_iam_service_v1_i_user_proto protoreflect.FileDescriptor
 
 const file_iam_service_v1_i_user_proto_rawDesc = "" +
 	"\n" +
-	"\x1biam/service/v1/i_user.proto\x12\x0eiam.service.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1cservora/authz/v1/authz.proto\x1a\x1auser/service/v1/user.proto2\x90\a\n" +
+	"\x1biam/service/v1/i_user.proto\x12\x0eiam.service.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1cservora/authz/v1/authz.proto\x1a\x1auser/service/v1/user.proto2\xfc\a\n" +
 	"\vUserService\x12\x81\x01\n" +
-	"\x0fCurrentUserInfo\x12'.user.service.v1.CurrentUserInfoRequest\x1a(.user.service.v1.CurrentUserInfoResponse\"\x1b\xa2\xbb\x18\x02\b\x01\x82\xd3\xe4\x93\x02\x0f\x12\r/v1/user/info\x12u\n" +
+	"\x0fCurrentUserInfo\x12'.user.service.v1.CurrentUserInfoRequest\x1a(.user.service.v1.CurrentUserInfoResponse\"\x1b\xa2\xbb\x18\x02\b\x01\x82\xd3\xe4\x93\x02\x0f\x12\r/v1/user/info\x12j\n" +
+	"\aGetUser\x12\x1f.user.service.v1.GetUserRequest\x1a .user.service.v1.GetUserResponse\"\x1c\xa2\xbb\x18\x02\b\x01\x82\xd3\xe4\x93\x02\x10\x12\x0e/v1/users/{id}\x12u\n" +
 	"\tListUsers\x12!.user.service.v1.ListUsersRequest\x1a\".user.service.v1.ListUsersResponse\"!\xa2\xbb\x18\f\b\x04\x10\x02\x18\x01\"\x04root\x82\xd3\xe4\x93\x02\v\x12\t/v1/users\x12w\n" +
 	"\n" +
 	"UpdateUser\x12\".user.service.v1.UpdateUserRequest\x1a#.user.service.v1.UpdateUserResponse\" \xa2\xbb\x18\x02\b\x01\x82\xd3\xe4\x93\x02\x14:\x01*\"\x0f/v1/user/update\x12y\n" +
@@ -43,37 +44,41 @@ const file_iam_service_v1_i_user_proto_rawDesc = "" +
 
 var file_iam_service_v1_i_user_proto_goTypes = []any{
 	(*v1.CurrentUserInfoRequest)(nil),  // 0: user.service.v1.CurrentUserInfoRequest
-	(*v1.ListUsersRequest)(nil),        // 1: user.service.v1.ListUsersRequest
-	(*v1.UpdateUserRequest)(nil),       // 2: user.service.v1.UpdateUserRequest
-	(*v1.SaveUserRequest)(nil),         // 3: user.service.v1.SaveUserRequest
-	(*v1.DeleteUserRequest)(nil),       // 4: user.service.v1.DeleteUserRequest
-	(*v1.PurgeUserRequest)(nil),        // 5: user.service.v1.PurgeUserRequest
-	(*v1.RestoreUserRequest)(nil),      // 6: user.service.v1.RestoreUserRequest
-	(*v1.CurrentUserInfoResponse)(nil), // 7: user.service.v1.CurrentUserInfoResponse
-	(*v1.ListUsersResponse)(nil),       // 8: user.service.v1.ListUsersResponse
-	(*v1.UpdateUserResponse)(nil),      // 9: user.service.v1.UpdateUserResponse
-	(*v1.SaveUserResponse)(nil),        // 10: user.service.v1.SaveUserResponse
-	(*v1.DeleteUserResponse)(nil),      // 11: user.service.v1.DeleteUserResponse
-	(*v1.PurgeUserResponse)(nil),       // 12: user.service.v1.PurgeUserResponse
-	(*v1.RestoreUserResponse)(nil),     // 13: user.service.v1.RestoreUserResponse
+	(*v1.GetUserRequest)(nil),          // 1: user.service.v1.GetUserRequest
+	(*v1.ListUsersRequest)(nil),        // 2: user.service.v1.ListUsersRequest
+	(*v1.UpdateUserRequest)(nil),       // 3: user.service.v1.UpdateUserRequest
+	(*v1.SaveUserRequest)(nil),         // 4: user.service.v1.SaveUserRequest
+	(*v1.DeleteUserRequest)(nil),       // 5: user.service.v1.DeleteUserRequest
+	(*v1.PurgeUserRequest)(nil),        // 6: user.service.v1.PurgeUserRequest
+	(*v1.RestoreUserRequest)(nil),      // 7: user.service.v1.RestoreUserRequest
+	(*v1.CurrentUserInfoResponse)(nil), // 8: user.service.v1.CurrentUserInfoResponse
+	(*v1.GetUserResponse)(nil),         // 9: user.service.v1.GetUserResponse
+	(*v1.ListUsersResponse)(nil),       // 10: user.service.v1.ListUsersResponse
+	(*v1.UpdateUserResponse)(nil),      // 11: user.service.v1.UpdateUserResponse
+	(*v1.SaveUserResponse)(nil),        // 12: user.service.v1.SaveUserResponse
+	(*v1.DeleteUserResponse)(nil),      // 13: user.service.v1.DeleteUserResponse
+	(*v1.PurgeUserResponse)(nil),       // 14: user.service.v1.PurgeUserResponse
+	(*v1.RestoreUserResponse)(nil),     // 15: user.service.v1.RestoreUserResponse
 }
 var file_iam_service_v1_i_user_proto_depIdxs = []int32{
 	0,  // 0: iam.service.v1.UserService.CurrentUserInfo:input_type -> user.service.v1.CurrentUserInfoRequest
-	1,  // 1: iam.service.v1.UserService.ListUsers:input_type -> user.service.v1.ListUsersRequest
-	2,  // 2: iam.service.v1.UserService.UpdateUser:input_type -> user.service.v1.UpdateUserRequest
-	3,  // 3: iam.service.v1.UserService.SaveUser:input_type -> user.service.v1.SaveUserRequest
-	4,  // 4: iam.service.v1.UserService.DeleteUser:input_type -> user.service.v1.DeleteUserRequest
-	5,  // 5: iam.service.v1.UserService.PurgeUser:input_type -> user.service.v1.PurgeUserRequest
-	6,  // 6: iam.service.v1.UserService.RestoreUser:input_type -> user.service.v1.RestoreUserRequest
-	7,  // 7: iam.service.v1.UserService.CurrentUserInfo:output_type -> user.service.v1.CurrentUserInfoResponse
-	8,  // 8: iam.service.v1.UserService.ListUsers:output_type -> user.service.v1.ListUsersResponse
-	9,  // 9: iam.service.v1.UserService.UpdateUser:output_type -> user.service.v1.UpdateUserResponse
-	10, // 10: iam.service.v1.UserService.SaveUser:output_type -> user.service.v1.SaveUserResponse
-	11, // 11: iam.service.v1.UserService.DeleteUser:output_type -> user.service.v1.DeleteUserResponse
-	12, // 12: iam.service.v1.UserService.PurgeUser:output_type -> user.service.v1.PurgeUserResponse
-	13, // 13: iam.service.v1.UserService.RestoreUser:output_type -> user.service.v1.RestoreUserResponse
-	7,  // [7:14] is the sub-list for method output_type
-	0,  // [0:7] is the sub-list for method input_type
+	1,  // 1: iam.service.v1.UserService.GetUser:input_type -> user.service.v1.GetUserRequest
+	2,  // 2: iam.service.v1.UserService.ListUsers:input_type -> user.service.v1.ListUsersRequest
+	3,  // 3: iam.service.v1.UserService.UpdateUser:input_type -> user.service.v1.UpdateUserRequest
+	4,  // 4: iam.service.v1.UserService.SaveUser:input_type -> user.service.v1.SaveUserRequest
+	5,  // 5: iam.service.v1.UserService.DeleteUser:input_type -> user.service.v1.DeleteUserRequest
+	6,  // 6: iam.service.v1.UserService.PurgeUser:input_type -> user.service.v1.PurgeUserRequest
+	7,  // 7: iam.service.v1.UserService.RestoreUser:input_type -> user.service.v1.RestoreUserRequest
+	8,  // 8: iam.service.v1.UserService.CurrentUserInfo:output_type -> user.service.v1.CurrentUserInfoResponse
+	9,  // 9: iam.service.v1.UserService.GetUser:output_type -> user.service.v1.GetUserResponse
+	10, // 10: iam.service.v1.UserService.ListUsers:output_type -> user.service.v1.ListUsersResponse
+	11, // 11: iam.service.v1.UserService.UpdateUser:output_type -> user.service.v1.UpdateUserResponse
+	12, // 12: iam.service.v1.UserService.SaveUser:output_type -> user.service.v1.SaveUserResponse
+	13, // 13: iam.service.v1.UserService.DeleteUser:output_type -> user.service.v1.DeleteUserResponse
+	14, // 14: iam.service.v1.UserService.PurgeUser:output_type -> user.service.v1.PurgeUserResponse
+	15, // 15: iam.service.v1.UserService.RestoreUser:output_type -> user.service.v1.RestoreUserResponse
+	8,  // [8:16] is the sub-list for method output_type
+	0,  // [0:8] is the sub-list for method input_type
 	0,  // [0:0] is the sub-list for extension type_name
 	0,  // [0:0] is the sub-list for extension extendee
 	0,  // [0:0] is the sub-list for field type_name

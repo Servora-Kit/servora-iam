@@ -29,6 +29,8 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      mailpit:
+        condition: service_started
       otel-collector:
         condition: service_healthy
     networks:

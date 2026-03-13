@@ -33,6 +33,14 @@ func (s *UserService) CurrentUserInfo(ctx context.Context, req *userpb.CurrentUs
 	}, nil
 }
 
+func (s *UserService) GetUser(ctx context.Context, req *userpb.GetUserRequest) (*userpb.GetUserResponse, error) {
+	u, err := s.uc.GetUser(ctx, req.Id)
+	if err != nil {
+		return nil, err
+	}
+	return &userpb.GetUserResponse{User: userInfoMapper.Map(u)}, nil
+}
+
 func (s *UserService) ListUsers(ctx context.Context, req *userpb.ListUsersRequest) (*userpb.ListUsersResponse, error) {
 	page, pageSize := pagination.ExtractPage(req.GetPagination())
 	users, total, err := s.uc.ListUsers(ctx, page, pageSize)

@@ -25,6 +25,10 @@ const (
 	FieldPassword = "password"
 	// FieldRole holds the string denoting the role field in the database.
 	FieldRole = "role"
+	// FieldEmailVerified holds the string denoting the email_verified field in the database.
+	FieldEmailVerified = "email_verified"
+	// FieldEmailVerifiedAt holds the string denoting the email_verified_at field in the database.
+	FieldEmailVerifiedAt = "email_verified_at"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
 	FieldCreatedAt = "created_at"
 	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
@@ -59,6 +63,8 @@ var Columns = []string{
 	FieldEmail,
 	FieldPassword,
 	FieldRole,
+	FieldEmailVerified,
+	FieldEmailVerifiedAt,
 	FieldCreatedAt,
 	FieldUpdatedAt,
 }
@@ -84,6 +90,8 @@ var (
 	DefaultRole string
 	// RoleValidator is a validator for the "role" field. It is called by the builders before save.
 	RoleValidator func(string) error
+	// DefaultEmailVerified holds the default value on creation for the "email_verified" field.
+	DefaultEmailVerified bool
 	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
 	DefaultCreatedAt func() time.Time
 	// DefaultUpdatedAt holds the default value on creation for the "updated_at" field.
@@ -125,6 +133,16 @@ func ByPassword(opts ...sql.OrderTermOption) OrderOption {
 // ByRole orders the results by the role field.
 func ByRole(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldRole, opts...).ToFunc()
+}
+
+// ByEmailVerified orders the results by the email_verified field.
+func ByEmailVerified(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldEmailVerified, opts...).ToFunc()
+}
+
+// ByEmailVerifiedAt orders the results by the email_verified_at field.
+func ByEmailVerifiedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldEmailVerifiedAt, opts...).ToFunc()
 }
 
 // ByCreatedAt orders the results by the created_at field.

@@ -8,11 +8,13 @@ import (
 
 var userMapper = mapper.NewForwardMapper(func(u *ent.User) *entity.User {
 	return &entity.User{
-		ID:       u.ID.String(),
-		Name:     u.Name,
-		Email:    u.Email,
-		Password: u.Password,
-		Role:     u.Role,
+		ID:              u.ID.String(),
+		Name:            u.Name,
+		Email:           u.Email,
+		Password:        u.Password,
+		Role:            u.Role,
+		EmailVerified:   u.EmailVerified,
+		EmailVerifiedAt: u.EmailVerifiedAt,
 	}
 })
 

@@ -130,3 +130,27 @@ func IsInvalidRefreshToken(err error) bool {
 func ErrorInvalidRefreshToken(format string, args ...interface{}) *errors.Error {
 	return errors.New(401, ErrorReason_INVALID_REFRESH_TOKEN.String(), fmt.Sprintf(format, args...))
 }
+
+func IsInvalidVerificationToken(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == ErrorReason_INVALID_VERIFICATION_TOKEN.String() && e.Code == 400
+}
+
+func ErrorInvalidVerificationToken(format string, args ...interface{}) *errors.Error {
+	return errors.New(400, ErrorReason_INVALID_VERIFICATION_TOKEN.String(), fmt.Sprintf(format, args...))
+}
+
+func IsInvalidResetToken(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == ErrorReason_INVALID_RESET_TOKEN.String() && e.Code == 400
+}
+
+func ErrorInvalidResetToken(format string, args ...interface{}) *errors.Error {
+	return errors.New(400, ErrorReason_INVALID_RESET_TOKEN.String(), fmt.Sprintf(format, args...))
+}

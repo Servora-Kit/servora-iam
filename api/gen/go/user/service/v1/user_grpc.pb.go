@@ -20,6 +20,7 @@ const _ = grpc.SupportPackageIsVersion9
 
 const (
 	UserService_CurrentUserInfo_FullMethodName = "/user.service.v1.UserService/CurrentUserInfo"
+	UserService_GetUser_FullMethodName         = "/user.service.v1.UserService/GetUser"
 	UserService_ListUsers_FullMethodName       = "/user.service.v1.UserService/ListUsers"
 	UserService_UpdateUser_FullMethodName      = "/user.service.v1.UserService/UpdateUser"
 	UserService_SaveUser_FullMethodName        = "/user.service.v1.UserService/SaveUser"
@@ -35,6 +36,7 @@ const (
 // User gRPC 服务 - 纯 gRPC 接口
 type UserServiceClient interface {
 	CurrentUserInfo(ctx context.Context, in *CurrentUserInfoRequest, opts ...grpc.CallOption) (*CurrentUserInfoResponse, error)
+	GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*GetUserResponse, error)
 	ListUsers(ctx context.Context, in *ListUsersRequest, opts ...grpc.CallOption) (*ListUsersResponse, error)
 	UpdateUser(ctx context.Context, in *UpdateUserRequest, opts ...grpc.CallOption) (*UpdateUserResponse, error)
 	SaveUser(ctx context.Context, in *SaveUserRequest, opts ...grpc.CallOption) (*SaveUserResponse, error)
@@ -55,6 +57,16 @@ func (c *userServiceClient) CurrentUserInfo(ctx context.Context, in *CurrentUser
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(CurrentUserInfoResponse)
 	err := c.cc.Invoke(ctx, UserService_CurrentUserInfo_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userServiceClient) GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*GetUserResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetUserResponse)
+	err := c.cc.Invoke(ctx, UserService_GetUser_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -128,6 +140,7 @@ func (c *userServiceClient) RestoreUser(ctx context.Context, in *RestoreUserRequ
 // User gRPC 服务 - 纯 gRPC 接口
 type UserServiceServer interface {
 	CurrentUserInfo(context.Context, *CurrentUserInfoRequest) (*CurrentUserInfoResponse, error)
+	GetUser(context.Context, *GetUserRequest) (*GetUserResponse, error)
 	ListUsers(context.Context, *ListUsersRequest) (*ListUsersResponse, error)
 	UpdateUser(context.Context, *UpdateUserRequest) (*UpdateUserResponse, error)
 	SaveUser(context.Context, *SaveUserRequest) (*SaveUserResponse, error)
@@ -146,6 +159,9 @@ type UnimplementedUserServiceServer struct{}
 
 func (UnimplementedUserServiceServer) CurrentUserInfo(context.Context, *CurrentUserInfoRequest) (*CurrentUserInfoResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method CurrentUserInfo not implemented")
+}
+func (UnimplementedUserServiceServer) GetUser(context.Context, *GetUserRequest) (*GetUserResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetUser not implemented")
 }
 func (UnimplementedUserServiceServer) ListUsers(context.Context, *ListUsersRequest) (*ListUsersResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListUsers not implemented")
@@ -200,6 +216,24 @@ func _UserService_CurrentUserInfo_Handler(srv interface{}, ctx context.Context, 
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(UserServiceServer).CurrentUserInfo(ctx, req.(*CurrentUserInfoRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserService_GetUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).GetUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserService_GetUser_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).GetUser(ctx, req.(*GetUserRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -322,6 +356,10 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CurrentUserInfo",
 			Handler:    _UserService_CurrentUserInfo_Handler,
+		},
+		{
+			MethodName: "GetUser",
+			Handler:    _UserService_GetUser_Handler,
 		},
 		{
 			MethodName: "ListUsers",

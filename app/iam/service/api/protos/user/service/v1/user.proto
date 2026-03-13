@@ -28,6 +28,7 @@ enum ErrorReason {
 // User gRPC 服务 - 纯 gRPC 接口
 service UserService {
   rpc CurrentUserInfo(CurrentUserInfoRequest) returns (CurrentUserInfoResponse);
+  rpc GetUser(GetUserRequest) returns (GetUserResponse);
   rpc ListUsers(ListUsersRequest) returns (ListUsersResponse);
   rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse);
   rpc SaveUser(SaveUserRequest) returns (SaveUserResponse);
@@ -41,6 +42,7 @@ message UserInfo {
   string name = 2;
   string email = 3;
   string role = 4;
+  bool email_verified = 5;
 }
 
 message CurrentUserInfoRequest {}
@@ -50,6 +52,14 @@ message CurrentUserInfoResponse {
   string name = 2;
   string email = 3;
   string role = 4;
+}
+
+message GetUserRequest {
+  string id = 1 [(buf.validate.field).string.uuid = true];
+}
+
+message GetUserResponse {
+  UserInfo user = 1;
 }
 
 message ListUsersRequest {

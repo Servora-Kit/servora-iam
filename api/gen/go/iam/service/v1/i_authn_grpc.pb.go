@@ -20,12 +20,16 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	AuthnService_SignupByEmail_FullMethodName        = "/iam.service.v1.AuthnService/SignupByEmail"
-	AuthnService_LoginByEmailPassword_FullMethodName = "/iam.service.v1.AuthnService/LoginByEmailPassword"
-	AuthnService_RefreshToken_FullMethodName         = "/iam.service.v1.AuthnService/RefreshToken"
-	AuthnService_Logout_FullMethodName               = "/iam.service.v1.AuthnService/Logout"
-	AuthnService_ChangePassword_FullMethodName       = "/iam.service.v1.AuthnService/ChangePassword"
-	AuthnService_LogoutAllDevices_FullMethodName     = "/iam.service.v1.AuthnService/LogoutAllDevices"
+	AuthnService_SignupByEmail_FullMethodName            = "/iam.service.v1.AuthnService/SignupByEmail"
+	AuthnService_LoginByEmailPassword_FullMethodName     = "/iam.service.v1.AuthnService/LoginByEmailPassword"
+	AuthnService_RefreshToken_FullMethodName             = "/iam.service.v1.AuthnService/RefreshToken"
+	AuthnService_Logout_FullMethodName                   = "/iam.service.v1.AuthnService/Logout"
+	AuthnService_ChangePassword_FullMethodName           = "/iam.service.v1.AuthnService/ChangePassword"
+	AuthnService_LogoutAllDevices_FullMethodName         = "/iam.service.v1.AuthnService/LogoutAllDevices"
+	AuthnService_RequestEmailVerification_FullMethodName = "/iam.service.v1.AuthnService/RequestEmailVerification"
+	AuthnService_VerifyEmail_FullMethodName              = "/iam.service.v1.AuthnService/VerifyEmail"
+	AuthnService_RequestPasswordReset_FullMethodName     = "/iam.service.v1.AuthnService/RequestPasswordReset"
+	AuthnService_ResetPassword_FullMethodName            = "/iam.service.v1.AuthnService/ResetPassword"
 )
 
 // AuthnServiceClient is the client API for AuthnService service.
@@ -38,6 +42,10 @@ type AuthnServiceClient interface {
 	Logout(ctx context.Context, in *v1.LogoutRequest, opts ...grpc.CallOption) (*v1.LogoutResponse, error)
 	ChangePassword(ctx context.Context, in *v1.ChangePasswordRequest, opts ...grpc.CallOption) (*v1.ChangePasswordResponse, error)
 	LogoutAllDevices(ctx context.Context, in *v1.LogoutAllDevicesRequest, opts ...grpc.CallOption) (*v1.LogoutAllDevicesResponse, error)
+	RequestEmailVerification(ctx context.Context, in *v1.RequestEmailVerificationRequest, opts ...grpc.CallOption) (*v1.RequestEmailVerificationResponse, error)
+	VerifyEmail(ctx context.Context, in *v1.VerifyEmailRequest, opts ...grpc.CallOption) (*v1.VerifyEmailResponse, error)
+	RequestPasswordReset(ctx context.Context, in *v1.RequestPasswordResetRequest, opts ...grpc.CallOption) (*v1.RequestPasswordResetResponse, error)
+	ResetPassword(ctx context.Context, in *v1.ResetPasswordRequest, opts ...grpc.CallOption) (*v1.ResetPasswordResponse, error)
 }
 
 type authnServiceClient struct {
@@ -108,6 +116,46 @@ func (c *authnServiceClient) LogoutAllDevices(ctx context.Context, in *v1.Logout
 	return out, nil
 }
 
+func (c *authnServiceClient) RequestEmailVerification(ctx context.Context, in *v1.RequestEmailVerificationRequest, opts ...grpc.CallOption) (*v1.RequestEmailVerificationResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(v1.RequestEmailVerificationResponse)
+	err := c.cc.Invoke(ctx, AuthnService_RequestEmailVerification_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *authnServiceClient) VerifyEmail(ctx context.Context, in *v1.VerifyEmailRequest, opts ...grpc.CallOption) (*v1.VerifyEmailResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(v1.VerifyEmailResponse)
+	err := c.cc.Invoke(ctx, AuthnService_VerifyEmail_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *authnServiceClient) RequestPasswordReset(ctx context.Context, in *v1.RequestPasswordResetRequest, opts ...grpc.CallOption) (*v1.RequestPasswordResetResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(v1.RequestPasswordResetResponse)
+	err := c.cc.Invoke(ctx, AuthnService_RequestPasswordReset_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *authnServiceClient) ResetPassword(ctx context.Context, in *v1.ResetPasswordRequest, opts ...grpc.CallOption) (*v1.ResetPasswordResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(v1.ResetPasswordResponse)
+	err := c.cc.Invoke(ctx, AuthnService_ResetPassword_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AuthnServiceServer is the server API for AuthnService service.
 // All implementations must embed UnimplementedAuthnServiceServer
 // for forward compatibility.
@@ -118,6 +166,10 @@ type AuthnServiceServer interface {
 	Logout(context.Context, *v1.LogoutRequest) (*v1.LogoutResponse, error)
 	ChangePassword(context.Context, *v1.ChangePasswordRequest) (*v1.ChangePasswordResponse, error)
 	LogoutAllDevices(context.Context, *v1.LogoutAllDevicesRequest) (*v1.LogoutAllDevicesResponse, error)
+	RequestEmailVerification(context.Context, *v1.RequestEmailVerificationRequest) (*v1.RequestEmailVerificationResponse, error)
+	VerifyEmail(context.Context, *v1.VerifyEmailRequest) (*v1.VerifyEmailResponse, error)
+	RequestPasswordReset(context.Context, *v1.RequestPasswordResetRequest) (*v1.RequestPasswordResetResponse, error)
+	ResetPassword(context.Context, *v1.ResetPasswordRequest) (*v1.ResetPasswordResponse, error)
 	mustEmbedUnimplementedAuthnServiceServer()
 }
 
@@ -145,6 +197,18 @@ func (UnimplementedAuthnServiceServer) ChangePassword(context.Context, *v1.Chang
 }
 func (UnimplementedAuthnServiceServer) LogoutAllDevices(context.Context, *v1.LogoutAllDevicesRequest) (*v1.LogoutAllDevicesResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method LogoutAllDevices not implemented")
+}
+func (UnimplementedAuthnServiceServer) RequestEmailVerification(context.Context, *v1.RequestEmailVerificationRequest) (*v1.RequestEmailVerificationResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method RequestEmailVerification not implemented")
+}
+func (UnimplementedAuthnServiceServer) VerifyEmail(context.Context, *v1.VerifyEmailRequest) (*v1.VerifyEmailResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method VerifyEmail not implemented")
+}
+func (UnimplementedAuthnServiceServer) RequestPasswordReset(context.Context, *v1.RequestPasswordResetRequest) (*v1.RequestPasswordResetResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method RequestPasswordReset not implemented")
+}
+func (UnimplementedAuthnServiceServer) ResetPassword(context.Context, *v1.ResetPasswordRequest) (*v1.ResetPasswordResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ResetPassword not implemented")
 }
 func (UnimplementedAuthnServiceServer) mustEmbedUnimplementedAuthnServiceServer() {}
 func (UnimplementedAuthnServiceServer) testEmbeddedByValue()                      {}
@@ -275,6 +339,78 @@ func _AuthnService_LogoutAllDevices_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AuthnService_RequestEmailVerification_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(v1.RequestEmailVerificationRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthnServiceServer).RequestEmailVerification(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AuthnService_RequestEmailVerification_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthnServiceServer).RequestEmailVerification(ctx, req.(*v1.RequestEmailVerificationRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AuthnService_VerifyEmail_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(v1.VerifyEmailRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthnServiceServer).VerifyEmail(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AuthnService_VerifyEmail_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthnServiceServer).VerifyEmail(ctx, req.(*v1.VerifyEmailRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AuthnService_RequestPasswordReset_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(v1.RequestPasswordResetRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthnServiceServer).RequestPasswordReset(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AuthnService_RequestPasswordReset_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthnServiceServer).RequestPasswordReset(ctx, req.(*v1.RequestPasswordResetRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AuthnService_ResetPassword_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(v1.ResetPasswordRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthnServiceServer).ResetPassword(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AuthnService_ResetPassword_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthnServiceServer).ResetPassword(ctx, req.(*v1.ResetPasswordRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AuthnService_ServiceDesc is the grpc.ServiceDesc for AuthnService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -305,6 +441,22 @@ var AuthnService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "LogoutAllDevices",
 			Handler:    _AuthnService_LogoutAllDevices_Handler,
+		},
+		{
+			MethodName: "RequestEmailVerification",
+			Handler:    _AuthnService_RequestEmailVerification_Handler,
+		},
+		{
+			MethodName: "VerifyEmail",
+			Handler:    _AuthnService_VerifyEmail_Handler,
+		},
+		{
+			MethodName: "RequestPasswordReset",
+			Handler:    _AuthnService_RequestPasswordReset_Handler,
+		},
+		{
+			MethodName: "ResetPassword",
+			Handler:    _AuthnService_ResetPassword_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

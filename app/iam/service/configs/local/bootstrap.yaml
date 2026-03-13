@@ -34,6 +34,19 @@ app:
     max_age: 30
     max_backups: 10
 
+mail:
+  smtp:
+    host: "127.0.0.1"
+    port: 1025
+    use_tls: false
+  from:
+    address: "noreply@servora.dev"
+    name: "Servora"
+  verify_base_url: "http://localhost:3000/verify-email"
+  reset_base_url: "http://localhost:3000/reset-password"
+  # 可选：自定义邮件 HTML 模板目录，不设则使用内嵌默认
+  # template_dir: "./configs/mail-templates"
+
 trace:
   endpoint: "localhost:4317"
   insecure: true

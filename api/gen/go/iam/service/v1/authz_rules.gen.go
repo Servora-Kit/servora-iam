@@ -31,7 +31,19 @@ var AuthzRules = map[string]AuthzRuleEntry{
 	"/iam.service.v1.AuthnService/RefreshToken": {
 		Mode: v1.AuthzMode_AUTHZ_MODE_NONE,
 	},
+	"/iam.service.v1.AuthnService/RequestEmailVerification": {
+		Mode: v1.AuthzMode_AUTHZ_MODE_NONE,
+	},
+	"/iam.service.v1.AuthnService/RequestPasswordReset": {
+		Mode: v1.AuthzMode_AUTHZ_MODE_NONE,
+	},
+	"/iam.service.v1.AuthnService/ResetPassword": {
+		Mode: v1.AuthzMode_AUTHZ_MODE_NONE,
+	},
 	"/iam.service.v1.AuthnService/SignupByEmail": {
+		Mode: v1.AuthzMode_AUTHZ_MODE_NONE,
+	},
+	"/iam.service.v1.AuthnService/VerifyEmail": {
 		Mode: v1.AuthzMode_AUTHZ_MODE_NONE,
 	},
 	"/iam.service.v1.OrganizationService/AddMember": {
@@ -161,6 +173,9 @@ var AuthzRules = map[string]AuthzRuleEntry{
 		Relation:   v1.Relation_RELATION_ADMIN,
 		ObjectType: v1.ObjectType_OBJECT_TYPE_PLATFORM,
 		IDField:    "root",
+	},
+	"/iam.service.v1.UserService/GetUser": {
+		Mode: v1.AuthzMode_AUTHZ_MODE_NONE,
 	},
 	"/iam.service.v1.UserService/ListUsers": {
 		Mode:       v1.AuthzMode_AUTHZ_MODE_OBJECT,

@@ -19,6 +19,8 @@ enum ErrorReason {
   TOKEN_GENERATION_FAILED = 7 [(errors.code) = 500];
   UNAUTHORIZED = 8 [(errors.code) = 403];
   INVALID_REFRESH_TOKEN = 9 [(errors.code) = 401];
+  INVALID_VERIFICATION_TOKEN = 10 [(errors.code) = 400];
+  INVALID_RESET_TOKEN = 11 [(errors.code) = 400];
 }
 
 service AuthnService {
@@ -28,6 +30,10 @@ service AuthnService {
   rpc Logout(LogoutRequest) returns (LogoutResponse);
   rpc ChangePassword(ChangePasswordRequest) returns (ChangePasswordResponse);
   rpc LogoutAllDevices(LogoutAllDevicesRequest) returns (LogoutAllDevicesResponse);
+  rpc RequestEmailVerification(RequestEmailVerificationRequest) returns (RequestEmailVerificationResponse);
+  rpc VerifyEmail(VerifyEmailRequest) returns (VerifyEmailResponse);
+  rpc RequestPasswordReset(RequestPasswordResetRequest) returns (RequestPasswordResetResponse);
+  rpc ResetPassword(ResetPasswordRequest) returns (ResetPasswordResponse);
 }
 
 message SignupByEmailRequest {
@@ -101,5 +107,45 @@ message ChangePasswordResponse {
 message LogoutAllDevicesRequest {}
 
 message LogoutAllDevicesResponse {
+  bool success = 1;
+}
+
+message RequestEmailVerificationRequest {
+  string email = 1 [(buf.validate.field).string.email = true];
+}
+
+message RequestEmailVerificationResponse {
+  bool success = 1;
+}
+
+message VerifyEmailRequest {
+  string token = 1 [(buf.validate.field).string.min_len = 1];
+}
+
+message VerifyEmailResponse {
+  bool success = 1;
+}
+
+message RequestPasswordResetRequest {
+  string email = 1 [(buf.validate.field).string.email = true];
+}
+
+message RequestPasswordResetResponse {
+  bool success = 1;
+}
+
+message ResetPasswordRequest {
+  string token = 1 [(buf.validate.field).string.min_len = 1];
+  string new_password = 2 [(buf.validate.field).string = {
+    min_len: 5
+    max_len: 10
+  }];
+  string new_password_confirm = 3 [(buf.validate.field).string = {
+    min_len: 5
+    max_len: 10
+  }];
+}
+
+message ResetPasswordResponse {
   bool success = 1;
 }

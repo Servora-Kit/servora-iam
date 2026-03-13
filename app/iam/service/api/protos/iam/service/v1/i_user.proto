@@ -16,6 +16,13 @@ service UserService {
     };
   }
 
+  rpc GetUser(user.service.v1.GetUserRequest) returns (user.service.v1.GetUserResponse) {
+    option (google.api.http) = {get: "/v1/users/{id}"};
+    option (servora.authz.v1.rule) = {
+      mode: AUTHZ_MODE_NONE
+    };
+  }
+
   rpc ListUsers(user.service.v1.ListUsersRequest) returns (user.service.v1.ListUsersResponse) {
     option (google.api.http) = {get: "/v1/users"};
     option (servora.authz.v1.rule) = {

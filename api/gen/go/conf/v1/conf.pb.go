@@ -33,6 +33,7 @@ type Bootstrap struct {
 	Config        *Config                `protobuf:"bytes,6,opt,name=config,proto3" json:"config,omitempty"`       // 配置中心配置
 	Trace         *Trace                 `protobuf:"bytes,7,opt,name=trace,proto3" json:"trace,omitempty"`         // 链路追踪配置
 	Metrics       *Metrics               `protobuf:"bytes,8,opt,name=metrics,proto3" json:"metrics,omitempty"`     // 指标配置
+	Mail          *Mail                  `protobuf:"bytes,9,opt,name=mail,proto3" json:"mail,omitempty"`           // 邮件配置
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -119,6 +120,13 @@ func (x *Bootstrap) GetTrace() *Trace {
 func (x *Bootstrap) GetMetrics() *Metrics {
 	if x != nil {
 		return x.Metrics
+	}
+	return nil
+}
+
+func (x *Bootstrap) GetMail() *Mail {
+	if x != nil {
+		return x.Mail
 	}
 	return nil
 }
@@ -1313,6 +1321,229 @@ func (x *Metrics) GetMeterName() string {
 	return ""
 }
 
+// 邮件配置
+type Mail struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Smtp          *Smtp                  `protobuf:"bytes,1,opt,name=smtp,proto3" json:"smtp,omitempty"`                                          // SMTP 服务器配置
+	From          *MailFrom              `protobuf:"bytes,2,opt,name=from,proto3" json:"from,omitempty"`                                          // 发件人配置
+	VerifyBaseUrl string                 `protobuf:"bytes,3,opt,name=verify_base_url,json=verifyBaseUrl,proto3" json:"verify_base_url,omitempty"` // 邮箱验证链接前缀（如 https://app.example.com/verify）
+	ResetBaseUrl  string                 `protobuf:"bytes,4,opt,name=reset_base_url,json=resetBaseUrl,proto3" json:"reset_base_url,omitempty"`    // 密码重置链接前缀（如 https://app.example.com/reset-password）
+	TemplateDir   string                 `protobuf:"bytes,5,opt,name=template_dir,json=templateDir,proto3" json:"template_dir,omitempty"`         // 可选：邮件 HTML 模板目录，放置 verify_email.html、reset_password.html 等，未设置或文件缺失时使用内嵌默认
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Mail) Reset() {
+	*x = Mail{}
+	mi := &file_conf_v1_conf_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Mail) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Mail) ProtoMessage() {}
+
+func (x *Mail) ProtoReflect() protoreflect.Message {
+	mi := &file_conf_v1_conf_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Mail.ProtoReflect.Descriptor instead.
+func (*Mail) Descriptor() ([]byte, []int) {
+	return file_conf_v1_conf_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *Mail) GetSmtp() *Smtp {
+	if x != nil {
+		return x.Smtp
+	}
+	return nil
+}
+
+func (x *Mail) GetFrom() *MailFrom {
+	if x != nil {
+		return x.From
+	}
+	return nil
+}
+
+func (x *Mail) GetVerifyBaseUrl() string {
+	if x != nil {
+		return x.VerifyBaseUrl
+	}
+	return ""
+}
+
+func (x *Mail) GetResetBaseUrl() string {
+	if x != nil {
+		return x.ResetBaseUrl
+	}
+	return ""
+}
+
+func (x *Mail) GetTemplateDir() string {
+	if x != nil {
+		return x.TemplateDir
+	}
+	return ""
+}
+
+// SMTP 服务器配置
+type Smtp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Host          string                 `protobuf:"bytes,1,opt,name=host,proto3" json:"host,omitempty"`
+	Port          int32                  `protobuf:"varint,2,opt,name=port,proto3" json:"port,omitempty"`
+	Username      string                 `protobuf:"bytes,3,opt,name=username,proto3" json:"username,omitempty"`
+	Password      string                 `protobuf:"bytes,4,opt,name=password,proto3" json:"password,omitempty"`
+	UseTls        bool                   `protobuf:"varint,5,opt,name=use_tls,json=useTls,proto3" json:"use_tls,omitempty"`                        // 是否使用 TLS（SMTPS / STARTTLS）
+	SkipVerifySsl bool                   `protobuf:"varint,6,opt,name=skip_verify_ssl,json=skipVerifySsl,proto3" json:"skip_verify_ssl,omitempty"` // 跳过证书验证（仅建议 dev 使用）
+	SendTimeout   *durationpb.Duration   `protobuf:"bytes,7,opt,name=send_timeout,json=sendTimeout,proto3" json:"send_timeout,omitempty"`          // 发信超时
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Smtp) Reset() {
+	*x = Smtp{}
+	mi := &file_conf_v1_conf_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Smtp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Smtp) ProtoMessage() {}
+
+func (x *Smtp) ProtoReflect() protoreflect.Message {
+	mi := &file_conf_v1_conf_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Smtp.ProtoReflect.Descriptor instead.
+func (*Smtp) Descriptor() ([]byte, []int) {
+	return file_conf_v1_conf_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *Smtp) GetHost() string {
+	if x != nil {
+		return x.Host
+	}
+	return ""
+}
+
+func (x *Smtp) GetPort() int32 {
+	if x != nil {
+		return x.Port
+	}
+	return 0
+}
+
+func (x *Smtp) GetUsername() string {
+	if x != nil {
+		return x.Username
+	}
+	return ""
+}
+
+func (x *Smtp) GetPassword() string {
+	if x != nil {
+		return x.Password
+	}
+	return ""
+}
+
+func (x *Smtp) GetUseTls() bool {
+	if x != nil {
+		return x.UseTls
+	}
+	return false
+}
+
+func (x *Smtp) GetSkipVerifySsl() bool {
+	if x != nil {
+		return x.SkipVerifySsl
+	}
+	return false
+}
+
+func (x *Smtp) GetSendTimeout() *durationpb.Duration {
+	if x != nil {
+		return x.SendTimeout
+	}
+	return nil
+}
+
+// 发件人配置
+type MailFrom struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Address       string                 `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"` // 发件邮箱地址
+	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`       // 发件人显示名
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MailFrom) Reset() {
+	*x = MailFrom{}
+	mi := &file_conf_v1_conf_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MailFrom) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MailFrom) ProtoMessage() {}
+
+func (x *MailFrom) ProtoReflect() protoreflect.Message {
+	mi := &file_conf_v1_conf_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MailFrom.ProtoReflect.Descriptor instead.
+func (*MailFrom) Descriptor() ([]byte, []int) {
+	return file_conf_v1_conf_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *MailFrom) GetAddress() string {
+	if x != nil {
+		return x.Address
+	}
+	return ""
+}
+
+func (x *MailFrom) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
 type Server_HTTP struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Network       string                 `protobuf:"bytes,1,opt,name=network,proto3" json:"network,omitempty"`
@@ -1326,7 +1557,7 @@ type Server_HTTP struct {
 
 func (x *Server_HTTP) Reset() {
 	*x = Server_HTTP{}
-	mi := &file_conf_v1_conf_proto_msgTypes[16]
+	mi := &file_conf_v1_conf_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1338,7 +1569,7 @@ func (x *Server_HTTP) String() string {
 func (*Server_HTTP) ProtoMessage() {}
 
 func (x *Server_HTTP) ProtoReflect() protoreflect.Message {
-	mi := &file_conf_v1_conf_proto_msgTypes[16]
+	mi := &file_conf_v1_conf_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1401,7 +1632,7 @@ type Server_GRPC struct {
 
 func (x *Server_GRPC) Reset() {
 	*x = Server_GRPC{}
-	mi := &file_conf_v1_conf_proto_msgTypes[17]
+	mi := &file_conf_v1_conf_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1413,7 +1644,7 @@ func (x *Server_GRPC) String() string {
 func (*Server_GRPC) ProtoMessage() {}
 
 func (x *Server_GRPC) ProtoReflect() protoreflect.Message {
-	mi := &file_conf_v1_conf_proto_msgTypes[17]
+	mi := &file_conf_v1_conf_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1467,7 +1698,7 @@ type Client_GRPC struct {
 
 func (x *Client_GRPC) Reset() {
 	*x = Client_GRPC{}
-	mi := &file_conf_v1_conf_proto_msgTypes[18]
+	mi := &file_conf_v1_conf_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1479,7 +1710,7 @@ func (x *Client_GRPC) String() string {
 func (*Client_GRPC) ProtoMessage() {}
 
 func (x *Client_GRPC) ProtoReflect() protoreflect.Message {
-	mi := &file_conf_v1_conf_proto_msgTypes[18]
+	mi := &file_conf_v1_conf_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1519,7 +1750,7 @@ type Data_Database struct {
 
 func (x *Data_Database) Reset() {
 	*x = Data_Database{}
-	mi := &file_conf_v1_conf_proto_msgTypes[20]
+	mi := &file_conf_v1_conf_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1531,7 +1762,7 @@ func (x *Data_Database) String() string {
 func (*Data_Database) ProtoMessage() {}
 
 func (x *Data_Database) ProtoReflect() protoreflect.Message {
-	mi := &file_conf_v1_conf_proto_msgTypes[20]
+	mi := &file_conf_v1_conf_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1577,7 +1808,7 @@ type Data_Redis struct {
 
 func (x *Data_Redis) Reset() {
 	*x = Data_Redis{}
-	mi := &file_conf_v1_conf_proto_msgTypes[21]
+	mi := &file_conf_v1_conf_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1589,7 +1820,7 @@ func (x *Data_Redis) String() string {
 func (*Data_Redis) ProtoMessage() {}
 
 func (x *Data_Redis) ProtoReflect() protoreflect.Message {
-	mi := &file_conf_v1_conf_proto_msgTypes[21]
+	mi := &file_conf_v1_conf_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1671,7 +1902,7 @@ type Data_Client struct {
 
 func (x *Data_Client) Reset() {
 	*x = Data_Client{}
-	mi := &file_conf_v1_conf_proto_msgTypes[22]
+	mi := &file_conf_v1_conf_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1683,7 +1914,7 @@ func (x *Data_Client) String() string {
 func (*Data_Client) ProtoMessage() {}
 
 func (x *Data_Client) ProtoReflect() protoreflect.Message {
-	mi := &file_conf_v1_conf_proto_msgTypes[22]
+	mi := &file_conf_v1_conf_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1724,7 +1955,7 @@ type Data_Client_HTTP struct {
 
 func (x *Data_Client_HTTP) Reset() {
 	*x = Data_Client_HTTP{}
-	mi := &file_conf_v1_conf_proto_msgTypes[23]
+	mi := &file_conf_v1_conf_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1736,7 +1967,7 @@ func (x *Data_Client_HTTP) String() string {
 func (*Data_Client_HTTP) ProtoMessage() {}
 
 func (x *Data_Client_HTTP) ProtoReflect() protoreflect.Message {
-	mi := &file_conf_v1_conf_proto_msgTypes[23]
+	mi := &file_conf_v1_conf_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1784,7 +2015,7 @@ type Data_Client_GRPC struct {
 
 func (x *Data_Client_GRPC) Reset() {
 	*x = Data_Client_GRPC{}
-	mi := &file_conf_v1_conf_proto_msgTypes[24]
+	mi := &file_conf_v1_conf_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1796,7 +2027,7 @@ func (x *Data_Client_GRPC) String() string {
 func (*Data_Client_GRPC) ProtoMessage() {}
 
 func (x *Data_Client_GRPC) ProtoReflect() protoreflect.Message {
-	mi := &file_conf_v1_conf_proto_msgTypes[24]
+	mi := &file_conf_v1_conf_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1852,7 +2083,7 @@ type App_Jwt struct {
 
 func (x *App_Jwt) Reset() {
 	*x = App_Jwt{}
-	mi := &file_conf_v1_conf_proto_msgTypes[25]
+	mi := &file_conf_v1_conf_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1864,7 +2095,7 @@ func (x *App_Jwt) String() string {
 func (*App_Jwt) ProtoMessage() {}
 
 func (x *App_Jwt) ProtoReflect() protoreflect.Message {
-	mi := &file_conf_v1_conf_proto_msgTypes[25]
+	mi := &file_conf_v1_conf_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1943,7 +2174,7 @@ type App_Log struct {
 
 func (x *App_Log) Reset() {
 	*x = App_Log{}
-	mi := &file_conf_v1_conf_proto_msgTypes[26]
+	mi := &file_conf_v1_conf_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1955,7 +2186,7 @@ func (x *App_Log) String() string {
 func (*App_Log) ProtoMessage() {}
 
 func (x *App_Log) ProtoReflect() protoreflect.Message {
-	mi := &file_conf_v1_conf_proto_msgTypes[26]
+	mi := &file_conf_v1_conf_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2025,7 +2256,7 @@ type App_OpenFGA struct {
 
 func (x *App_OpenFGA) Reset() {
 	*x = App_OpenFGA{}
-	mi := &file_conf_v1_conf_proto_msgTypes[27]
+	mi := &file_conf_v1_conf_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2037,7 +2268,7 @@ func (x *App_OpenFGA) String() string {
 func (*App_OpenFGA) ProtoMessage() {}
 
 func (x *App_OpenFGA) ProtoReflect() protoreflect.Message {
-	mi := &file_conf_v1_conf_proto_msgTypes[27]
+	mi := &file_conf_v1_conf_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2085,7 +2316,7 @@ var File_conf_v1_conf_proto protoreflect.FileDescriptor
 
 const file_conf_v1_conf_proto_rawDesc = "" +
 	"\n" +
-	"\x12conf/v1/conf.proto\x12\aconf.v1\x1a\x1egoogle/protobuf/duration.proto\"\xd3\x02\n" +
+	"\x12conf/v1/conf.proto\x12\aconf.v1\x1a\x1egoogle/protobuf/duration.proto\"\xf6\x02\n" +
 	"\tBootstrap\x12\x1e\n" +
 	"\x03app\x18\x01 \x01(\v2\f.conf.v1.AppR\x03app\x12'\n" +
 	"\x06server\x18\x02 \x01(\v2\x0f.conf.v1.ServerR\x06server\x12!\n" +
@@ -2094,7 +2325,8 @@ const file_conf_v1_conf_proto_rawDesc = "" +
 	"\tdiscovery\x18\x05 \x01(\v2\x12.conf.v1.DiscoveryR\tdiscovery\x12'\n" +
 	"\x06config\x18\x06 \x01(\v2\x0f.conf.v1.ConfigR\x06config\x12$\n" +
 	"\x05trace\x18\a \x01(\v2\x0e.conf.v1.TraceR\x05trace\x12*\n" +
-	"\ametrics\x18\b \x01(\v2\x10.conf.v1.MetricsR\ametrics\"t\n" +
+	"\ametrics\x18\b \x01(\v2\x10.conf.v1.MetricsR\ametrics\x12!\n" +
+	"\x04mail\x18\t \x01(\v2\r.conf.v1.MailR\x04mail\"t\n" +
 	"\tTLSConfig\x12\x16\n" +
 	"\x06enable\x18\x01 \x01(\bR\x06enable\x12\x1b\n" +
 	"\tcert_path\x18\x02 \x01(\tR\bcertPath\x12\x19\n" +
@@ -2249,7 +2481,24 @@ const file_conf_v1_conf_proto_rawDesc = "" +
 	"\aMetrics\x12\x16\n" +
 	"\x06enable\x18\x01 \x01(\bR\x06enable\x12\x1d\n" +
 	"\n" +
-	"meter_name\x18\x02 \x01(\tR\tmeterNameB\x8d\x01\n" +
+	"meter_name\x18\x02 \x01(\tR\tmeterName\"\xc1\x01\n" +
+	"\x04Mail\x12!\n" +
+	"\x04smtp\x18\x01 \x01(\v2\r.conf.v1.SmtpR\x04smtp\x12%\n" +
+	"\x04from\x18\x02 \x01(\v2\x11.conf.v1.MailFromR\x04from\x12&\n" +
+	"\x0fverify_base_url\x18\x03 \x01(\tR\rverifyBaseUrl\x12$\n" +
+	"\x0ereset_base_url\x18\x04 \x01(\tR\fresetBaseUrl\x12!\n" +
+	"\ftemplate_dir\x18\x05 \x01(\tR\vtemplateDir\"\xe5\x01\n" +
+	"\x04Smtp\x12\x12\n" +
+	"\x04host\x18\x01 \x01(\tR\x04host\x12\x12\n" +
+	"\x04port\x18\x02 \x01(\x05R\x04port\x12\x1a\n" +
+	"\busername\x18\x03 \x01(\tR\busername\x12\x1a\n" +
+	"\bpassword\x18\x04 \x01(\tR\bpassword\x12\x17\n" +
+	"\ause_tls\x18\x05 \x01(\bR\x06useTls\x12&\n" +
+	"\x0fskip_verify_ssl\x18\x06 \x01(\bR\rskipVerifySsl\x12<\n" +
+	"\fsend_timeout\x18\a \x01(\v2\x19.google.protobuf.DurationR\vsendTimeout\"8\n" +
+	"\bMailFrom\x12\x18\n" +
+	"\aaddress\x18\x01 \x01(\tR\aaddress\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04nameB\x8d\x01\n" +
 	"\vcom.conf.v1B\tConfProtoP\x01Z6github.com/Servora-Kit/servora/api/gen/go/conf/v1;conf\xa2\x02\x03CXX\xaa\x02\aConf.V1\xca\x02\aConf\\V1\xe2\x02\x13Conf\\V1\\GPBMetadata\xea\x02\bConf::V1b\x06proto3"
 
 var (
@@ -2264,7 +2513,7 @@ func file_conf_v1_conf_proto_rawDescGZIP() []byte {
 	return file_conf_v1_conf_proto_rawDescData
 }
 
-var file_conf_v1_conf_proto_msgTypes = make([]protoimpl.MessageInfo, 29)
+var file_conf_v1_conf_proto_msgTypes = make([]protoimpl.MessageInfo, 32)
 var file_conf_v1_conf_proto_goTypes = []any{
 	(*Bootstrap)(nil),           // 0: conf.v1.Bootstrap
 	(*TLSConfig)(nil),           // 1: conf.v1.TLSConfig
@@ -2282,20 +2531,23 @@ var file_conf_v1_conf_proto_goTypes = []any{
 	(*KubernetesConfig)(nil),    // 13: conf.v1.KubernetesConfig
 	(*Trace)(nil),               // 14: conf.v1.Trace
 	(*Metrics)(nil),             // 15: conf.v1.Metrics
-	(*Server_HTTP)(nil),         // 16: conf.v1.Server.HTTP
-	(*Server_GRPC)(nil),         // 17: conf.v1.Server.GRPC
-	(*Client_GRPC)(nil),         // 18: conf.v1.Client.GRPC
-	nil,                         // 19: conf.v1.Client.GrpcEntry
-	(*Data_Database)(nil),       // 20: conf.v1.Data.Database
-	(*Data_Redis)(nil),          // 21: conf.v1.Data.Redis
-	(*Data_Client)(nil),         // 22: conf.v1.Data.Client
-	(*Data_Client_HTTP)(nil),    // 23: conf.v1.Data.Client.HTTP
-	(*Data_Client_GRPC)(nil),    // 24: conf.v1.Data.Client.GRPC
-	(*App_Jwt)(nil),             // 25: conf.v1.App.Jwt
-	(*App_Log)(nil),             // 26: conf.v1.App.Log
-	(*App_OpenFGA)(nil),         // 27: conf.v1.App.OpenFGA
-	nil,                         // 28: conf.v1.App.MetadataEntry
-	(*durationpb.Duration)(nil), // 29: google.protobuf.Duration
+	(*Mail)(nil),                // 16: conf.v1.Mail
+	(*Smtp)(nil),                // 17: conf.v1.Smtp
+	(*MailFrom)(nil),            // 18: conf.v1.MailFrom
+	(*Server_HTTP)(nil),         // 19: conf.v1.Server.HTTP
+	(*Server_GRPC)(nil),         // 20: conf.v1.Server.GRPC
+	(*Client_GRPC)(nil),         // 21: conf.v1.Client.GRPC
+	nil,                         // 22: conf.v1.Client.GrpcEntry
+	(*Data_Database)(nil),       // 23: conf.v1.Data.Database
+	(*Data_Redis)(nil),          // 24: conf.v1.Data.Redis
+	(*Data_Client)(nil),         // 25: conf.v1.Data.Client
+	(*Data_Client_HTTP)(nil),    // 26: conf.v1.Data.Client.HTTP
+	(*Data_Client_GRPC)(nil),    // 27: conf.v1.Data.Client.GRPC
+	(*App_Jwt)(nil),             // 28: conf.v1.App.Jwt
+	(*App_Log)(nil),             // 29: conf.v1.App.Log
+	(*App_OpenFGA)(nil),         // 30: conf.v1.App.OpenFGA
+	nil,                         // 31: conf.v1.App.MetadataEntry
+	(*durationpb.Duration)(nil), // 32: google.protobuf.Duration
 }
 var file_conf_v1_conf_proto_depIdxs = []int32{
 	6,  // 0: conf.v1.Bootstrap.app:type_name -> conf.v1.App
@@ -2306,50 +2558,54 @@ var file_conf_v1_conf_proto_depIdxs = []int32{
 	9,  // 5: conf.v1.Bootstrap.config:type_name -> conf.v1.Config
 	14, // 6: conf.v1.Bootstrap.trace:type_name -> conf.v1.Trace
 	15, // 7: conf.v1.Bootstrap.metrics:type_name -> conf.v1.Metrics
-	29, // 8: conf.v1.CORS.max_age:type_name -> google.protobuf.Duration
-	16, // 9: conf.v1.Server.http:type_name -> conf.v1.Server.HTTP
-	17, // 10: conf.v1.Server.grpc:type_name -> conf.v1.Server.GRPC
-	19, // 11: conf.v1.Client.grpc:type_name -> conf.v1.Client.GrpcEntry
-	20, // 12: conf.v1.Data.database:type_name -> conf.v1.Data.Database
-	21, // 13: conf.v1.Data.redis:type_name -> conf.v1.Data.Redis
-	22, // 14: conf.v1.Data.client:type_name -> conf.v1.Data.Client
-	25, // 15: conf.v1.App.jwt:type_name -> conf.v1.App.Jwt
-	26, // 16: conf.v1.App.log:type_name -> conf.v1.App.Log
-	28, // 17: conf.v1.App.metadata:type_name -> conf.v1.App.MetadataEntry
-	27, // 18: conf.v1.App.openfga:type_name -> conf.v1.App.OpenFGA
-	10, // 19: conf.v1.Registry.consul:type_name -> conf.v1.ConsulConfig
-	11, // 20: conf.v1.Registry.etcd:type_name -> conf.v1.EtcdConfig
-	12, // 21: conf.v1.Registry.nacos:type_name -> conf.v1.NacosConfig
-	13, // 22: conf.v1.Registry.kubernetes:type_name -> conf.v1.KubernetesConfig
-	10, // 23: conf.v1.Discovery.consul:type_name -> conf.v1.ConsulConfig
-	11, // 24: conf.v1.Discovery.etcd:type_name -> conf.v1.EtcdConfig
-	12, // 25: conf.v1.Discovery.nacos:type_name -> conf.v1.NacosConfig
-	13, // 26: conf.v1.Discovery.kubernetes:type_name -> conf.v1.KubernetesConfig
-	10, // 27: conf.v1.Config.consul:type_name -> conf.v1.ConsulConfig
-	11, // 28: conf.v1.Config.etcd:type_name -> conf.v1.EtcdConfig
-	12, // 29: conf.v1.Config.nacos:type_name -> conf.v1.NacosConfig
-	29, // 30: conf.v1.ConsulConfig.timeout:type_name -> google.protobuf.Duration
-	29, // 31: conf.v1.EtcdConfig.timeout:type_name -> google.protobuf.Duration
-	29, // 32: conf.v1.NacosConfig.timeout:type_name -> google.protobuf.Duration
-	29, // 33: conf.v1.Server.HTTP.timeout:type_name -> google.protobuf.Duration
-	1,  // 34: conf.v1.Server.HTTP.tls:type_name -> conf.v1.TLSConfig
-	2,  // 35: conf.v1.Server.HTTP.cors:type_name -> conf.v1.CORS
-	29, // 36: conf.v1.Server.GRPC.timeout:type_name -> google.protobuf.Duration
-	1,  // 37: conf.v1.Server.GRPC.tls:type_name -> conf.v1.TLSConfig
-	1,  // 38: conf.v1.Client.GRPC.tls:type_name -> conf.v1.TLSConfig
-	18, // 39: conf.v1.Client.GrpcEntry.value:type_name -> conf.v1.Client.GRPC
-	29, // 40: conf.v1.Data.Redis.dial_timeout:type_name -> google.protobuf.Duration
-	29, // 41: conf.v1.Data.Redis.read_timeout:type_name -> google.protobuf.Duration
-	29, // 42: conf.v1.Data.Redis.write_timeout:type_name -> google.protobuf.Duration
-	24, // 43: conf.v1.Data.Client.grpc:type_name -> conf.v1.Data.Client.GRPC
-	23, // 44: conf.v1.Data.Client.http:type_name -> conf.v1.Data.Client.HTTP
-	29, // 45: conf.v1.Data.Client.HTTP.timeout:type_name -> google.protobuf.Duration
-	29, // 46: conf.v1.Data.Client.GRPC.timeout:type_name -> google.protobuf.Duration
-	47, // [47:47] is the sub-list for method output_type
-	47, // [47:47] is the sub-list for method input_type
-	47, // [47:47] is the sub-list for extension type_name
-	47, // [47:47] is the sub-list for extension extendee
-	0,  // [0:47] is the sub-list for field type_name
+	16, // 8: conf.v1.Bootstrap.mail:type_name -> conf.v1.Mail
+	32, // 9: conf.v1.CORS.max_age:type_name -> google.protobuf.Duration
+	19, // 10: conf.v1.Server.http:type_name -> conf.v1.Server.HTTP
+	20, // 11: conf.v1.Server.grpc:type_name -> conf.v1.Server.GRPC
+	22, // 12: conf.v1.Client.grpc:type_name -> conf.v1.Client.GrpcEntry
+	23, // 13: conf.v1.Data.database:type_name -> conf.v1.Data.Database
+	24, // 14: conf.v1.Data.redis:type_name -> conf.v1.Data.Redis
+	25, // 15: conf.v1.Data.client:type_name -> conf.v1.Data.Client
+	28, // 16: conf.v1.App.jwt:type_name -> conf.v1.App.Jwt
+	29, // 17: conf.v1.App.log:type_name -> conf.v1.App.Log
+	31, // 18: conf.v1.App.metadata:type_name -> conf.v1.App.MetadataEntry
+	30, // 19: conf.v1.App.openfga:type_name -> conf.v1.App.OpenFGA
+	10, // 20: conf.v1.Registry.consul:type_name -> conf.v1.ConsulConfig
+	11, // 21: conf.v1.Registry.etcd:type_name -> conf.v1.EtcdConfig
+	12, // 22: conf.v1.Registry.nacos:type_name -> conf.v1.NacosConfig
+	13, // 23: conf.v1.Registry.kubernetes:type_name -> conf.v1.KubernetesConfig
+	10, // 24: conf.v1.Discovery.consul:type_name -> conf.v1.ConsulConfig
+	11, // 25: conf.v1.Discovery.etcd:type_name -> conf.v1.EtcdConfig
+	12, // 26: conf.v1.Discovery.nacos:type_name -> conf.v1.NacosConfig
+	13, // 27: conf.v1.Discovery.kubernetes:type_name -> conf.v1.KubernetesConfig
+	10, // 28: conf.v1.Config.consul:type_name -> conf.v1.ConsulConfig
+	11, // 29: conf.v1.Config.etcd:type_name -> conf.v1.EtcdConfig
+	12, // 30: conf.v1.Config.nacos:type_name -> conf.v1.NacosConfig
+	32, // 31: conf.v1.ConsulConfig.timeout:type_name -> google.protobuf.Duration
+	32, // 32: conf.v1.EtcdConfig.timeout:type_name -> google.protobuf.Duration
+	32, // 33: conf.v1.NacosConfig.timeout:type_name -> google.protobuf.Duration
+	17, // 34: conf.v1.Mail.smtp:type_name -> conf.v1.Smtp
+	18, // 35: conf.v1.Mail.from:type_name -> conf.v1.MailFrom
+	32, // 36: conf.v1.Smtp.send_timeout:type_name -> google.protobuf.Duration
+	32, // 37: conf.v1.Server.HTTP.timeout:type_name -> google.protobuf.Duration
+	1,  // 38: conf.v1.Server.HTTP.tls:type_name -> conf.v1.TLSConfig
+	2,  // 39: conf.v1.Server.HTTP.cors:type_name -> conf.v1.CORS
+	32, // 40: conf.v1.Server.GRPC.timeout:type_name -> google.protobuf.Duration
+	1,  // 41: conf.v1.Server.GRPC.tls:type_name -> conf.v1.TLSConfig
+	1,  // 42: conf.v1.Client.GRPC.tls:type_name -> conf.v1.TLSConfig
+	21, // 43: conf.v1.Client.GrpcEntry.value:type_name -> conf.v1.Client.GRPC
+	32, // 44: conf.v1.Data.Redis.dial_timeout:type_name -> google.protobuf.Duration
+	32, // 45: conf.v1.Data.Redis.read_timeout:type_name -> google.protobuf.Duration
+	32, // 46: conf.v1.Data.Redis.write_timeout:type_name -> google.protobuf.Duration
+	27, // 47: conf.v1.Data.Client.grpc:type_name -> conf.v1.Data.Client.GRPC
+	26, // 48: conf.v1.Data.Client.http:type_name -> conf.v1.Data.Client.HTTP
+	32, // 49: conf.v1.Data.Client.HTTP.timeout:type_name -> google.protobuf.Duration
+	32, // 50: conf.v1.Data.Client.GRPC.timeout:type_name -> google.protobuf.Duration
+	51, // [51:51] is the sub-list for method output_type
+	51, // [51:51] is the sub-list for method input_type
+	51, // [51:51] is the sub-list for extension type_name
+	51, // [51:51] is the sub-list for extension extendee
+	0,  // [0:51] is the sub-list for field type_name
 }
 
 func init() { file_conf_v1_conf_proto_init() }
@@ -2380,7 +2636,7 @@ func file_conf_v1_conf_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_conf_v1_conf_proto_rawDesc), len(file_conf_v1_conf_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   29,
+			NumMessages:   32,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

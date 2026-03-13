@@ -3,7 +3,9 @@ package biz
 import (
 	"context"
 	"crypto/rand"
+	"crypto/sha256"
 	"encoding/hex"
+	"fmt"
 	"time"
 
 	"github.com/go-kratos/kratos/v2/errors"
@@ -16,10 +18,14 @@ import (
 	"github.com/Servora-Kit/servora/pkg/helpers"
 	"github.com/Servora-Kit/servora/pkg/jwks"
 	"github.com/Servora-Kit/servora/pkg/logger"
+	"github.com/Servora-Kit/servora/pkg/mail"
 )
 
 type AuthnUsecase struct {
 	repo       AuthnRepo
+	tokenStore OTPRepo
+	mailer     mail.Sender
+	mailCfg    *conf.Mail
 	log        *logger.Helper
 	cfg        *conf.App
 	keyManager *jwks.KeyManager
@@ -27,9 +33,22 @@ type AuthnUsecase struct {
 	projUC     *ProjectUsecase
 }
 
-func NewAuthnUsecase(repo AuthnRepo, l logger.Logger, cfg *conf.App, km *jwks.KeyManager, orgUC *OrganizationUsecase, projUC *ProjectUsecase) *AuthnUsecase {
+func NewAuthnUsecase(
+	repo AuthnRepo,
+	tokenStore OTPRepo,
+	mailer mail.Sender,
+	mailCfg *conf.Mail,
+	l logger.Logger,
+	cfg *conf.App,
+	km *jwks.KeyManager,
+	orgUC *OrganizationUsecase,
+	projUC *ProjectUsecase,
+) *AuthnUsecase {
 	return &AuthnUsecase{
 		repo:       repo,
+		tokenStore: tokenStore,
+		mailer:     mailer,
+		mailCfg:    mailCfg,
 		log:        logger.NewHelper(l, logger.WithModule("authn/biz/iam-service")),
 		cfg:        cfg,
 		keyManager: km,
@@ -65,7 +84,13 @@ type AuthnRepo interface {
 	GetUserByUserName(context.Context, string) (*entity.User, error)
 	GetUserByID(context.Context, string) (*entity.User, error)
 	UpdatePassword(ctx context.Context, userID string, hashedPassword string) error
+	UpdateEmailVerified(ctx context.Context, userID string, verified bool) error
 	TokenStore
+}
+
+type OTPRepo interface {
+	SetToken(ctx context.Context, purpose, token, userID string, ttl time.Duration) error
+	ConsumeToken(ctx context.Context, purpose, token string) (userID string, err error)
 }
 
 func (uc *AuthnUsecase) SignupByEmail(ctx context.Context, user *entity.User) (*entity.User, error) {
@@ -282,6 +307,125 @@ func (uc *AuthnUsecase) LogoutAllDevices(ctx context.Context, userID string) err
 	if err := uc.repo.DeleteUserRefreshTokens(ctx, userID); err != nil {
 		uc.log.Errorf("delete all refresh tokens failed: %v", err)
 		return errors.InternalServer("INTERNAL", "internal error")
+	}
+	return nil
+}
+
+// --- Email verification & password reset (token-link flow) ---
+
+const (
+	purposeVerifyEmail   = "verify_email"
+	purposeResetPassword = "reset_password"
+	verifyEmailTTL       = 24 * time.Hour
+	resetPasswordTTL     = 1 * time.Hour
+)
+
+func tokenHash(raw string) string {
+	h := sha256.Sum256([]byte(raw))
+	return hex.EncodeToString(h[:])
+}
+
+func (uc *AuthnUsecase) RequestEmailVerification(ctx context.Context, email string) error {
+	user, err := uc.repo.GetUserByEmail(ctx, email)
+	if err != nil || user == nil || user.EmailVerified {
+		return nil // always succeed to avoid leaking state
+	}
+
+	raw, err := uc.generateOpaqueToken()
+	if err != nil {
+		uc.log.Errorf("generate verify token failed: %v", err)
+		return errors.InternalServer("INTERNAL", "internal error")
+	}
+
+	if err := uc.tokenStore.SetToken(ctx, purposeVerifyEmail, tokenHash(raw), user.ID, verifyEmailTTL); err != nil {
+		uc.log.Errorf("save verify token failed: %v", err)
+		return errors.InternalServer("INTERNAL", "internal error")
+	}
+
+	link := fmt.Sprintf("%s?token=%s", uc.mailCfg.GetVerifyBaseUrl(), raw)
+	subject, html, err := RenderVerifyEmail(uc.mailCfg, link)
+	if err != nil {
+		uc.log.Errorf("render verify email template failed: %v", err)
+		return errors.InternalServer("INTERNAL", "internal error")
+	}
+	if err := uc.mailer.Send(ctx, mail.Email{
+		From:    mail.DefaultFrom(uc.mailCfg),
+		To:      []string{user.Email},
+		Subject: subject,
+		HTML:    html,
+	}); err != nil {
+		uc.log.Errorf("send verify email failed: %v", err)
+		return errors.InternalServer("INTERNAL", "failed to send email")
+	}
+	return nil
+}
+
+func (uc *AuthnUsecase) VerifyEmail(ctx context.Context, token string) error {
+	userID, err := uc.tokenStore.ConsumeToken(ctx, purposeVerifyEmail, tokenHash(token))
+	if err != nil {
+		return authnpb.ErrorTokenExpired("invalid or expired verification token")
+	}
+	if err := uc.repo.UpdateEmailVerified(ctx, userID, true); err != nil {
+		uc.log.Errorf("update email_verified failed: %v", err)
+		return errors.InternalServer("INTERNAL", "internal error")
+	}
+	return nil
+}
+
+func (uc *AuthnUsecase) RequestPasswordReset(ctx context.Context, email string) error {
+	user, err := uc.repo.GetUserByEmail(ctx, email)
+	if err != nil || user == nil {
+		return nil // always succeed to avoid leaking account existence
+	}
+
+	raw, err := uc.generateOpaqueToken()
+	if err != nil {
+		uc.log.Errorf("generate reset token failed: %v", err)
+		return errors.InternalServer("INTERNAL", "internal error")
+	}
+
+	if err := uc.tokenStore.SetToken(ctx, purposeResetPassword, tokenHash(raw), user.ID, resetPasswordTTL); err != nil {
+		uc.log.Errorf("save reset token failed: %v", err)
+		return errors.InternalServer("INTERNAL", "internal error")
+	}
+
+	link := fmt.Sprintf("%s?token=%s", uc.mailCfg.GetResetBaseUrl(), raw)
+	subject, html, err := RenderResetPassword(uc.mailCfg, link)
+	if err != nil {
+		uc.log.Errorf("render reset password template failed: %v", err)
+		return errors.InternalServer("INTERNAL", "internal error")
+	}
+	if err := uc.mailer.Send(ctx, mail.Email{
+		From:    mail.DefaultFrom(uc.mailCfg),
+		To:      []string{user.Email},
+		Subject: subject,
+		HTML:    html,
+	}); err != nil {
+		uc.log.Errorf("send reset email failed: %v", err)
+		return errors.InternalServer("INTERNAL", "failed to send email")
+	}
+	return nil
+}
+
+func (uc *AuthnUsecase) ResetPassword(ctx context.Context, token, newPassword string) error {
+	userID, err := uc.tokenStore.ConsumeToken(ctx, purposeResetPassword, tokenHash(token))
+	if err != nil {
+		return authnpb.ErrorTokenExpired("invalid or expired reset token")
+	}
+
+	hashed, err := helpers.BcryptHash(newPassword)
+	if err != nil {
+		uc.log.Errorf("hash new password failed: %v", err)
+		return errors.InternalServer("INTERNAL", "internal error")
+	}
+
+	if err := uc.repo.UpdatePassword(ctx, userID, hashed); err != nil {
+		uc.log.Errorf("reset password update failed: %v", err)
+		return errors.InternalServer("INTERNAL", "internal error")
+	}
+
+	if err := uc.repo.DeleteUserRefreshTokens(ctx, userID); err != nil {
+		uc.log.Warnf("delete refresh tokens after reset: %v", err)
 	}
 	return nil
 }

@@ -81,6 +81,16 @@ func Role(v string) predicate.User {
 	return predicate.User(sql.FieldEQ(FieldRole, v))
 }
 
+// EmailVerified applies equality check predicate on the "email_verified" field. It's identical to EmailVerifiedEQ.
+func EmailVerified(v bool) predicate.User {
+	return predicate.User(sql.FieldEQ(FieldEmailVerified, v))
+}
+
+// EmailVerifiedAt applies equality check predicate on the "email_verified_at" field. It's identical to EmailVerifiedAtEQ.
+func EmailVerifiedAt(v time.Time) predicate.User {
+	return predicate.User(sql.FieldEQ(FieldEmailVerifiedAt, v))
+}
+
 // CreatedAt applies equality check predicate on the "created_at" field. It's identical to CreatedAtEQ.
 func CreatedAt(v time.Time) predicate.User {
 	return predicate.User(sql.FieldEQ(FieldCreatedAt, v))
@@ -399,6 +409,66 @@ func RoleEqualFold(v string) predicate.User {
 // RoleContainsFold applies the ContainsFold predicate on the "role" field.
 func RoleContainsFold(v string) predicate.User {
 	return predicate.User(sql.FieldContainsFold(FieldRole, v))
+}
+
+// EmailVerifiedEQ applies the EQ predicate on the "email_verified" field.
+func EmailVerifiedEQ(v bool) predicate.User {
+	return predicate.User(sql.FieldEQ(FieldEmailVerified, v))
+}
+
+// EmailVerifiedNEQ applies the NEQ predicate on the "email_verified" field.
+func EmailVerifiedNEQ(v bool) predicate.User {
+	return predicate.User(sql.FieldNEQ(FieldEmailVerified, v))
+}
+
+// EmailVerifiedAtEQ applies the EQ predicate on the "email_verified_at" field.
+func EmailVerifiedAtEQ(v time.Time) predicate.User {
+	return predicate.User(sql.FieldEQ(FieldEmailVerifiedAt, v))
+}
+
+// EmailVerifiedAtNEQ applies the NEQ predicate on the "email_verified_at" field.
+func EmailVerifiedAtNEQ(v time.Time) predicate.User {
+	return predicate.User(sql.FieldNEQ(FieldEmailVerifiedAt, v))
+}
+
+// EmailVerifiedAtIn applies the In predicate on the "email_verified_at" field.
+func EmailVerifiedAtIn(vs ...time.Time) predicate.User {
+	return predicate.User(sql.FieldIn(FieldEmailVerifiedAt, vs...))
+}
+
+// EmailVerifiedAtNotIn applies the NotIn predicate on the "email_verified_at" field.
+func EmailVerifiedAtNotIn(vs ...time.Time) predicate.User {
+	return predicate.User(sql.FieldNotIn(FieldEmailVerifiedAt, vs...))
+}
+
+// EmailVerifiedAtGT applies the GT predicate on the "email_verified_at" field.
+func EmailVerifiedAtGT(v time.Time) predicate.User {
+	return predicate.User(sql.FieldGT(FieldEmailVerifiedAt, v))
+}
+
+// EmailVerifiedAtGTE applies the GTE predicate on the "email_verified_at" field.
+func EmailVerifiedAtGTE(v time.Time) predicate.User {
+	return predicate.User(sql.FieldGTE(FieldEmailVerifiedAt, v))
+}
+
+// EmailVerifiedAtLT applies the LT predicate on the "email_verified_at" field.
+func EmailVerifiedAtLT(v time.Time) predicate.User {
+	return predicate.User(sql.FieldLT(FieldEmailVerifiedAt, v))
+}
+
+// EmailVerifiedAtLTE applies the LTE predicate on the "email_verified_at" field.
+func EmailVerifiedAtLTE(v time.Time) predicate.User {
+	return predicate.User(sql.FieldLTE(FieldEmailVerifiedAt, v))
+}
+
+// EmailVerifiedAtIsNil applies the IsNil predicate on the "email_verified_at" field.
+func EmailVerifiedAtIsNil() predicate.User {
+	return predicate.User(sql.FieldIsNull(FieldEmailVerifiedAt))
+}
+
+// EmailVerifiedAtNotNil applies the NotNil predicate on the "email_verified_at" field.
+func EmailVerifiedAtNotNil() predicate.User {
+	return predicate.User(sql.FieldNotNull(FieldEmailVerifiedAt))
 }
 
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.

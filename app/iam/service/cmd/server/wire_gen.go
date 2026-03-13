@@ -30,7 +30,7 @@ import (
 // Injectors from wire.go:
 
 // wireApp init kratos application.
-func wireApp(confServer *conf.Server, discovery *conf.Discovery, confRegistry *conf.Registry, confData *conf.Data, app *conf.App, trace *conf.Trace, metrics *conf.Metrics, confBiz *conf2.Biz, svcIdentity bootstrap.SvcIdentity, logger log.Logger) (*kratos.App, func(), error) {
+func wireApp(confServer *conf.Server, discovery *conf.Discovery, confRegistry *conf.Registry, confData *conf.Data, app *conf.App, trace *conf.Trace, metrics *conf.Metrics, mail *conf.Mail, confBiz *conf2.Biz, svcIdentity bootstrap.SvcIdentity, logger log.Logger) (*kratos.App, func(), error) {
 	registrar := registry.NewRegistrar(confRegistry)
 	telemetryMetrics, err := telemetry.NewMetrics(metrics, app, logger)
 	if err != nil {
@@ -73,12 +73,14 @@ func wireApp(confServer *conf.Server, discovery *conf.Discovery, confRegistry *c
 		return nil, nil, err
 	}
 	authnRepo := data.NewAuthnRepo(dataData, logger)
+	otpRepo := data.NewOTPRepo(redisClient, logger)
+	sender := data.NewMailSender(mail)
 	organizationRepo := data.NewOrganizationRepo(dataData, logger)
 	projectRepo := data.NewProjectRepo(dataData, logger)
 	authZRepo := data.NewAuthZRepo(openfgaClient, redisClient)
 	organizationUsecase := biz.NewOrganizationUsecase(organizationRepo, projectRepo, authZRepo, logger, platformRootID)
 	projectUsecase := biz.NewProjectUsecase(projectRepo, organizationRepo, authZRepo, logger)
-	authnUsecase := biz.NewAuthnUsecase(authnRepo, logger, app, keyManager, organizationUsecase, projectUsecase)
+	authnUsecase := biz.NewAuthnUsecase(authnRepo, otpRepo, sender, mail, logger, app, keyManager, organizationUsecase, projectUsecase)
 	authnService := service.NewAuthnService(authnUsecase)
 	userRepo := data.NewUserRepo(dataData, logger)
 	userUsecase := biz.NewUserUsecase(userRepo, logger, app, authnRepo, organizationRepo, projectRepo, authZRepo, platformRootID)

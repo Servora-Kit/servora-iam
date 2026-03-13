@@ -72,6 +72,34 @@ func (uc *UserUsecase) CurrentUserInfo(ctx context.Context) (*entity.User, error
 	return u, nil
 }
 
+func (uc *UserUsecase) GetUser(ctx context.Context, id string) (*entity.User, error) {
+	a, ok := actor.FromContext(ctx)
+	if !ok || a.Type() != actor.TypeUser {
+		return nil, authnpb.ErrorUnauthorized("user not authenticated")
+	}
+
+	if a.ID() != id {
+		caller, err := uc.repo.GetUserById(ctx, a.ID())
+		if err != nil {
+			uc.log.Errorf("get caller for GetUser failed: %v", err)
+			return nil, errors.InternalServer("INTERNAL", "internal error")
+		}
+		if caller.Role != "admin" && caller.Role != "operator" {
+			return nil, authnpb.ErrorUnauthorized("insufficient permissions")
+		}
+	}
+
+	u, err := uc.repo.GetUserById(ctx, id)
+	if err != nil {
+		if dataent.IsNotFound(err) {
+			return nil, userpb.ErrorUserNotFound("user not found")
+		}
+		uc.log.Errorf("get user by id failed: %v", err)
+		return nil, errors.InternalServer("INTERNAL", "internal error")
+	}
+	return u, nil
+}
+
 func (uc *UserUsecase) UpdateUser(ctx context.Context, user *entity.User) (*entity.User, error) {
 	a, ok := actor.FromContext(ctx)
 	if !ok || a.Type() != actor.TypeUser {

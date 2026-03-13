@@ -19,6 +19,7 @@ message Bootstrap {
   Config config = 6; // 配置中心配置
   Trace trace = 7; // 链路追踪配置
   Metrics metrics = 8; // 指标配置
+  Mail mail = 9; // 邮件配置
 }
 
 // =============================================================================
@@ -250,4 +251,35 @@ message Trace {
 message Metrics {
   bool enable = 1; // 是否开启
   string meter_name = 2; // Meter 名称
+}
+
+// =============================================================================
+// 邮件配置
+// =============================================================================
+
+// 邮件配置
+message Mail {
+  Smtp smtp = 1; // SMTP 服务器配置
+  MailFrom from = 2; // 发件人配置
+  string verify_base_url = 3; // 邮箱验证链接前缀（如 https://app.example.com/verify）
+  string reset_base_url = 4; // 密码重置链接前缀（如 https://app.example.com/reset-password）
+  string template_dir = 5; // 可选：邮件 HTML 模板目录，放置 verify_email.html、reset_password.html 等，未设置或文件缺失时使用内嵌默认
+  // field number 6+ reserved for: rate_limit, template_id, etc.
+}
+
+// SMTP 服务器配置
+message Smtp {
+  string host = 1;
+  int32 port = 2;
+  string username = 3;
+  string password = 4;
+  bool use_tls = 5; // 是否使用 TLS（SMTPS / STARTTLS）
+  bool skip_verify_ssl = 6; // 跳过证书验证（仅建议 dev 使用）
+  google.protobuf.Duration send_timeout = 7; // 发信超时
+}
+
+// 发件人配置
+message MailFrom {
+  string address = 1; // 发件邮箱地址
+  string name = 2; // 发件人显示名
 }

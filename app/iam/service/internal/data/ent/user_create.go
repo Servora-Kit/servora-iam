@@ -69,6 +69,34 @@ func (_c *UserCreate) SetNillableRole(v *string) *UserCreate {
 	return _c
 }
 
+// SetEmailVerified sets the "email_verified" field.
+func (_c *UserCreate) SetEmailVerified(v bool) *UserCreate {
+	_c.mutation.SetEmailVerified(v)
+	return _c
+}
+
+// SetNillableEmailVerified sets the "email_verified" field if the given value is not nil.
+func (_c *UserCreate) SetNillableEmailVerified(v *bool) *UserCreate {
+	if v != nil {
+		_c.SetEmailVerified(*v)
+	}
+	return _c
+}
+
+// SetEmailVerifiedAt sets the "email_verified_at" field.
+func (_c *UserCreate) SetEmailVerifiedAt(v time.Time) *UserCreate {
+	_c.mutation.SetEmailVerifiedAt(v)
+	return _c
+}
+
+// SetNillableEmailVerifiedAt sets the "email_verified_at" field if the given value is not nil.
+func (_c *UserCreate) SetNillableEmailVerifiedAt(v *time.Time) *UserCreate {
+	if v != nil {
+		_c.SetEmailVerifiedAt(*v)
+	}
+	return _c
+}
+
 // SetCreatedAt sets the "created_at" field.
 func (_c *UserCreate) SetCreatedAt(v time.Time) *UserCreate {
 	_c.mutation.SetCreatedAt(v)
@@ -180,6 +208,10 @@ func (_c *UserCreate) defaults() {
 		v := user.DefaultRole
 		_c.mutation.SetRole(v)
 	}
+	if _, ok := _c.mutation.EmailVerified(); !ok {
+		v := user.DefaultEmailVerified
+		_c.mutation.SetEmailVerified(v)
+	}
 	if _, ok := _c.mutation.CreatedAt(); !ok {
 		v := user.DefaultCreatedAt()
 		_c.mutation.SetCreatedAt(v)
@@ -227,6 +259,9 @@ func (_c *UserCreate) check() error {
 		if err := user.RoleValidator(v); err != nil {
 			return &ValidationError{Name: "role", err: fmt.Errorf(`ent: validator failed for field "User.role": %w`, err)}
 		}
+	}
+	if _, ok := _c.mutation.EmailVerified(); !ok {
+		return &ValidationError{Name: "email_verified", err: errors.New(`ent: missing required field "User.email_verified"`)}
 	}
 	if _, ok := _c.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "User.created_at"`)}
@@ -288,6 +323,14 @@ func (_c *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.Role(); ok {
 		_spec.SetField(user.FieldRole, field.TypeString, value)
 		_node.Role = value
+	}
+	if value, ok := _c.mutation.EmailVerified(); ok {
+		_spec.SetField(user.FieldEmailVerified, field.TypeBool, value)
+		_node.EmailVerified = value
+	}
+	if value, ok := _c.mutation.EmailVerifiedAt(); ok {
+		_spec.SetField(user.FieldEmailVerifiedAt, field.TypeTime, value)
+		_node.EmailVerifiedAt = &value
 	}
 	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(user.FieldCreatedAt, field.TypeTime, value)

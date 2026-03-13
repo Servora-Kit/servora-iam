@@ -105,3 +105,34 @@ func (s *AuthnService) LogoutAllDevices(ctx context.Context, _ *authnpb.LogoutAl
 	}
 	return &authnpb.LogoutAllDevicesResponse{Success: true}, nil
 }
+
+func (s *AuthnService) RequestEmailVerification(ctx context.Context, req *authnpb.RequestEmailVerificationRequest) (*authnpb.RequestEmailVerificationResponse, error) {
+	if err := s.uc.RequestEmailVerification(ctx, req.Email); err != nil {
+		return nil, err
+	}
+	return &authnpb.RequestEmailVerificationResponse{Success: true}, nil
+}
+
+func (s *AuthnService) VerifyEmail(ctx context.Context, req *authnpb.VerifyEmailRequest) (*authnpb.VerifyEmailResponse, error) {
+	if err := s.uc.VerifyEmail(ctx, req.Token); err != nil {
+		return nil, err
+	}
+	return &authnpb.VerifyEmailResponse{Success: true}, nil
+}
+
+func (s *AuthnService) RequestPasswordReset(ctx context.Context, req *authnpb.RequestPasswordResetRequest) (*authnpb.RequestPasswordResetResponse, error) {
+	if err := s.uc.RequestPasswordReset(ctx, req.Email); err != nil {
+		return nil, err
+	}
+	return &authnpb.RequestPasswordResetResponse{Success: true}, nil
+}
+
+func (s *AuthnService) ResetPassword(ctx context.Context, req *authnpb.ResetPasswordRequest) (*authnpb.ResetPasswordResponse, error) {
+	if req.NewPassword != req.NewPasswordConfirm {
+		return nil, errors.BadRequest("INVALID_REQUEST", "new password and confirm password do not match")
+	}
+	if err := s.uc.ResetPassword(ctx, req.Token, req.NewPassword); err != nil {
+		return nil, err
+	}
+	return &authnpb.ResetPasswordResponse{Success: true}, nil
+}

@@ -289,6 +289,35 @@ func (m *Bootstrap) validate(all bool) error {
 		}
 	}
 
+	if all {
+		switch v := interface{}(m.GetMail()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, BootstrapValidationError{
+					field:  "Mail",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, BootstrapValidationError{
+					field:  "Mail",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetMail()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return BootstrapValidationError{
+				field:  "Mail",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
 	if len(errors) > 0 {
 		return BootstrapMultiError(errors)
 	}
@@ -2769,6 +2798,410 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = MetricsValidationError{}
+
+// Validate checks the field values on Mail with the rules defined in the proto
+// definition for this message. If any rules are violated, the first error
+// encountered is returned, or nil if there are no violations.
+func (m *Mail) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on Mail with the rules defined in the
+// proto definition for this message. If any rules are violated, the result is
+// a list of violation errors wrapped in MailMultiError, or nil if none found.
+func (m *Mail) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *Mail) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if all {
+		switch v := interface{}(m.GetSmtp()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, MailValidationError{
+					field:  "Smtp",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, MailValidationError{
+					field:  "Smtp",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetSmtp()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return MailValidationError{
+				field:  "Smtp",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if all {
+		switch v := interface{}(m.GetFrom()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, MailValidationError{
+					field:  "From",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, MailValidationError{
+					field:  "From",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetFrom()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return MailValidationError{
+				field:  "From",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	// no validation rules for VerifyBaseUrl
+
+	// no validation rules for ResetBaseUrl
+
+	// no validation rules for TemplateDir
+
+	if len(errors) > 0 {
+		return MailMultiError(errors)
+	}
+
+	return nil
+}
+
+// MailMultiError is an error wrapping multiple validation errors returned by
+// Mail.ValidateAll() if the designated constraints aren't met.
+type MailMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m MailMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m MailMultiError) AllErrors() []error { return m }
+
+// MailValidationError is the validation error returned by Mail.Validate if the
+// designated constraints aren't met.
+type MailValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e MailValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e MailValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e MailValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e MailValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e MailValidationError) ErrorName() string { return "MailValidationError" }
+
+// Error satisfies the builtin error interface
+func (e MailValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sMail.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = MailValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = MailValidationError{}
+
+// Validate checks the field values on Smtp with the rules defined in the proto
+// definition for this message. If any rules are violated, the first error
+// encountered is returned, or nil if there are no violations.
+func (m *Smtp) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on Smtp with the rules defined in the
+// proto definition for this message. If any rules are violated, the result is
+// a list of violation errors wrapped in SmtpMultiError, or nil if none found.
+func (m *Smtp) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *Smtp) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Host
+
+	// no validation rules for Port
+
+	// no validation rules for Username
+
+	// no validation rules for Password
+
+	// no validation rules for UseTls
+
+	// no validation rules for SkipVerifySsl
+
+	if all {
+		switch v := interface{}(m.GetSendTimeout()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, SmtpValidationError{
+					field:  "SendTimeout",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, SmtpValidationError{
+					field:  "SendTimeout",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetSendTimeout()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return SmtpValidationError{
+				field:  "SendTimeout",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if len(errors) > 0 {
+		return SmtpMultiError(errors)
+	}
+
+	return nil
+}
+
+// SmtpMultiError is an error wrapping multiple validation errors returned by
+// Smtp.ValidateAll() if the designated constraints aren't met.
+type SmtpMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m SmtpMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m SmtpMultiError) AllErrors() []error { return m }
+
+// SmtpValidationError is the validation error returned by Smtp.Validate if the
+// designated constraints aren't met.
+type SmtpValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e SmtpValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e SmtpValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e SmtpValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e SmtpValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e SmtpValidationError) ErrorName() string { return "SmtpValidationError" }
+
+// Error satisfies the builtin error interface
+func (e SmtpValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sSmtp.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = SmtpValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = SmtpValidationError{}
+
+// Validate checks the field values on MailFrom with the rules defined in the
+// proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *MailFrom) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on MailFrom with the rules defined in
+// the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in MailFromMultiError, or nil
+// if none found.
+func (m *MailFrom) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *MailFrom) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Address
+
+	// no validation rules for Name
+
+	if len(errors) > 0 {
+		return MailFromMultiError(errors)
+	}
+
+	return nil
+}
+
+// MailFromMultiError is an error wrapping multiple validation errors returned
+// by MailFrom.ValidateAll() if the designated constraints aren't met.
+type MailFromMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m MailFromMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m MailFromMultiError) AllErrors() []error { return m }
+
+// MailFromValidationError is the validation error returned by
+// MailFrom.Validate if the designated constraints aren't met.
+type MailFromValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e MailFromValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e MailFromValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e MailFromValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e MailFromValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e MailFromValidationError) ErrorName() string { return "MailFromValidationError" }
+
+// Error satisfies the builtin error interface
+func (e MailFromValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sMailFrom.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = MailFromValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = MailFromValidationError{}
 
 // Validate checks the field values on Server_HTTP with the rules defined in
 // the proto definition for this message. If any rules are violated, the first

@@ -16,8 +16,8 @@ paths:
     /v1/auth/change-password:
         post:
             tags:
-                - AuthService
-            operationId: AuthService_ChangePassword
+                - AuthnService
+            operationId: AuthnService_ChangePassword
             requestBody:
                 content:
                     application/json:
@@ -34,8 +34,8 @@ paths:
     /v1/auth/login/email-password:
         post:
             tags:
-                - AuthService
-            operationId: AuthService_LoginByEmailPassword
+                - AuthnService
+            operationId: AuthnService_LoginByEmailPassword
             requestBody:
                 content:
                     application/json:
@@ -52,8 +52,8 @@ paths:
     /v1/auth/logout:
         post:
             tags:
-                - AuthService
-            operationId: AuthService_Logout
+                - AuthnService
+            operationId: AuthnService_Logout
             requestBody:
                 content:
                     application/json:
@@ -70,8 +70,8 @@ paths:
     /v1/auth/logout-all:
         post:
             tags:
-                - AuthService
-            operationId: AuthService_LogoutAllDevices
+                - AuthnService
+            operationId: AuthnService_LogoutAllDevices
             requestBody:
                 content:
                     application/json:
@@ -88,8 +88,8 @@ paths:
     /v1/auth/refresh-token:
         post:
             tags:
-                - AuthService
-            operationId: AuthService_RefreshToken
+                - AuthnService
+            operationId: AuthnService_RefreshToken
             requestBody:
                 content:
                     application/json:
@@ -103,11 +103,65 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/RefreshTokenResponse'
+    /v1/auth/request-email-verification:
+        post:
+            tags:
+                - AuthnService
+            operationId: AuthnService_RequestEmailVerification
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/RequestEmailVerificationRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/RequestEmailVerificationResponse'
+    /v1/auth/request-password-reset:
+        post:
+            tags:
+                - AuthnService
+            operationId: AuthnService_RequestPasswordReset
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/RequestPasswordResetRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/RequestPasswordResetResponse'
+    /v1/auth/reset-password:
+        post:
+            tags:
+                - AuthnService
+            operationId: AuthnService_ResetPassword
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ResetPasswordRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ResetPasswordResponse'
     /v1/auth/signup/using-email:
         post:
             tags:
-                - AuthService
-            operationId: AuthService_SignupByEmail
+                - AuthnService
+            operationId: AuthnService_SignupByEmail
             requestBody:
                 content:
                     application/json:
@@ -121,6 +175,24 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/SignupByEmailResponse'
+    /v1/auth/verify-email:
+        post:
+            tags:
+                - AuthnService
+            operationId: AuthnService_VerifyEmail
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/VerifyEmailRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/VerifyEmailResponse'
     /v1/organizations:
         get:
             tags:
@@ -843,6 +915,24 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/ListUsersResponse'
+    /v1/users/{id}:
+        get:
+            tags:
+                - UserService
+            operationId: UserService_GetUser
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GetUserResponse'
 components:
     schemas:
         AddMemberRequest:
@@ -868,13 +958,11 @@ components:
                     type: string
                 newPasswordConfirm:
                     type: string
-            description: 修改密码请求
         ChangePasswordResponse:
             type: object
             properties:
                 success:
                     type: boolean
-            description: 修改密码响应
         CreateOrganizationRequest:
             type: object
             properties:
@@ -948,6 +1036,11 @@ components:
             properties:
                 project:
                     $ref: '#/components/schemas/ProjectInfo'
+        GetUserResponse:
+            type: object
+            properties:
+                user:
+                    $ref: '#/components/schemas/UserInfo'
         HelloRequest:
             type: object
             properties:
@@ -1018,7 +1111,6 @@ components:
                     type: string
                 password:
                     type: string
-            description: 密码登录请求
         LoginByEmailPasswordResponse:
             type: object
             properties:
@@ -1028,29 +1120,24 @@ components:
                     type: string
                 expiresIn:
                     type: string
-            description: 密码登录响应
         LogoutAllDevicesRequest:
             type: object
             properties: {}
-            description: 全设备退出请求
         LogoutAllDevicesResponse:
             type: object
             properties:
                 success:
                     type: boolean
-            description: 全设备退出响应
         LogoutRequest:
             type: object
             properties:
                 refreshToken:
                     type: string
-            description: 登出请求
         LogoutResponse:
             type: object
             properties:
                 success:
                     type: boolean
-            description: 登出响应
         OrganizationInfo:
             type: object
             properties:
@@ -1151,7 +1238,6 @@ components:
             properties:
                 refreshToken:
                     type: string
-            description: 刷新Token请求
         RefreshTokenResponse:
             type: object
             properties:
@@ -1161,8 +1247,41 @@ components:
                     type: string
                 expiresIn:
                     type: string
-            description: 刷新Token响应
         RemoveMemberResponse:
+            type: object
+            properties:
+                success:
+                    type: boolean
+        RequestEmailVerificationRequest:
+            type: object
+            properties:
+                email:
+                    type: string
+        RequestEmailVerificationResponse:
+            type: object
+            properties:
+                success:
+                    type: boolean
+        RequestPasswordResetRequest:
+            type: object
+            properties:
+                email:
+                    type: string
+        RequestPasswordResetResponse:
+            type: object
+            properties:
+                success:
+                    type: boolean
+        ResetPasswordRequest:
+            type: object
+            properties:
+                token:
+                    type: string
+                newPassword:
+                    type: string
+                newPasswordConfirm:
+                    type: string
+        ResetPasswordResponse:
             type: object
             properties:
                 success:
@@ -1218,16 +1337,12 @@ components:
             properties:
                 name:
                     type: string
-                    description: 用户名最小长度5
                 password:
                     type: string
-                    description: 密码最小长度5，最大长度10
                 passwordConfirm:
                     type: string
-                    description: 确认密码最小长度5，最大长度10
                 email:
                     type: string
-            description: 邮箱注册请求
         SignupByEmailResponse:
             type: object
             properties:
@@ -1239,7 +1354,6 @@ components:
                     type: string
                 role:
                     type: string
-            description: 邮箱注册响应
         TestRequest:
             type: object
             properties: {}
@@ -1319,6 +1433,18 @@ components:
                     type: string
                 role:
                     type: string
+                emailVerified:
+                    type: boolean
+        VerifyEmailRequest:
+            type: object
+            properties:
+                token:
+                    type: string
+        VerifyEmailResponse:
+            type: object
+            properties:
+                success:
+                    type: boolean
     responses:
         default:
             description: 默认 Kratos 错误响应
@@ -1327,7 +1453,7 @@ components:
                     schema:
                         $ref: '#/components/schemas/KratosError'
 tags:
-    - name: AuthService
+    - name: AuthnService
     - name: OrganizationService
     - name: ProjectService
     - name: TestService

@@ -50,7 +50,7 @@ func main() {
 		if err != nil {
 			return nil, nil, err
 		}
-		return wireApp(bc.Server, bc.Discovery, bc.Registry, bc.Data, bc.App, bc.Trace, bc.Metrics, bizConf, runtime.Identity, runtime.Logger)
+		return wireApp(bc.Server, bc.Discovery, bc.Registry, bc.Data, bc.App, bc.Trace, bc.Metrics, bc.Mail, bizConf, runtime.Identity, runtime.Logger)
 	})
 	if err != nil {
 		panic(err)

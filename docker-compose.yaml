@@ -176,6 +176,16 @@ services:
     networks:
       - servora-network
 
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: servora_mailpit
+    restart: unless-stopped
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+    networks:
+      - servora-network
+
   redis:
     image: redis:8.6.1-alpine
     container_name: servora_redis

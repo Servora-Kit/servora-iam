@@ -34,6 +34,19 @@ app:
     max_age: 30
     max_backups: 10
 
+mail:
+  smtp:
+    host: "mailpit"
+    port: 1025
+    use_tls: false
+  from:
+    address: "noreply@servora.dev"
+    name: "Servora"
+  verify_base_url: "http://localhost:3000/verify-email"
+  reset_base_url: "http://localhost:3000/reset-password"
+  # 可选：挂载模板目录后设置，如 /app/configs/mail-templates
+  # template_dir: "/app/configs/mail-templates"
+
 trace:
   endpoint: "otel-collector:4317"
   insecure: true

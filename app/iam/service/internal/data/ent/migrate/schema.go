@@ -160,6 +160,8 @@ var (
 		{Name: "email", Type: field.TypeString, Unique: true, Size: 128},
 		{Name: "password", Type: field.TypeString, Size: 255},
 		{Name: "role", Type: field.TypeString, Size: 32, Default: "user"},
+		{Name: "email_verified", Type: field.TypeBool, Default: false},
+		{Name: "email_verified_at", Type: field.TypeTime, Nullable: true},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
 	}

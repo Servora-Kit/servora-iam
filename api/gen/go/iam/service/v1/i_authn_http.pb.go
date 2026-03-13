@@ -25,7 +25,11 @@ const OperationAuthnServiceLoginByEmailPassword = "/iam.service.v1.AuthnService/
 const OperationAuthnServiceLogout = "/iam.service.v1.AuthnService/Logout"
 const OperationAuthnServiceLogoutAllDevices = "/iam.service.v1.AuthnService/LogoutAllDevices"
 const OperationAuthnServiceRefreshToken = "/iam.service.v1.AuthnService/RefreshToken"
+const OperationAuthnServiceRequestEmailVerification = "/iam.service.v1.AuthnService/RequestEmailVerification"
+const OperationAuthnServiceRequestPasswordReset = "/iam.service.v1.AuthnService/RequestPasswordReset"
+const OperationAuthnServiceResetPassword = "/iam.service.v1.AuthnService/ResetPassword"
 const OperationAuthnServiceSignupByEmail = "/iam.service.v1.AuthnService/SignupByEmail"
+const OperationAuthnServiceVerifyEmail = "/iam.service.v1.AuthnService/VerifyEmail"
 
 type AuthnServiceHTTPServer interface {
 	ChangePassword(context.Context, *v1.ChangePasswordRequest) (*v1.ChangePasswordResponse, error)
@@ -33,7 +37,11 @@ type AuthnServiceHTTPServer interface {
 	Logout(context.Context, *v1.LogoutRequest) (*v1.LogoutResponse, error)
 	LogoutAllDevices(context.Context, *v1.LogoutAllDevicesRequest) (*v1.LogoutAllDevicesResponse, error)
 	RefreshToken(context.Context, *v1.RefreshTokenRequest) (*v1.RefreshTokenResponse, error)
+	RequestEmailVerification(context.Context, *v1.RequestEmailVerificationRequest) (*v1.RequestEmailVerificationResponse, error)
+	RequestPasswordReset(context.Context, *v1.RequestPasswordResetRequest) (*v1.RequestPasswordResetResponse, error)
+	ResetPassword(context.Context, *v1.ResetPasswordRequest) (*v1.ResetPasswordResponse, error)
 	SignupByEmail(context.Context, *v1.SignupByEmailRequest) (*v1.SignupByEmailResponse, error)
+	VerifyEmail(context.Context, *v1.VerifyEmailRequest) (*v1.VerifyEmailResponse, error)
 }
 
 func RegisterAuthnServiceHTTPServer(s *http.Server, srv AuthnServiceHTTPServer) {
@@ -44,6 +52,10 @@ func RegisterAuthnServiceHTTPServer(s *http.Server, srv AuthnServiceHTTPServer) 
 	r.POST("/v1/auth/logout", _AuthnService_Logout0_HTTP_Handler(srv))
 	r.POST("/v1/auth/change-password", _AuthnService_ChangePassword0_HTTP_Handler(srv))
 	r.POST("/v1/auth/logout-all", _AuthnService_LogoutAllDevices0_HTTP_Handler(srv))
+	r.POST("/v1/auth/request-email-verification", _AuthnService_RequestEmailVerification0_HTTP_Handler(srv))
+	r.POST("/v1/auth/verify-email", _AuthnService_VerifyEmail0_HTTP_Handler(srv))
+	r.POST("/v1/auth/request-password-reset", _AuthnService_RequestPasswordReset0_HTTP_Handler(srv))
+	r.POST("/v1/auth/reset-password", _AuthnService_ResetPassword0_HTTP_Handler(srv))
 }
 
 func _AuthnService_SignupByEmail0_HTTP_Handler(srv AuthnServiceHTTPServer) func(ctx http.Context) error {
@@ -178,13 +190,105 @@ func _AuthnService_LogoutAllDevices0_HTTP_Handler(srv AuthnServiceHTTPServer) fu
 	}
 }
 
+func _AuthnService_RequestEmailVerification0_HTTP_Handler(srv AuthnServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in v1.RequestEmailVerificationRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAuthnServiceRequestEmailVerification)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.RequestEmailVerification(ctx, req.(*v1.RequestEmailVerificationRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*v1.RequestEmailVerificationResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _AuthnService_VerifyEmail0_HTTP_Handler(srv AuthnServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in v1.VerifyEmailRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAuthnServiceVerifyEmail)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.VerifyEmail(ctx, req.(*v1.VerifyEmailRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*v1.VerifyEmailResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _AuthnService_RequestPasswordReset0_HTTP_Handler(srv AuthnServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in v1.RequestPasswordResetRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAuthnServiceRequestPasswordReset)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.RequestPasswordReset(ctx, req.(*v1.RequestPasswordResetRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*v1.RequestPasswordResetResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _AuthnService_ResetPassword0_HTTP_Handler(srv AuthnServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in v1.ResetPasswordRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAuthnServiceResetPassword)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.ResetPassword(ctx, req.(*v1.ResetPasswordRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*v1.ResetPasswordResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
 type AuthnServiceHTTPClient interface {
 	ChangePassword(ctx context.Context, req *v1.ChangePasswordRequest, opts ...http.CallOption) (rsp *v1.ChangePasswordResponse, err error)
 	LoginByEmailPassword(ctx context.Context, req *v1.LoginByEmailPasswordRequest, opts ...http.CallOption) (rsp *v1.LoginByEmailPasswordResponse, err error)
 	Logout(ctx context.Context, req *v1.LogoutRequest, opts ...http.CallOption) (rsp *v1.LogoutResponse, err error)
 	LogoutAllDevices(ctx context.Context, req *v1.LogoutAllDevicesRequest, opts ...http.CallOption) (rsp *v1.LogoutAllDevicesResponse, err error)
 	RefreshToken(ctx context.Context, req *v1.RefreshTokenRequest, opts ...http.CallOption) (rsp *v1.RefreshTokenResponse, err error)
+	RequestEmailVerification(ctx context.Context, req *v1.RequestEmailVerificationRequest, opts ...http.CallOption) (rsp *v1.RequestEmailVerificationResponse, err error)
+	RequestPasswordReset(ctx context.Context, req *v1.RequestPasswordResetRequest, opts ...http.CallOption) (rsp *v1.RequestPasswordResetResponse, err error)
+	ResetPassword(ctx context.Context, req *v1.ResetPasswordRequest, opts ...http.CallOption) (rsp *v1.ResetPasswordResponse, err error)
 	SignupByEmail(ctx context.Context, req *v1.SignupByEmailRequest, opts ...http.CallOption) (rsp *v1.SignupByEmailResponse, err error)
+	VerifyEmail(ctx context.Context, req *v1.VerifyEmailRequest, opts ...http.CallOption) (rsp *v1.VerifyEmailResponse, err error)
 }
 
 type AuthnServiceHTTPClientImpl struct {
@@ -260,11 +364,63 @@ func (c *AuthnServiceHTTPClientImpl) RefreshToken(ctx context.Context, in *v1.Re
 	return &out, nil
 }
 
+func (c *AuthnServiceHTTPClientImpl) RequestEmailVerification(ctx context.Context, in *v1.RequestEmailVerificationRequest, opts ...http.CallOption) (*v1.RequestEmailVerificationResponse, error) {
+	var out v1.RequestEmailVerificationResponse
+	pattern := "/v1/auth/request-email-verification"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationAuthnServiceRequestEmailVerification))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *AuthnServiceHTTPClientImpl) RequestPasswordReset(ctx context.Context, in *v1.RequestPasswordResetRequest, opts ...http.CallOption) (*v1.RequestPasswordResetResponse, error) {
+	var out v1.RequestPasswordResetResponse
+	pattern := "/v1/auth/request-password-reset"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationAuthnServiceRequestPasswordReset))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *AuthnServiceHTTPClientImpl) ResetPassword(ctx context.Context, in *v1.ResetPasswordRequest, opts ...http.CallOption) (*v1.ResetPasswordResponse, error) {
+	var out v1.ResetPasswordResponse
+	pattern := "/v1/auth/reset-password"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationAuthnServiceResetPassword))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
 func (c *AuthnServiceHTTPClientImpl) SignupByEmail(ctx context.Context, in *v1.SignupByEmailRequest, opts ...http.CallOption) (*v1.SignupByEmailResponse, error) {
 	var out v1.SignupByEmailResponse
 	pattern := "/v1/auth/signup/using-email"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationAuthnServiceSignupByEmail))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *AuthnServiceHTTPClientImpl) VerifyEmail(ctx context.Context, in *v1.VerifyEmailRequest, opts ...http.CallOption) (*v1.VerifyEmailResponse, error) {
+	var out v1.VerifyEmailResponse
+	pattern := "/v1/auth/verify-email"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationAuthnServiceVerifyEmail))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {

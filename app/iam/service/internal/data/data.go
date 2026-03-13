@@ -14,6 +14,7 @@ import (
 	entdrv "github.com/Servora-Kit/servora/pkg/ent"
 	"github.com/Servora-Kit/servora/pkg/governance/registry"
 	"github.com/Servora-Kit/servora/pkg/logger"
+	"github.com/Servora-Kit/servora/pkg/mail"
 	"github.com/Servora-Kit/servora/pkg/redis"
 	"github.com/Servora-Kit/servora/pkg/transport/client"
 
@@ -23,7 +24,7 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-var ProviderSet = wire.NewSet(registry.NewDiscovery, NewEntDriver, NewDBClient, NewPlatformRootID, NewRedis, NewData, NewAuthnRepo, NewAuthZRepo, NewUserRepo, NewTestRepo, NewOrganizationRepo, NewProjectRepo)
+var ProviderSet = wire.NewSet(registry.NewDiscovery, NewEntDriver, NewDBClient, NewPlatformRootID, NewRedis, NewData, NewAuthnRepo, NewAuthZRepo, NewUserRepo, NewTestRepo, NewOrganizationRepo, NewProjectRepo, NewOTPRepo, NewMailSender)
 
 type Data struct {
 	entClient *ent.Client
@@ -123,4 +124,8 @@ func NewRedis(cfg *conf.Data, l logger.Logger) (*redis.Client, func(), error) {
 	}
 
 	return redis.NewClient(redisConfig, logger.With(l, logger.WithModule("redis/data/iam-service")))
+}
+
+func NewMailSender(c *conf.Mail) mail.Sender {
+	return mail.NewSender(c)
 }

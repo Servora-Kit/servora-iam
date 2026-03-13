@@ -163,12 +163,16 @@ func init() {
 	user.DefaultRole = userDescRole.Default.(string)
 	// user.RoleValidator is a validator for the "role" field. It is called by the builders before save.
 	user.RoleValidator = userDescRole.Validators[0].(func(string) error)
+	// userDescEmailVerified is the schema descriptor for email_verified field.
+	userDescEmailVerified := userFields[5].Descriptor()
+	// user.DefaultEmailVerified holds the default value on creation for the email_verified field.
+	user.DefaultEmailVerified = userDescEmailVerified.Default.(bool)
 	// userDescCreatedAt is the schema descriptor for created_at field.
-	userDescCreatedAt := userFields[5].Descriptor()
+	userDescCreatedAt := userFields[7].Descriptor()
 	// user.DefaultCreatedAt holds the default value on creation for the created_at field.
 	user.DefaultCreatedAt = userDescCreatedAt.Default.(func() time.Time)
 	// userDescUpdatedAt is the schema descriptor for updated_at field.
-	userDescUpdatedAt := userFields[6].Descriptor()
+	userDescUpdatedAt := userFields[8].Descriptor()
 	// user.DefaultUpdatedAt holds the default value on creation for the updated_at field.
 	user.DefaultUpdatedAt = userDescUpdatedAt.Default.(func() time.Time)
 	// user.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.

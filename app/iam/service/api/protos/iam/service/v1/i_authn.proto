@@ -68,4 +68,44 @@ service AuthnService {
       mode: AUTHZ_MODE_NONE
     };
   }
+
+  rpc RequestEmailVerification(authn.service.v1.RequestEmailVerificationRequest) returns (authn.service.v1.RequestEmailVerificationResponse) {
+    option (google.api.http) = {
+      post: "/v1/auth/request-email-verification"
+      body: "*"
+    };
+    option (servora.authz.v1.rule) = {
+      mode: AUTHZ_MODE_NONE
+    };
+  }
+
+  rpc VerifyEmail(authn.service.v1.VerifyEmailRequest) returns (authn.service.v1.VerifyEmailResponse) {
+    option (google.api.http) = {
+      post: "/v1/auth/verify-email"
+      body: "*"
+    };
+    option (servora.authz.v1.rule) = {
+      mode: AUTHZ_MODE_NONE
+    };
+  }
+
+  rpc RequestPasswordReset(authn.service.v1.RequestPasswordResetRequest) returns (authn.service.v1.RequestPasswordResetResponse) {
+    option (google.api.http) = {
+      post: "/v1/auth/request-password-reset"
+      body: "*"
+    };
+    option (servora.authz.v1.rule) = {
+      mode: AUTHZ_MODE_NONE
+    };
+  }
+
+  rpc ResetPassword(authn.service.v1.ResetPasswordRequest) returns (authn.service.v1.ResetPasswordResponse) {
+    option (google.api.http) = {
+      post: "/v1/auth/reset-password"
+      body: "*"
+    };
+    option (servora.authz.v1.rule) = {
+      mode: AUTHZ_MODE_NONE
+    };
+  }
 }

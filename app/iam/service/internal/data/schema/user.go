@@ -28,6 +28,8 @@ func (User) Fields() []ent.Field {
 		field.String("email").MaxLen(128).Unique(),
 		field.String("password").MaxLen(255),
 		field.String("role").MaxLen(32).Default("user"),
+		field.Bool("email_verified").Default(false),
+		field.Time("email_verified_at").Optional().Nillable(),
 		field.Time("created_at").Default(time.Now).Immutable(),
 		field.Time("updated_at").Default(time.Now).UpdateDefault(time.Now),
 	}

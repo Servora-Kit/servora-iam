@@ -136,6 +136,11 @@ func (c *Client) Del(ctx context.Context, keys ...string) error {
 	return c.rdb.Del(ctx, keys...).Err()
 }
 
+// GetDel atomically gets the value and deletes the key (Redis >= 6.2).
+func (c *Client) GetDel(ctx context.Context, key string) (string, error) {
+	return c.rdb.GetDel(ctx, key).Result()
+}
+
 // Has 判断键是否存在
 func (c *Client) Has(ctx context.Context, key string) bool {
 	_, err := c.rdb.Get(ctx, key).Result()
