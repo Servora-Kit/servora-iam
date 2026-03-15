@@ -16,7 +16,7 @@
 
 ### 提交消息格式
 
-**强制规范**：所有提交必须遵循以下格式（git hooks 会自动验证）：
+**强制规范**：所有提交必须遵循以下格式：
 
 ```
 type(scope): description
@@ -29,42 +29,30 @@ type(scope): description
 - `buf`：Buf 配置与生成链路
 - `cmd`：CLI 工具
 - `pkg`：框架核心代码
-- `manifests/scripts`：脚本与自动化任务（git-hooks、k6、postgres-init 等）
+- `manifests/scripts`：脚本与自动化任务（k6、postgres-init 等）
 - `templates`：模板资源
 - `tool-chain`：工具链与构建体系（如 `tool-chain/mk`）
 - `md`：Markdown 文档（建议使用二级域，如 `md/readme`）
 - `docs`：非 Markdown 文档或文档体系治理（建议使用二级域，如 `docs/reference`）
 - `openspec`：OpenSpec 变更管理
-- `repo`：仓库治理/元信息（如 hooks、ignore、目录约定）
+- `repo`：仓库治理/元信息（如 ignore、目录约定）
 - `app`：应用服务
 - `infra`：基础设施/部署
 
-> 说明：git hooks 不再强制 scope 必须来自上述列表；只校验 `type(scope): description` 基本格式。
+> 说明：scope 不必来自上述列表，只校验 `type(scope): description` 基本格式。
 > scope 仍建议使用小写、语义化、简短命名（可包含 `a-z`、`0-9`、`.`、`_`、`/`、`-`）。
 > 推荐优先采用"一级域/二级域"结构，例如：`tool-chain/mk`、`md/readme`、`api/proto`。
 
 **提交最佳实践**：
 1. 保持提交小而专注：一个提交只做一件事
 2. 使用清晰的描述：描述"做了什么"，而不是"怎么做的"
-3. 遵循格式：git hooks 会自动验证，不符合格式的提交会被拒绝
+3. 遵循格式：保持 `type(scope): description` 格式便于历史与工具解析
 
 **规范的灵活性**：
 - 当现有建议的一级域能够表达语义时，优先在其下使用二级域（如 `md/readme`、`tool-chain/mk`）
 - 优先保持 scope 与改动边界一致，避免为了"套用已有分类"而使用不准确 scope
 - 若新增 scope 会被频繁复用，可将其补充到本节"建议的 scope"中
-- 若判断没有合适的**一级域**，必须先向用户/维护者申请新增域；在获得同意后，再同步更新 `manifests/scripts/git-hooks/commit-msg` 与本文件
-
-### Git Hooks
-
-本仓库使用 git hooks 强制执行规范：
-
-- **commit-msg hook**：验证提交消息格式
-- **pre-commit hook**：执行 gofmt 格式检查
-- **post-merge hook**：自动同步 git hooks
-
-安装 hooks：`bash manifests/scripts/install-hooks.sh`
-
-**重要**：不要使用 `--no-verify` 跳过 hooks 验证。
+- 若判断没有合适的**一级域**，必须先向用户/维护者申请新增域；在获得同意后，再同步更新本文件
 
 ## 顶层目录
 

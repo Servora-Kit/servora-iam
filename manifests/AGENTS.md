@@ -12,9 +12,7 @@ manifests/
 │   ├── base/           # 基础设施（etcd/redis/postgres）
 │   ├── servora/        # 主服务清单
 │   └── sayhello/       # 示例服务清单
-├── scripts/            # 脚本与自动化（git-hooks、k6 压测、postgres-init）
-│   ├── git-hooks/      # 提交规范等 hooks
-│   ├── install-hooks.sh
+├── scripts/            # 脚本与自动化（k6 压测、postgres-init）
 │   ├── k6/             # 压测脚本
 │   └── postgres-init/  # Compose 用 DB 初始化 SQL
 └── ...
@@ -30,7 +28,7 @@ manifests/
 | 服务部署 | k8s/{service}/ | Deployment + Service + ConfigMap |
 | 数据库初始化 | app/servora/service/manifests/ | SQL初始化脚本 |
 | Postgres 初始化（Compose） | scripts/postgres-init/ | 根 docker-compose 挂载 |
-| Git hooks / 压测脚本 | scripts/ | install-hooks.sh、k6、git-hooks |
+| 压测脚本 | scripts/ | k6 |
 
 ## 约定
 
