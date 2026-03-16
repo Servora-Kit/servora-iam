@@ -8,12 +8,38 @@
 - Data 层**必须**在查询中加 `OrganizationIDEQ(orgID)` / `ProjectIDEQ(projectID)`，不允许裸查。
 - 参照 Kemate：repo 内显式 Where，无「从 context 自动注入」的 data 层 helper。
 
-### 盘点范围
+### 盘点结果
 
-- `internal/data/organization.go`：List、ListByUser、PurgeCascade 等是否都带 scope 或按 ID。
-- `internal/data/project.go`：List、Delete 等已用 `OrganizationIDEQ(oid)`，确认无遗漏。
-- `internal/data/application.go`：List 已用 `OrganizationIDEQ`，确认无遗漏。
-- `internal/data/*member*`：OrganizationMember、ProjectMember 的 List/Delete 是否都带 orgID/projectID 或 userID，且不裸查跨租户。
+**已带 scope（OK）**：
+- organization.go：所有方法 — Organization 本身是根实体，Member 方法都带 orgID
+- project.go：Create（SetOrganizationID）、ListByOrgID、ListAllByOrgID、所有 Member 方法
+- application.go：Create（SetOrganizationID）、ListByOrganizationID
+- user.go：User 不属于 org/project，无需 scope
+- purge.go：purgeOrganizationInTx 按 orgID 过滤
+
+**缺少 scope（需修复）**：
+
+| 文件 | 方法 | 缺少 | 风险 |
+|------|------|------|------|
+| project.go | GetByID | orgID | 可跨租户读取 |
+| project.go | GetByIDs | orgID | 可跨租户批量读取 |
+| project.go | Update | orgID | 可跨租户修改 |
+| project.go | Delete | orgID | 可跨租户软删除 |
+| project.go | Purge | orgID | 可跨租户物理删除 |
+| project.go | PurgeCascade | orgID | 内部级联，风险较低 |
+| project.go | Restore | orgID | 可跨租户恢复 |
+| project.go | GetByIDIncludingDeleted | orgID | 可跨租户读取 |
+| application.go | GetByID | orgID | 可跨租户读取 |
+| application.go | GetByClientID | orgID | 可跨租户读取 |
+| application.go | Update | orgID | 可跨租户修改 |
+| application.go | Delete | orgID | 可跨租户删除 |
+| application.go | UpdateClientSecretHash | orgID | 可跨租户修改密钥 |
+
+**修复策略**：
+- 为缺少 scope 的方法签名增加 `orgID string` 参数
+- Data 层在 Where 中加 `OrganizationIDEQ(orgID)` 作为 defense-in-depth
+- Biz 层调用时从 context 取 orgID 传入
+- PurgeCascade 等仅内部调用的方法按需判断是否加 scope
 
 ### 可选
 
