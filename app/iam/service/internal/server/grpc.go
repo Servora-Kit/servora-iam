@@ -15,6 +15,7 @@ import (
 	testpb "github.com/Servora-Kit/servora/api/gen/go/test/service/v1"
 	userpb "github.com/Servora-Kit/servora/api/gen/go/user/service/v1"
 	"github.com/Servora-Kit/servora/app/iam/service/internal/biz"
+	iammw "github.com/Servora-Kit/servora/app/iam/service/internal/server/middleware"
 	"github.com/Servora-Kit/servora/app/iam/service/internal/service"
 	"github.com/Servora-Kit/servora/pkg/governance/telemetry"
 	"github.com/Servora-Kit/servora/pkg/jwks"
@@ -51,18 +52,18 @@ func NewGRPCMiddleware(
 		testpb.TestService_Hello_FullMethodName,
 	)
 
-	authn := svrmw.Authn(svrmw.WithVerifier(km.Verifier()))
+	authn := iammw.Authn(iammw.WithVerifier(km.Verifier()))
 
 	authzRules := remapAuthzRulesForGRPC(iamv1.AuthzRules)
-	authzOpts := []svrmw.AuthzOption{
-		svrmw.WithFGAClient(fga),
-		svrmw.WithAuthzRules(authzRules),
-		svrmw.WithPlatformRootID(string(platID)),
+	authzOpts := []iammw.AuthzOption{
+		iammw.WithFGAClient(fga),
+		iammw.WithAuthzRules(authzRules),
+		iammw.WithPlatformRootID(string(platID)),
 	}
 	if rdb != nil {
-		authzOpts = append(authzOpts, svrmw.WithAuthzCache(rdb, openfga.DefaultCheckCacheTTL))
+		authzOpts = append(authzOpts, iammw.WithAuthzCache(rdb, openfga.DefaultCheckCacheTTL))
 	}
-	authz := svrmw.Authz(authzOpts...)
+	authz := iammw.Authz(authzOpts...)
 
 	ms = append(ms,
 		selector.Server(authn).
@@ -78,16 +79,10 @@ func NewGRPCMiddleware(
 // operation names used by gRPC service registrations.
 //
 //	"/iam.service.v1.UserService/ListUsers" → "/user.service.v1.UserService/ListUsers"
-func remapAuthzRulesForGRPC(src map[string]iamv1.AuthzRuleEntry) map[string]svrmw.AuthzRuleEntry {
-	dst := make(map[string]svrmw.AuthzRuleEntry, len(src))
+func remapAuthzRulesForGRPC(src map[string]iamv1.AuthzRuleEntry) map[string]iamv1.AuthzRuleEntry {
+	dst := make(map[string]iamv1.AuthzRuleEntry, len(src))
 	for op, r := range src {
-		grpcOp := remapIAMOpToGRPC(op)
-		dst[grpcOp] = svrmw.AuthzRuleEntry{
-			Mode:       r.Mode,
-			Relation:   r.Relation,
-			ObjectType: r.ObjectType,
-			IDField:    r.IDField,
-		}
+		dst[remapIAMOpToGRPC(op)] = r
 	}
 	return dst
 }

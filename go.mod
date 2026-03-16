@@ -4,7 +4,7 @@ go 1.26.0
 
 require (
 	entgo.io/ent v0.14.5
-	github.com/Servora-Kit/servora/api/gen v0.0.0-20260311092442-823611a427e8
+	github.com/Servora-Kit/servora/api/gen v0.0.0-20260316020318-6d011fc13865
 	github.com/charmbracelet/huh v0.8.0
 	github.com/charmbracelet/lipgloss v1.1.0
 	github.com/glebarez/sqlite v1.11.0
@@ -20,6 +20,7 @@ require (
 	github.com/google/wire v0.7.0
 	github.com/hashicorp/consul/api v1.33.4
 	github.com/jinzhu/copier v0.4.0
+	github.com/jordan-wright/email v4.0.1-0.20210109023952-943e75fe5223+incompatible
 	github.com/nacos-group/nacos-sdk-go v1.1.6
 	github.com/openfga/go-sdk v0.7.5
 	github.com/openfga/language/pkg/go v0.2.0-beta.2
@@ -117,7 +118,6 @@ require (
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
-	github.com/jordan-wright/email v4.0.1-0.20210109023952-943e75fe5223+incompatible // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect

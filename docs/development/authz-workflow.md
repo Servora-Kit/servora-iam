@@ -15,7 +15,8 @@ authz_rules.gen.go             OpenFGA 实例 (store + model)
        │                              │
        └──────────┬───────────────────┘
                   ▼
-         AuthZ 中间件 (运行时)
+    IAM 服务内 AuthZ 中间件 (运行时)
+    app/iam/service/internal/server/middleware/authz.go
          ┌─────────────────┐
          │ 1. 查 rules map │
          │ 2. 解析 object  │
@@ -150,7 +151,7 @@ rpc GetOrganization(...) returns (...) {
 `cmd/protoc-gen-servora-authz/` 是一个 protoc 插件：
 - 读取 proto 文件中的 `(servora.authz.v1.rule)` 方法选项
 - 生成 `authz_rules.gen.go` 到 `api/gen/go/iam/service/v1/`
-- 输出一个 `AuthzRules map[string]AuthzRuleEntry`，供 AuthZ 中间件查表使用
+- 输出 `AuthzRules map[string]AuthzRuleEntry`，供 IAM 服务内 AuthZ 中间件（`app/iam/service/internal/server/middleware/authz.go`）查表使用
 - 集成在 `make api` 流程中（通过 `buf.authz.gen.yaml`）
 
 ## OpenFGA Tuple 双写

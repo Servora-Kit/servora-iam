@@ -60,7 +60,7 @@ type(scope): description
 - `app/`：服务实现；当前包含 `iam/service/`（IAM 微服务）与 `sayhello/service/`（示例服务）
 - `cmd/svr/`：中心化 CLI，当前提供 `svr gen gorm`
 - `cmd/protoc-gen-servora-authz/`：自定义 protoc 插件，用于生成 AuthZ 规则
-- `pkg/`：共享基础库，现有 `actor`、`bootstrap`、`ent/mixin`、`governance`、`health`、`helpers`、`jwks`、`jwt`、`k8s`、`logger`、`mapper`、`openfga`、`redis`、`transport`
+- `pkg/`：共享基础库，现有 `actor`、`bootstrap`、`ent/mixin`、`governance`、`health`、`helpers`、`jwks`、`jwt`、`k8s`、`logger`、`mapper`、`openfga`、`redis`、`transport`；`pkg/transport/server/middleware/` 提供 ChainBuilder、WhiteList、IdentityFromHeader（从网关 X-User-ID 头注入身份）、TokenFromContext 等，不含 Authn/Authz（在 IAM 内部）
 - `manifests/`：统一部署清单，K8s 在 `manifests/k8s/`；OpenFGA model 在 `manifests/openfga/`；脚本在 `manifests/scripts/`
 - `templates/`：通用部署模板，给使用框架的人作为参考
 - `docs/`：文档目录；当前包含 `design/`、`development/`、`knowledge/`、`reference/`
@@ -85,7 +85,7 @@ type(scope): description
 - Go 生成代码统一输出到 `api/gen/go/`
 
 ### 服务实现
-- `app/iam/service/`：IAM 微服务（认证、授权、组织、项目），包含 `api/`、`cmd/`、`internal/`、`configs/`
+- `app/iam/service/`：IAM 微服务（认证、授权、组织、项目），包含 `api/`、`cmd/`、`internal/`、`configs/`；认证/授权中间件（Authn、Authz）位于 `internal/server/middleware/`
 - `app/sayhello/service/`：独立示例服务，包含自己的 `api/` 与运行时目录
 
 ### 前端

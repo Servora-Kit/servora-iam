@@ -14,6 +14,7 @@ import (
 	iamv1 "github.com/Servora-Kit/servora/api/gen/go/iam/service/v1"
 	"github.com/Servora-Kit/servora/app/iam/service/internal/assets"
 	"github.com/Servora-Kit/servora/app/iam/service/internal/biz"
+	iammw "github.com/Servora-Kit/servora/app/iam/service/internal/server/middleware"
 	"github.com/Servora-Kit/servora/app/iam/service/internal/oidc"
 	"github.com/Servora-Kit/servora/app/iam/service/internal/service"
 	"github.com/Servora-Kit/servora/pkg/governance/telemetry"
@@ -51,18 +52,17 @@ func NewHTTPMiddleware(
 		iamv1.OperationTestServiceHello,
 	)
 
-	authn := svrmw.Authn(svrmw.WithVerifier(km.Verifier()))
+	authn := iammw.Authn(iammw.WithVerifier(km.Verifier()))
 
-	authzRules := convertAuthzRules(iamv1.AuthzRules)
-	authzOpts := []svrmw.AuthzOption{
-		svrmw.WithFGAClient(fga),
-		svrmw.WithAuthzRules(authzRules),
-		svrmw.WithPlatformRootID(string(platID)),
+	authzOpts := []iammw.AuthzOption{
+		iammw.WithFGAClient(fga),
+		iammw.WithAuthzRules(iamv1.AuthzRules),
+		iammw.WithPlatformRootID(string(platID)),
 	}
 	if rdb != nil {
-		authzOpts = append(authzOpts, svrmw.WithAuthzCache(rdb, openfga.DefaultCheckCacheTTL))
+		authzOpts = append(authzOpts, iammw.WithAuthzCache(rdb, openfga.DefaultCheckCacheTTL))
 	}
-	authz := svrmw.Authz(authzOpts...)
+	authz := iammw.Authz(authzOpts...)
 
 	ms = append(ms,
 		selector.Server(authn).
@@ -72,19 +72,6 @@ func NewHTTPMiddleware(
 	)
 
 	return ms
-}
-
-func convertAuthzRules(src map[string]iamv1.AuthzRuleEntry) map[string]svrmw.AuthzRuleEntry {
-	dst := make(map[string]svrmw.AuthzRuleEntry, len(src))
-	for op, r := range src {
-		dst[op] = svrmw.AuthzRuleEntry{
-			Mode:       r.Mode,
-			Relation:   r.Relation,
-			ObjectType: r.ObjectType,
-			IDField:    r.IDField,
-		}
-	}
-	return dst
 }
 
 func NewHealthHandler(redisClient *redis.Client, drv *entsql.Driver) *health.Handler {

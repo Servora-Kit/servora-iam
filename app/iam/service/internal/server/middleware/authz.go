@@ -13,19 +13,11 @@ import (
 	"google.golang.org/protobuf/reflect/protoreflect"
 
 	authzpb "github.com/Servora-Kit/servora/api/gen/go/authz/service/v1"
+	iamv1 "github.com/Servora-Kit/servora/api/gen/go/iam/service/v1"
 	"github.com/Servora-Kit/servora/pkg/actor"
 	"github.com/Servora-Kit/servora/pkg/openfga"
 	"github.com/Servora-Kit/servora/pkg/redis"
 )
-
-// AuthzRuleEntry mirrors the generated type so the middleware can consume rules
-// from any proto-generated service package.
-type AuthzRuleEntry struct {
-	Mode       authzpb.AuthzMode
-	Relation   authzpb.Relation
-	ObjectType authzpb.ObjectType
-	IDField    string
-}
 
 // AuthzOption configures the Authz middleware.
 type AuthzOption func(*authzConfig)
@@ -34,26 +26,23 @@ type authzConfig struct {
 	fga        *openfga.Client
 	redis      *redis.Client
 	cacheTTL   time.Duration
-	rules      map[string]AuthzRuleEntry
+	rules      map[string]iamv1.AuthzRuleEntry
 	platRootID string
 }
 
-// WithFGAClient sets the OpenFGA client.
 func WithFGAClient(c *openfga.Client) AuthzOption {
 	return func(cfg *authzConfig) { cfg.fga = c }
 }
 
-// WithAuthzRules sets the operation->rule mapping (typically from generated code).
-func WithAuthzRules(rules map[string]AuthzRuleEntry) AuthzOption {
+// WithAuthzRules sets the operation→rule mapping directly from generated code.
+func WithAuthzRules(rules map[string]iamv1.AuthzRuleEntry) AuthzOption {
 	return func(cfg *authzConfig) { cfg.rules = rules }
 }
 
-// WithPlatformRootID sets the platform:root object ID for platform-level checks.
 func WithPlatformRootID(id string) AuthzOption {
 	return func(cfg *authzConfig) { cfg.platRootID = id }
 }
 
-// WithAuthzCache enables Redis-backed caching for Check results.
 func WithAuthzCache(rdb *redis.Client, ttl time.Duration) AuthzOption {
 	return func(cfg *authzConfig) {
 		cfg.redis = rdb
@@ -131,7 +120,7 @@ func Authz(opts ...AuthzOption) middleware.Middleware {
 	}
 }
 
-func resolveObject(rule AuthzRuleEntry, platRootID string, req any) (objectType, objectID string, err error) {
+func resolveObject(rule iamv1.AuthzRuleEntry, platRootID string, req any) (objectType, objectID string, err error) {
 	switch rule.Mode {
 	case authzpb.AuthzMode_AUTHZ_MODE_ORGANIZATION:
 		objectType = "organization"
@@ -152,7 +141,6 @@ func resolveObject(rule AuthzRuleEntry, platRootID string, req any) (objectType,
 	return
 }
 
-// extractProtoField uses proto reflection to read a string field from the request message.
 func extractProtoField(req any, fieldName string) (string, error) {
 	if fieldName == "" {
 		return "", fmt.Errorf("id_field not specified")
