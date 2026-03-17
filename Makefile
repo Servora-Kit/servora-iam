@@ -73,7 +73,7 @@ endef
 # MAIN TARGETS
 # ============================================================================
 
-.PHONY: help env init plugin cli dep vendor test cover vet lint.go lint.proto buf-update
+.PHONY: help env init plugin cli dep vendor test cover vet lint.go lint.proto lint.ts buf-update
 .PHONY: wire ent gen api api-go api-authz api-ts openapi build all clean
 .PHONY: compose.build compose.up compose.rebuild compose.stop compose.down compose.reset compose.ps compose.logs compose.init
 .PHONY: compose.dev compose.dev.build compose.dev.up compose.dev.restart compose.dev.ps compose.dev.stop compose.dev.down compose.dev.reset compose.dev.logs
@@ -139,6 +139,14 @@ vet:
 # run golang lint
 lint.go:
 	@golangci-lint run
+
+# lint TypeScript web applications (type check + eslint, all web/* packages)
+lint.ts:
+	@echo "$(CYAN)Type checking TypeScript web applications...$(RESET)"
+	@pnpm --filter "./web/**" run typecheck
+	@echo "$(CYAN)Linting TypeScript web applications...$(RESET)"
+	@pnpm --filter "./web/**" run lint
+	@echo "$(GREEN)✓ TypeScript lint complete$(RESET)"
 
 # generate wire code for all services
 wire:

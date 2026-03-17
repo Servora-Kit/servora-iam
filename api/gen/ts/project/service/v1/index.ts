@@ -36,7 +36,6 @@ export type ProjectMemberInfo = {
 };
 
 export type CreateProjectRequest = {
-  organizationId: string | undefined;
   name: string | undefined;
   slug: string | undefined;
   description: string | undefined;
@@ -55,7 +54,6 @@ export type GetProjectResponse = {
 };
 
 export type ListProjectsRequest = {
-  organizationId: string | undefined;
   pagination: paginationv1_PaginationRequest | undefined;
 };
 

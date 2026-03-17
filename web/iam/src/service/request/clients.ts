@@ -1,20 +1,20 @@
-import {
-  createRequestHandler,
-  type RequestHandlerOptions,
-} from './requestHandler'
+import { createRequestHandler } from './requestHandler'
+import type { RequestHandlerOptions } from './requestHandler'
 
 import {
-  type ApplicationService,
   createApplicationServiceClient,
-  type AuthnService,
   createAuthnServiceClient,
-  type OrganizationService,
   createOrganizationServiceClient,
-  type ProjectService,
   createProjectServiceClient,
-  type UserService,
   createUserServiceClient,
-} from '#/service/gen/iam/service/v1/index'
+} from '@servora/api-client/iam/service/v1/index'
+import type {
+  ApplicationService,
+  AuthnService,
+  OrganizationService,
+  ProjectService,
+  UserService,
+} from '@servora/api-client/iam/service/v1/index'
 
 export interface IamClients {
   authn: AuthnService

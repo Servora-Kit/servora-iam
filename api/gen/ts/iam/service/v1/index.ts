@@ -61,10 +61,7 @@ export function createApplicationServiceClient(
       }) as Promise<applicationservicev1_GetApplicationResponse>;
     },
     ListApplications(request) { // eslint-disable-line @typescript-eslint/no-unused-vars
-      if (!request.organizationId) {
-        throw new Error("missing required field request.organization_id");
-      }
-      const path = `v1/organizations/${request.organizationId}/applications`; // eslint-disable-line quotes
+      const path = `v1/applications`; // eslint-disable-line quotes
       const body = null;
       const queryParams: string[] = [];
       if (request.pagination?.page?.page) {
@@ -155,7 +152,6 @@ export function createApplicationServiceClient(
   };
 }
 export type applicationservicev1_CreateApplicationRequest = {
-  organizationId: string | undefined;
   name: string | undefined;
   redirectUris: string[] | undefined;
   scopes: string[] | undefined;
@@ -199,7 +195,6 @@ export type applicationservicev1_GetApplicationResponse = {
 };
 
 export type applicationservicev1_ListApplicationsRequest = {
-  organizationId: string | undefined;
   pagination: paginationv1_PaginationRequest | undefined;
 };
 
@@ -990,10 +985,7 @@ export function createProjectServiceClient(
       }) as Promise<projectservicev1_GetProjectResponse>;
     },
     ListProjects(request) { // eslint-disable-line @typescript-eslint/no-unused-vars
-      if (!request.organizationId) {
-        throw new Error("missing required field request.organization_id");
-      }
-      const path = `v1/organizations/${request.organizationId}/projects`; // eslint-disable-line quotes
+      const path = `v1/projects`; // eslint-disable-line quotes
       const body = null;
       const queryParams: string[] = [];
       if (request.pagination?.page?.page) {
@@ -1202,7 +1194,6 @@ export function createProjectServiceClient(
   };
 }
 export type projectservicev1_CreateProjectRequest = {
-  organizationId: string | undefined;
   name: string | undefined;
   slug: string | undefined;
   description: string | undefined;
@@ -1231,7 +1222,6 @@ export type projectservicev1_GetProjectResponse = {
 };
 
 export type projectservicev1_ListProjectsRequest = {
-  organizationId: string | undefined;
   pagination: paginationv1_PaginationRequest | undefined;
 };
 
@@ -1321,6 +1311,395 @@ export type projectservicev1_UpdateMemberRoleRequest = {
 
 export type projectservicev1_UpdateMemberRoleResponse = {
   member: projectservicev1_ProjectMemberInfo | undefined;
+};
+
+export interface TenantService {
+  CreateTenant(request: tenantservicev1_CreateTenantRequest): Promise<tenantservicev1_CreateTenantResponse>;
+  GetTenant(request: tenantservicev1_GetTenantRequest): Promise<tenantservicev1_GetTenantResponse>;
+  ListTenants(request: tenantservicev1_ListTenantsRequest): Promise<tenantservicev1_ListTenantsResponse>;
+  UpdateTenant(request: tenantservicev1_UpdateTenantRequest): Promise<tenantservicev1_UpdateTenantResponse>;
+  DeleteTenant(request: tenantservicev1_DeleteTenantRequest): Promise<tenantservicev1_DeleteTenantResponse>;
+  InviteMember(request: tenantservicev1_InviteTenantMemberRequest): Promise<tenantservicev1_InviteTenantMemberResponse>;
+  AcceptInvitation(request: tenantservicev1_AcceptTenantInvitationRequest): Promise<tenantservicev1_AcceptTenantInvitationResponse>;
+  RejectInvitation(request: tenantservicev1_RejectTenantInvitationRequest): Promise<tenantservicev1_RejectTenantInvitationResponse>;
+  ListMembers(request: tenantservicev1_ListTenantMembersRequest): Promise<tenantservicev1_ListTenantMembersResponse>;
+  UpdateMemberRole(request: tenantservicev1_UpdateTenantMemberRoleRequest): Promise<tenantservicev1_UpdateTenantMemberRoleResponse>;
+  RemoveMember(request: tenantservicev1_RemoveTenantMemberRequest): Promise<tenantservicev1_RemoveTenantMemberResponse>;
+}
+
+export function createTenantServiceClient(
+  handler: RequestHandler
+): TenantService {
+  return {
+    CreateTenant(request) { // eslint-disable-line @typescript-eslint/no-unused-vars
+      const path = `v1/tenants`; // eslint-disable-line quotes
+      const body = JSON.stringify(request);
+      const queryParams: string[] = [];
+      let uri = path;
+      if (queryParams.length > 0) {
+        uri += `?${queryParams.join("&")}`
+      }
+      return handler({
+        path: uri,
+        method: "POST",
+        body,
+      }, {
+        service: "TenantService",
+        method: "CreateTenant",
+      }) as Promise<tenantservicev1_CreateTenantResponse>;
+    },
+    GetTenant(request) { // eslint-disable-line @typescript-eslint/no-unused-vars
+      if (!request.id) {
+        throw new Error("missing required field request.id");
+      }
+      const path = `v1/tenants/${request.id}`; // eslint-disable-line quotes
+      const body = null;
+      const queryParams: string[] = [];
+      let uri = path;
+      if (queryParams.length > 0) {
+        uri += `?${queryParams.join("&")}`
+      }
+      return handler({
+        path: uri,
+        method: "GET",
+        body,
+      }, {
+        service: "TenantService",
+        method: "GetTenant",
+      }) as Promise<tenantservicev1_GetTenantResponse>;
+    },
+    ListTenants(request) { // eslint-disable-line @typescript-eslint/no-unused-vars
+      const path = `v1/tenants`; // eslint-disable-line quotes
+      const body = null;
+      const queryParams: string[] = [];
+      if (request.pagination?.page?.page) {
+        queryParams.push(`pagination.page.page=${encodeURIComponent(request.pagination.page.page.toString())}`)
+      }
+      if (request.pagination?.page?.pageSize) {
+        queryParams.push(`pagination.page.pageSize=${encodeURIComponent(request.pagination.page.pageSize.toString())}`)
+      }
+      if (request.pagination?.cursor?.cursor) {
+        queryParams.push(`pagination.cursor.cursor=${encodeURIComponent(request.pagination.cursor.cursor.toString())}`)
+      }
+      if (request.pagination?.cursor?.limit) {
+        queryParams.push(`pagination.cursor.limit=${encodeURIComponent(request.pagination.cursor.limit.toString())}`)
+      }
+      let uri = path;
+      if (queryParams.length > 0) {
+        uri += `?${queryParams.join("&")}`
+      }
+      return handler({
+        path: uri,
+        method: "GET",
+        body,
+      }, {
+        service: "TenantService",
+        method: "ListTenants",
+      }) as Promise<tenantservicev1_ListTenantsResponse>;
+    },
+    UpdateTenant(request) { // eslint-disable-line @typescript-eslint/no-unused-vars
+      if (!request.id) {
+        throw new Error("missing required field request.id");
+      }
+      const path = `v1/tenants/${request.id}`; // eslint-disable-line quotes
+      const body = JSON.stringify(request);
+      const queryParams: string[] = [];
+      let uri = path;
+      if (queryParams.length > 0) {
+        uri += `?${queryParams.join("&")}`
+      }
+      return handler({
+        path: uri,
+        method: "PUT",
+        body,
+      }, {
+        service: "TenantService",
+        method: "UpdateTenant",
+      }) as Promise<tenantservicev1_UpdateTenantResponse>;
+    },
+    DeleteTenant(request) { // eslint-disable-line @typescript-eslint/no-unused-vars
+      if (!request.id) {
+        throw new Error("missing required field request.id");
+      }
+      const path = `v1/tenants/${request.id}`; // eslint-disable-line quotes
+      const body = null;
+      const queryParams: string[] = [];
+      let uri = path;
+      if (queryParams.length > 0) {
+        uri += `?${queryParams.join("&")}`
+      }
+      return handler({
+        path: uri,
+        method: "DELETE",
+        body,
+      }, {
+        service: "TenantService",
+        method: "DeleteTenant",
+      }) as Promise<tenantservicev1_DeleteTenantResponse>;
+    },
+    InviteMember(request) { // eslint-disable-line @typescript-eslint/no-unused-vars
+      if (!request.tenantId) {
+        throw new Error("missing required field request.tenant_id");
+      }
+      const path = `v1/tenants/${request.tenantId}/members`; // eslint-disable-line quotes
+      const body = JSON.stringify(request);
+      const queryParams: string[] = [];
+      let uri = path;
+      if (queryParams.length > 0) {
+        uri += `?${queryParams.join("&")}`
+      }
+      return handler({
+        path: uri,
+        method: "POST",
+        body,
+      }, {
+        service: "TenantService",
+        method: "InviteMember",
+      }) as Promise<tenantservicev1_InviteTenantMemberResponse>;
+    },
+    AcceptInvitation(request) { // eslint-disable-line @typescript-eslint/no-unused-vars
+      if (!request.tenantId) {
+        throw new Error("missing required field request.tenant_id");
+      }
+      const path = `v1/tenants/${request.tenantId}/invitations/accept`; // eslint-disable-line quotes
+      const body = JSON.stringify(request);
+      const queryParams: string[] = [];
+      let uri = path;
+      if (queryParams.length > 0) {
+        uri += `?${queryParams.join("&")}`
+      }
+      return handler({
+        path: uri,
+        method: "POST",
+        body,
+      }, {
+        service: "TenantService",
+        method: "AcceptInvitation",
+      }) as Promise<tenantservicev1_AcceptTenantInvitationResponse>;
+    },
+    RejectInvitation(request) { // eslint-disable-line @typescript-eslint/no-unused-vars
+      if (!request.tenantId) {
+        throw new Error("missing required field request.tenant_id");
+      }
+      const path = `v1/tenants/${request.tenantId}/invitations/reject`; // eslint-disable-line quotes
+      const body = JSON.stringify(request);
+      const queryParams: string[] = [];
+      let uri = path;
+      if (queryParams.length > 0) {
+        uri += `?${queryParams.join("&")}`
+      }
+      return handler({
+        path: uri,
+        method: "POST",
+        body,
+      }, {
+        service: "TenantService",
+        method: "RejectInvitation",
+      }) as Promise<tenantservicev1_RejectTenantInvitationResponse>;
+    },
+    ListMembers(request) { // eslint-disable-line @typescript-eslint/no-unused-vars
+      if (!request.tenantId) {
+        throw new Error("missing required field request.tenant_id");
+      }
+      const path = `v1/tenants/${request.tenantId}/members`; // eslint-disable-line quotes
+      const body = null;
+      const queryParams: string[] = [];
+      if (request.pagination?.page?.page) {
+        queryParams.push(`pagination.page.page=${encodeURIComponent(request.pagination.page.page.toString())}`)
+      }
+      if (request.pagination?.page?.pageSize) {
+        queryParams.push(`pagination.page.pageSize=${encodeURIComponent(request.pagination.page.pageSize.toString())}`)
+      }
+      if (request.pagination?.cursor?.cursor) {
+        queryParams.push(`pagination.cursor.cursor=${encodeURIComponent(request.pagination.cursor.cursor.toString())}`)
+      }
+      if (request.pagination?.cursor?.limit) {
+        queryParams.push(`pagination.cursor.limit=${encodeURIComponent(request.pagination.cursor.limit.toString())}`)
+      }
+      let uri = path;
+      if (queryParams.length > 0) {
+        uri += `?${queryParams.join("&")}`
+      }
+      return handler({
+        path: uri,
+        method: "GET",
+        body,
+      }, {
+        service: "TenantService",
+        method: "ListMembers",
+      }) as Promise<tenantservicev1_ListTenantMembersResponse>;
+    },
+    UpdateMemberRole(request) { // eslint-disable-line @typescript-eslint/no-unused-vars
+      if (!request.tenantId) {
+        throw new Error("missing required field request.tenant_id");
+      }
+      if (!request.userId) {
+        throw new Error("missing required field request.user_id");
+      }
+      const path = `v1/tenants/${request.tenantId}/members/${request.userId}/role`; // eslint-disable-line quotes
+      const body = JSON.stringify(request);
+      const queryParams: string[] = [];
+      let uri = path;
+      if (queryParams.length > 0) {
+        uri += `?${queryParams.join("&")}`
+      }
+      return handler({
+        path: uri,
+        method: "PUT",
+        body,
+      }, {
+        service: "TenantService",
+        method: "UpdateMemberRole",
+      }) as Promise<tenantservicev1_UpdateTenantMemberRoleResponse>;
+    },
+    RemoveMember(request) { // eslint-disable-line @typescript-eslint/no-unused-vars
+      if (!request.tenantId) {
+        throw new Error("missing required field request.tenant_id");
+      }
+      if (!request.userId) {
+        throw new Error("missing required field request.user_id");
+      }
+      const path = `v1/tenants/${request.tenantId}/members/${request.userId}`; // eslint-disable-line quotes
+      const body = null;
+      const queryParams: string[] = [];
+      let uri = path;
+      if (queryParams.length > 0) {
+        uri += `?${queryParams.join("&")}`
+      }
+      return handler({
+        path: uri,
+        method: "DELETE",
+        body,
+      }, {
+        service: "TenantService",
+        method: "RemoveMember",
+      }) as Promise<tenantservicev1_RemoveTenantMemberResponse>;
+    },
+  };
+}
+export type tenantservicev1_CreateTenantRequest = {
+  name: string | undefined;
+  slug: string | undefined;
+  kind: string | undefined;
+  domain: string | undefined;
+};
+
+export type tenantservicev1_CreateTenantResponse = {
+  tenant: tenantservicev1_TenantInfo | undefined;
+};
+
+export type tenantservicev1_TenantInfo = {
+  id: string | undefined;
+  slug: string | undefined;
+  name: string | undefined;
+  kind: string | undefined;
+  domain: string | undefined;
+  status: string | undefined;
+  createdAt: wellKnownTimestamp | undefined;
+  updatedAt: wellKnownTimestamp | undefined;
+};
+
+export type tenantservicev1_GetTenantRequest = {
+  id: string | undefined;
+};
+
+export type tenantservicev1_GetTenantResponse = {
+  tenant: tenantservicev1_TenantInfo | undefined;
+};
+
+export type tenantservicev1_ListTenantsRequest = {
+  pagination: paginationv1_PaginationRequest | undefined;
+};
+
+export type tenantservicev1_ListTenantsResponse = {
+  tenants: tenantservicev1_TenantInfo[] | undefined;
+  pagination: paginationv1_PaginationResponse | undefined;
+};
+
+export type tenantservicev1_UpdateTenantRequest = {
+  id: string | undefined;
+  name: string | undefined;
+  domain: string | undefined;
+  status: string | undefined;
+};
+
+export type tenantservicev1_UpdateTenantResponse = {
+  tenant: tenantservicev1_TenantInfo | undefined;
+};
+
+export type tenantservicev1_DeleteTenantRequest = {
+  id: string | undefined;
+};
+
+export type tenantservicev1_DeleteTenantResponse = {
+  success: boolean | undefined;
+};
+
+export type tenantservicev1_InviteTenantMemberRequest = {
+  tenantId: string | undefined;
+  userId: string | undefined;
+  role: string | undefined;
+};
+
+export type tenantservicev1_InviteTenantMemberResponse = {
+  member: tenantservicev1_TenantMemberInfo | undefined;
+};
+
+export type tenantservicev1_TenantMemberInfo = {
+  id: string | undefined;
+  tenantId: string | undefined;
+  userId: string | undefined;
+  userName: string | undefined;
+  userEmail: string | undefined;
+  role: string | undefined;
+  status: string | undefined;
+  joinedAt: wellKnownTimestamp | undefined;
+  createdAt: wellKnownTimestamp | undefined;
+};
+
+export type tenantservicev1_AcceptTenantInvitationRequest = {
+  tenantId: string | undefined;
+};
+
+export type tenantservicev1_AcceptTenantInvitationResponse = {
+  success: boolean | undefined;
+};
+
+export type tenantservicev1_RejectTenantInvitationRequest = {
+  tenantId: string | undefined;
+};
+
+export type tenantservicev1_RejectTenantInvitationResponse = {
+  success: boolean | undefined;
+};
+
+export type tenantservicev1_ListTenantMembersRequest = {
+  tenantId: string | undefined;
+  pagination: paginationv1_PaginationRequest | undefined;
+};
+
+export type tenantservicev1_ListTenantMembersResponse = {
+  members: tenantservicev1_TenantMemberInfo[] | undefined;
+  pagination: paginationv1_PaginationResponse | undefined;
+};
+
+export type tenantservicev1_UpdateTenantMemberRoleRequest = {
+  tenantId: string | undefined;
+  userId: string | undefined;
+  role: string | undefined;
+};
+
+export type tenantservicev1_UpdateTenantMemberRoleResponse = {
+  member: tenantservicev1_TenantMemberInfo | undefined;
+};
+
+export type tenantservicev1_RemoveTenantMemberRequest = {
+  tenantId: string | undefined;
+  userId: string | undefined;
+};
+
+export type tenantservicev1_RemoveTenantMemberResponse = {
+  success: boolean | undefined;
 };
 
 export interface TestService {

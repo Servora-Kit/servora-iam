@@ -1,6 +1,6 @@
 version: v2
 
-clean: true
+clean: false
 
 managed:
     enabled: false
@@ -20,4 +20,4 @@ inputs:
 
 plugins:
     - local: protoc-gen-typescript-http
-      out: web/iam/src/service/gen
+      out: api/gen/ts

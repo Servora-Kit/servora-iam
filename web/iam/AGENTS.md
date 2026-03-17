@@ -1,29 +1,81 @@
 # AGENTS.md - web/iam
 
 <!-- Parent: ../../AGENTS.md -->
-<!-- Generated: 2026-03-15 -->
+<!-- Generated: 2026-03-15 | Updated: 2026-03-17 -->
 
 ## 目录定位
 
 `web/iam` 是 IAM 的前端应用（Vite + React + TanStack Router + TanStack Query），与 `app/iam/service` 后端对接。
+属于根目录 pnpm workspace（`pnpm-workspace.yaml`）的成员之一。
 
-## 业务模型与类型
+## 使用生成类型
 
-**如需使用业务/数据模型（请求体、响应体、列表项、分页等），请优先使用代码生成类型，不要手写类型。**
+**不要手写请求/响应类型，优先使用 Proto 生成的 TypeScript 类型。**
 
-- 生成代码有两处，均由根目录 `make api-ts` 生成：
-  - **公共 API 类型**（`api/gen/ts/`）：分页等跨前端复用类型，在 web/iam 中通过 `#/api-gen/*` 引用。
-  - **IAM 服务**（`src/service/gen/`）：HTTP 客户端与 IAM 领域类型。
-- 可按包引用，例如：
-  - `#/api-gen/pagination/v1`：分页请求/响应（公共，优先用此）
-  - `#/service/gen/iam/service/v1`：HTTP 客户端与 IAM 相关类型
-  - `#/service/gen/authn/service/v1`：认证相关类型
-  - `#/service/gen/organization/service/v1`：组织模型
-  - `#/service/gen/user/service/v1`：用户模型
-- 发请求使用单例 `iamClients`（`#/api`），见 `src/api.ts` 与 `src/service/request/`.
+所有生成代码由 `make api-ts` 输出到 `api/gen/ts/`，通过 pnpm workspace 包 `@servora/api-client` 引用：
+
+```ts
+// IAM 服务 HTTP 客户端与类型
+import { createIamServiceClient } from '@servora/api-client/iam/service/v1/index'
+
+// 认证 / 用户 / 组织 / 项目
+import type { ... } from '@servora/api-client/authn/service/v1/index'
+import type { ... } from '@servora/api-client/user/service/v1/index'
+import type { ... } from '@servora/api-client/organization/service/v1/index'
+import type { ... } from '@servora/api-client/project/service/v1/index'
+
+// 公共分页类型
+import type { PaginationRequest } from '@servora/api-client/pagination/v1/index'
+```
+
+发请求使用单例 `iamClients`（`#/api`），见 `src/api.ts` 与 `src/service/request/`。
 
 ## 常用命令
 
-- 开发：`pnpm dev`
-- 构建：`pnpm build`
-- 生成 TS 客户端与类型（在仓库根目录执行）：`make api-ts`
+```bash
+# 在仓库根目录执行
+make api-ts          # 重新生成 TypeScript 客户端（修改 proto 后必须执行）
+pnpm install         # 安装/更新 workspace 依赖
+
+# 在 web/iam/ 目录执行
+pnpm dev             # 启动开发服务器（端口 3000）
+pnpm build           # 生产构建
+pnpm test            # 运行测试
+pnpm check           # prettier + eslint 格式化与修复
+```
+
+## 新增前端应用
+
+在 `web/<service>/` 下新建应用时，按以下步骤接入 `@servora/api-client`：
+
+**1. `package.json` 添加 workspace 依赖**
+```json
+{
+  "dependencies": {
+    "@servora/api-client": "workspace:*"
+  }
+}
+```
+
+**2. `tsconfig.json` 添加路径别名**
+```json
+{
+  "compilerOptions": {
+    "paths": {
+      "@servora/api-client/*": ["../../api/ts-client/*", "../../api/gen/ts/*"]
+    }
+  }
+}
+```
+
+**3. 在服务的 `api/buf.typescript.gen.yaml` 设置 `clean: false`，输出到 `api/gen/ts/`**
+```yaml
+clean: false
+plugins:
+  - local: protoc-gen-typescript-http
+    out: api/gen/ts
+```
+
+**4. 运行 `pnpm install` 链接 workspace**
+
+之后直接 `import from '@servora/api-client/<namespace>/...'` 即可。

@@ -1,0 +1,7 @@
+packages:
+  # Shared generated API clients (from Proto → TypeScript)
+  # NOTE: generated code lives in api/gen/ts/ (managed by buf, do not put files there)
+  #       this package acts as a stable wrapper so pnpm workspace can reference it
+  - 'api/ts-client'
+  # Frontend applications
+  - 'web/*'

@@ -72,7 +72,10 @@ type(scope): description
 - `app.mk`：服务级通用 Makefile；服务目录中的 `Makefile` 通过 `include ../../../app.mk` 复用
 - `buf.yaml`：Buf v2 workspace，声明三个 proto module 路径
 - `buf.go.gen.yaml`：根级 Go 代码生成模板，输出到 `api/gen/go`
+- `buf.typescript.gen.yaml`：根级共享 TS 生成模板，输出到 `api/gen/ts/`（`clean: true`）
 - `buf.authz.gen.yaml`：AuthZ 规则生成模板，使用 `protoc-gen-servora-authz` 插件
+- `pnpm-workspace.yaml`：pnpm monorepo，纳管 `api/ts-client` 与 `web/*`
+- `package.json`：根级 pnpm 配置（`onlyBuiltDependencies` 等共享设置）
 - `go.work` / `go.work.sum`：多模块工作区配置
 - `README.md`：项目入口说明
 
@@ -89,8 +92,10 @@ type(scope): description
 - `app/sayhello/service/`：独立示例服务，包含自己的 `api/` 与运行时目录
 
 ### 前端
-- 目录：各服务下 `web/`（如有）
-- 生成的 TypeScript HTTP 客户端输出到该服务 `web/src/service/gen/`
+- 前端应用统一放在 `web/<service>/`（如 `web/iam/`），共用根目录 pnpm workspace
+- 所有服务的 TypeScript 生成代码统一输出到 `api/gen/ts/`（不按服务分子目录），通过 pnpm workspace 包 `@servora/api-client`（位于 `api/ts-client/`）引用
+- 前端应用通过 `import from '@servora/api-client/<namespace>/...'` 使用生成类型，无需关心物理路径
+- 新增前端应用只需在 `package.json` 加 `"@servora/api-client": "workspace:*"`，在 `tsconfig.json` 加路径别名，详见 `web/iam/AGENTS.md`
 
 ### 部署
 - K8s 基础设施：`manifests/k8s/base/`
@@ -133,10 +138,11 @@ make openfga.model.apply            # 等同于 svr openfga model apply
 
 ## 维护提示
 
-- 根 `make api` 当前固定使用 `buf.go.gen.yaml` + `buf.authz.gen.yaml`；TypeScript 生成由服务目录内的 `api/buf.typescript.gen.yaml` 单独驱动
+- 根 `make api` 固定使用 `buf.go.gen.yaml` + `buf.authz.gen.yaml`；`make api-ts` 生成所有 TypeScript 客户端
 - 修改任意 proto 后优先执行根目录 `make gen`；需要重新构建服务时直接执行根目录 `make build`
 - 修改服务依赖注入后执行对应服务目录下的 `make wire`
-- 不要手改 `api/gen/go/`、`wire_gen.go`、`openapi.yaml`、`authz_rules.gen.go`
-- 若文档涉及前端路径，统一使用 `app/servora/service/web/`
+- 不要手改 `api/gen/go/`、`api/gen/ts/`、`wire_gen.go`、`openapi.yaml`、`authz_rules.gen.go`
+- `api/ts-client/` 是 pnpm workspace 包的锚点（仅含 `package.json`），不要在此放生成代码；生成代码在 `api/gen/ts/`
+- 前端路径约定：`web/<service>/`（如 `web/iam/`）
 - 修改 `manifests/openfga/model/servora.fga` 后需执行 `make openfga.model.apply` 同步到运行中的 OpenFGA 实例
 - `cmd/protoc-gen-servora-authz` 是自定义 protoc 插件，修改 proto AuthZ 注解后需重新 `make api`

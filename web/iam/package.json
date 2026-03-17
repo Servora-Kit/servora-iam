@@ -11,11 +11,13 @@
     "preview": "vite preview",
     "test": "vitest run",
     "start": "node --import ./.output/server/instrument.server.mjs .output/server/index.mjs",
+    "typecheck": "tsc --noEmit",
     "lint": "eslint",
     "format": "prettier --check .",
     "check": "prettier --write . && eslint --fix"
   },
   "dependencies": {
+    "@servora/api-client": "workspace:*",
     "@faker-js/faker": "^10.3.0",
     "@sentry/tanstackstart-react": "^10.42.0",
     "@t3-oss/env-core": "^0.13.10",
@@ -67,13 +69,5 @@
     "vite": "^7.3.1",
     "vite-tsconfig-paths": "^5.1.4",
     "vitest": "^3.0.5"
-  },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "@sentry/cli",
-      "esbuild",
-      "lightningcss",
-      "unrs-resolver"
-    ]
   }
 }

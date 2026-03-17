@@ -15,7 +15,8 @@
     "paths": {
       "#/*": ["./src/*"],
       "@/*": ["./src/*"],
-      "#/api-gen/*": ["../../api/gen/ts/*"]
+      "#/api-gen/*": ["../../api/gen/ts/*"],
+      "@servora/api-client/*": ["../../api/ts-client/*", "../../api/gen/ts/*"]
     },
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "types": ["vite/client"],

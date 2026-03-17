@@ -30,7 +30,6 @@ export type ApplicationInfo = {
 type wellKnownTimestamp = string;
 
 export type CreateApplicationRequest = {
-  organizationId: string | undefined;
   name: string | undefined;
   redirectUris: string[] | undefined;
   scopes: string[] | undefined;
@@ -54,7 +53,6 @@ export type GetApplicationResponse = {
 };
 
 export type ListApplicationsRequest = {
-  organizationId: string | undefined;
   pagination: paginationv1_PaginationRequest | undefined;
 };
 
