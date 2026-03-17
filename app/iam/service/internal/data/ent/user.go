@@ -44,19 +44,30 @@ type User struct {
 
 // UserEdges holds the relations/edges for other nodes in the graph.
 type UserEdges struct {
+	// TenantMembers holds the value of the tenant_members edge.
+	TenantMembers []*TenantMember `json:"tenant_members,omitempty"`
 	// OrgMemberships holds the value of the org_memberships edge.
 	OrgMemberships []*OrganizationMember `json:"org_memberships,omitempty"`
 	// ProjectMemberships holds the value of the project_memberships edge.
 	ProjectMemberships []*ProjectMember `json:"project_memberships,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [2]bool
+	loadedTypes [3]bool
+}
+
+// TenantMembersOrErr returns the TenantMembers value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) TenantMembersOrErr() ([]*TenantMember, error) {
+	if e.loadedTypes[0] {
+		return e.TenantMembers, nil
+	}
+	return nil, &NotLoadedError{edge: "tenant_members"}
 }
 
 // OrgMembershipsOrErr returns the OrgMemberships value or an error if the edge
 // was not loaded in eager-loading.
 func (e UserEdges) OrgMembershipsOrErr() ([]*OrganizationMember, error) {
-	if e.loadedTypes[0] {
+	if e.loadedTypes[1] {
 		return e.OrgMemberships, nil
 	}
 	return nil, &NotLoadedError{edge: "org_memberships"}
@@ -65,7 +76,7 @@ func (e UserEdges) OrgMembershipsOrErr() ([]*OrganizationMember, error) {
 // ProjectMembershipsOrErr returns the ProjectMemberships value or an error if the edge
 // was not loaded in eager-loading.
 func (e UserEdges) ProjectMembershipsOrErr() ([]*ProjectMember, error) {
-	if e.loadedTypes[1] {
+	if e.loadedTypes[2] {
 		return e.ProjectMemberships, nil
 	}
 	return nil, &NotLoadedError{edge: "project_memberships"}
@@ -172,6 +183,11 @@ func (_m *User) assignValues(columns []string, values []any) error {
 // This includes values selected through modifiers, order, etc.
 func (_m *User) Value(name string) (ent.Value, error) {
 	return _m.selectValues.Get(name)
+}
+
+// QueryTenantMembers queries the "tenant_members" edge of the User entity.
+func (_m *User) QueryTenantMembers() *TenantMemberQuery {
+	return NewUserClient(_m.config).QueryTenantMembers(_m)
 }
 
 // QueryOrgMemberships queries the "org_memberships" edge of the User entity.

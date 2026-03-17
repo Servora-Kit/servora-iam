@@ -379,3 +379,72 @@ func (uc *ProjectUsecase) UpdateMemberRole(ctx context.Context, projID, userID, 
 	}
 	return updated, nil
 }
+
+func (uc *ProjectUsecase) InviteMember(ctx context.Context, orgID string, m *entity.ProjectMember) (*entity.ProjectMember, error) {
+	if err := ValidateProjectRole(m.Role); err != nil {
+		return nil, projectpb.ErrorProjectCreateFailed("%v", err)
+	}
+
+	if _, err := uc.repo.GetMember(ctx, m.ProjectID, m.UserID); err == nil {
+		return nil, projectpb.ErrorProjectMemberAlreadyExists("user is already a member")
+	}
+
+	m.Status = "invited"
+	created, err := uc.repo.AddMember(ctx, m)
+	if err != nil {
+		uc.log.Errorf("invite member failed: %v", err)
+		return nil, projectpb.ErrorProjectCreateFailed("failed to invite member")
+	}
+
+	if uc.authz != nil {
+		if err := uc.authz.WriteTuples(ctx,
+			Tuple{User: "user:" + m.UserID, Relation: m.Role, Object: "project:" + m.ProjectID},
+		); err != nil {
+			uc.log.Errorf("write FGA tuple failed, rolling back invite: %v", err)
+			if rbErr := uc.repo.RemoveMember(ctx, m.ProjectID, m.UserID); rbErr != nil {
+				uc.log.Errorf("rollback remove member failed: %v", rbErr)
+			}
+			return nil, projectpb.ErrorProjectCreateFailed("failed to write authorization tuple")
+		}
+	}
+	return created, nil
+}
+
+func (uc *ProjectUsecase) AcceptInvitation(ctx context.Context, projID, userID string) error {
+	member, err := uc.repo.GetMember(ctx, projID, userID)
+	if err != nil {
+		return projectpb.ErrorProjectMemberNotFound("invitation not found")
+	}
+	if member.Status == "active" {
+		return nil
+	}
+	if _, err := uc.repo.UpdateMemberRole(ctx, projID, userID, member.Role); err != nil {
+		uc.log.Errorf("accept invitation failed: %v", err)
+		return projectpb.ErrorProjectUpdateFailed("failed to accept invitation")
+	}
+	return nil
+}
+
+func (uc *ProjectUsecase) RejectInvitation(ctx context.Context, projID, userID string) error {
+	member, err := uc.repo.GetMember(ctx, projID, userID)
+	if err != nil {
+		return projectpb.ErrorProjectMemberNotFound("invitation not found")
+	}
+	if member.Status != "invited" {
+		return projectpb.ErrorProjectUpdateFailed("can only reject pending invitations")
+	}
+
+	if err := uc.repo.RemoveMember(ctx, projID, userID); err != nil {
+		uc.log.Errorf("reject invitation - remove member failed: %v", err)
+		return projectpb.ErrorProjectDeleteFailed("failed to reject invitation")
+	}
+
+	if uc.authz != nil {
+		if err := uc.authz.DeleteTuples(ctx,
+			Tuple{User: "user:" + userID, Relation: member.Role, Object: "project:" + projID},
+		); err != nil {
+			uc.log.Warnf("delete FGA tuple on reject failed: %v", err)
+		}
+	}
+	return nil
+}

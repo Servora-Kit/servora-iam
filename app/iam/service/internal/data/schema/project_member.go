@@ -22,6 +22,7 @@ func (ProjectMember) Fields() []ent.Field {
 		field.UUID("project_id", uuid.UUID{}),
 		field.UUID("user_id", uuid.UUID{}),
 		field.String("role").MaxLen(32).Default("viewer"),
+		field.Enum("status").Values("active", "invited").Default("active"),
 		field.Time("created_at").Default(time.Now).Immutable(),
 		field.Time("updated_at").Default(time.Now).UpdateDefault(time.Now),
 	}

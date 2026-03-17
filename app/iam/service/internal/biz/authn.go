@@ -29,8 +29,7 @@ type AuthnUsecase struct {
 	log        *logger.Helper
 	cfg        *conf.App
 	keyManager *jwks.KeyManager
-	orgUC      *OrganizationUsecase
-	projUC     *ProjectUsecase
+	tenantUC   *TenantUsecase
 }
 
 func NewAuthnUsecase(
@@ -41,8 +40,7 @@ func NewAuthnUsecase(
 	l logger.Logger,
 	cfg *conf.App,
 	km *jwks.KeyManager,
-	orgUC *OrganizationUsecase,
-	projUC *ProjectUsecase,
+	tenantUC *TenantUsecase,
 ) *AuthnUsecase {
 	return &AuthnUsecase{
 		repo:       repo,
@@ -52,8 +50,7 @@ func NewAuthnUsecase(
 		log:        logger.NewHelper(l, logger.WithModule("authn/biz/iam-service")),
 		cfg:        cfg,
 		keyManager: km,
-		orgUC:      orgUC,
-		projUC:     projUC,
+		tenantUC:   tenantUC,
 	}
 }
 
@@ -118,14 +115,8 @@ func (uc *AuthnUsecase) SignupByEmail(ctx context.Context, user *entity.User) (*
 		return nil, err
 	}
 
-	slug := helpers.Slugify(createdUser.Name)
-	org, err := uc.orgUC.CreateDefault(ctx, createdUser.ID, createdUser.Name+"'s Organization", slug+"-org")
-	if err != nil {
-		uc.log.Warnf("auto-create default org failed for user %s: %v", createdUser.ID, err)
-	} else {
-		if _, err := uc.projUC.CreateDefault(ctx, createdUser.ID, org.ID, "Default Project", "default"); err != nil {
-			uc.log.Warnf("auto-create default project failed for user %s: %v", createdUser.ID, err)
-		}
+	if _, err := uc.tenantUC.EnsurePersonalTenant(ctx, createdUser.ID, createdUser.Name); err != nil {
+		uc.log.Warnf("auto-create personal tenant failed for user %s: %v", createdUser.ID, err)
 	}
 
 	return createdUser, nil

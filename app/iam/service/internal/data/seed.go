@@ -2,10 +2,8 @@ package data
 
 import (
 	"context"
-	"errors"
 
 	iamconf "github.com/Servora-Kit/servora/api/gen/go/iam/conf/v1"
-	"github.com/Servora-Kit/servora/app/iam/service/internal/biz"
 	"github.com/Servora-Kit/servora/app/iam/service/internal/data/ent"
 	"github.com/Servora-Kit/servora/app/iam/service/internal/data/ent/tenant"
 	"github.com/Servora-Kit/servora/app/iam/service/internal/data/ent/user"
@@ -14,23 +12,11 @@ import (
 	"github.com/Servora-Kit/servora/pkg/openfga"
 )
 
-func NewTenantRootID(ec *ent.Client, fga *openfga.Client, bizConf *iamconf.Biz, l logger.Logger) (biz.TenantRootID, error) {
-	ctx := context.Background()
-	t, err := ec.Tenant.Query().Where(tenant.Slug("root")).Only(ctx)
-	if err != nil {
-		return "", errors.New("tenant root not found: " + err.Error())
-	}
-	tenantID := t.ID.String()
-
-	if fga != nil {
-		seedTenantAdminFGA(ctx, ec, fga, tenantID, bizConf.GetSeed(), l)
-	}
-
-	return biz.TenantRootID(tenantID), nil
-}
+const defaultTenantSlug = "default"
+const platformObjectID = "default"
 
 func seedTenant(ctx context.Context, ec *ent.Client) (string, error) {
-	t, err := ec.Tenant.Query().Where(tenant.Slug("root")).Only(ctx)
+	t, err := ec.Tenant.Query().Where(tenant.Slug(defaultTenantSlug)).Only(ctx)
 	if err == nil {
 		return t.ID.String(), nil
 	}
@@ -38,9 +24,10 @@ func seedTenant(ctx context.Context, ec *ent.Client) (string, error) {
 		return "", err
 	}
 	t, err = ec.Tenant.Create().
-		SetSlug("root").
-		SetName("Tenant Root").
-		SetType("system").
+		SetSlug(defaultTenantSlug).
+		SetName("Default Tenant").
+		SetKind("business").
+		SetStatus("active").
 		Save(ctx)
 	if err != nil {
 		return "", err
@@ -80,8 +67,12 @@ func seedTenantAdmin(ctx context.Context, ec *ent.Client, seed *iamconf.Biz_Seed
 	return err
 }
 
-func seedTenantAdminFGA(ctx context.Context, ec *ent.Client, fga *openfga.Client, tenantID string, seed *iamconf.Biz_Seed, l logger.Logger) {
+func seedFGA(ctx context.Context, ec *ent.Client, fga *openfga.Client, tenantID string, seed *iamconf.Biz_Seed, l logger.Logger) {
+	if fga == nil {
+		return
+	}
 	seedLog := logger.NewHelper(l, logger.WithModule("seed/data/iam-service"))
+
 	if seed == nil || seed.AdminEmail == "" {
 		return
 	}
@@ -90,24 +81,39 @@ func seedTenantAdminFGA(ctx context.Context, ec *ent.Client, fga *openfga.Client
 	if err != nil {
 		return
 	}
-
 	userID := u.ID.String()
-	allowed, err := fga.Check(ctx, userID, "admin", "tenant", tenantID)
+
+	// platform:default admin tuple
+	allowed, err := fga.Check(ctx, userID, "admin", "platform", platformObjectID)
 	if err != nil {
-		seedLog.Warnf("seed FGA check failed: %v", err)
-		return
+		seedLog.Warnf("seed FGA check platform admin failed: %v", err)
 	}
-	if allowed {
-		return
+	if !allowed {
+		if err := fga.WriteTuples(ctx, openfga.Tuple{
+			User:     "user:" + userID,
+			Relation: "admin",
+			Object:   "platform:" + platformObjectID,
+		}); err != nil {
+			seedLog.Warnf("seed platform admin FGA tuple: %v", err)
+		} else {
+			seedLog.Infof("seeded platform admin FGA tuple for %s", seed.AdminEmail)
+		}
 	}
 
-	if err := fga.WriteTuples(ctx, openfga.Tuple{
-		User:     "user:" + userID,
-		Relation: "admin",
-		Object:   "tenant:" + tenantID,
-	}); err != nil {
-		seedLog.Warnf("seed tenant admin FGA tuple: %v", err)
-		return
+	// tenant owner tuple
+	allowed, err = fga.Check(ctx, userID, "owner", "tenant", tenantID)
+	if err != nil {
+		seedLog.Warnf("seed FGA check tenant owner failed: %v", err)
 	}
-	seedLog.Infof("seeded tenant admin FGA tuple for %s", seed.AdminEmail)
+	if !allowed {
+		if err := fga.WriteTuples(ctx, openfga.Tuple{
+			User:     "user:" + userID,
+			Relation: "owner",
+			Object:   "tenant:" + tenantID,
+		}); err != nil {
+			seedLog.Warnf("seed tenant owner FGA tuple: %v", err)
+		} else {
+			seedLog.Infof("seeded tenant owner FGA tuple for %s", seed.AdminEmail)
+		}
+	}
 }

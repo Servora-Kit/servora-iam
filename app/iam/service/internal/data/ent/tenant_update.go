@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -13,6 +14,7 @@ import (
 	"github.com/Servora-Kit/servora/app/iam/service/internal/data/ent/organization"
 	"github.com/Servora-Kit/servora/app/iam/service/internal/data/ent/predicate"
 	"github.com/Servora-Kit/servora/app/iam/service/internal/data/ent/tenant"
+	"github.com/Servora-Kit/servora/app/iam/service/internal/data/ent/tenantmember"
 	"github.com/google/uuid"
 )
 
@@ -26,6 +28,26 @@ type TenantUpdate struct {
 // Where appends a list predicates to the TenantUpdate builder.
 func (_u *TenantUpdate) Where(ps ...predicate.Tenant) *TenantUpdate {
 	_u.mutation.Where(ps...)
+	return _u
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (_u *TenantUpdate) SetDeletedAt(v time.Time) *TenantUpdate {
+	_u.mutation.SetDeletedAt(v)
+	return _u
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (_u *TenantUpdate) SetNillableDeletedAt(v *time.Time) *TenantUpdate {
+	if v != nil {
+		_u.SetDeletedAt(*v)
+	}
+	return _u
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (_u *TenantUpdate) ClearDeletedAt() *TenantUpdate {
+	_u.mutation.ClearDeletedAt()
 	return _u
 }
 
@@ -57,17 +79,57 @@ func (_u *TenantUpdate) SetNillableName(v *string) *TenantUpdate {
 	return _u
 }
 
-// SetType sets the "type" field.
-func (_u *TenantUpdate) SetType(v string) *TenantUpdate {
-	_u.mutation.SetType(v)
+// SetKind sets the "kind" field.
+func (_u *TenantUpdate) SetKind(v tenant.Kind) *TenantUpdate {
+	_u.mutation.SetKind(v)
 	return _u
 }
 
-// SetNillableType sets the "type" field if the given value is not nil.
-func (_u *TenantUpdate) SetNillableType(v *string) *TenantUpdate {
+// SetNillableKind sets the "kind" field if the given value is not nil.
+func (_u *TenantUpdate) SetNillableKind(v *tenant.Kind) *TenantUpdate {
 	if v != nil {
-		_u.SetType(*v)
+		_u.SetKind(*v)
 	}
+	return _u
+}
+
+// SetDomain sets the "domain" field.
+func (_u *TenantUpdate) SetDomain(v string) *TenantUpdate {
+	_u.mutation.SetDomain(v)
+	return _u
+}
+
+// SetNillableDomain sets the "domain" field if the given value is not nil.
+func (_u *TenantUpdate) SetNillableDomain(v *string) *TenantUpdate {
+	if v != nil {
+		_u.SetDomain(*v)
+	}
+	return _u
+}
+
+// ClearDomain clears the value of the "domain" field.
+func (_u *TenantUpdate) ClearDomain() *TenantUpdate {
+	_u.mutation.ClearDomain()
+	return _u
+}
+
+// SetStatus sets the "status" field.
+func (_u *TenantUpdate) SetStatus(v tenant.Status) *TenantUpdate {
+	_u.mutation.SetStatus(v)
+	return _u
+}
+
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (_u *TenantUpdate) SetNillableStatus(v *tenant.Status) *TenantUpdate {
+	if v != nil {
+		_u.SetStatus(*v)
+	}
+	return _u
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (_u *TenantUpdate) SetUpdatedAt(v time.Time) *TenantUpdate {
+	_u.mutation.SetUpdatedAt(v)
 	return _u
 }
 
@@ -84,6 +146,21 @@ func (_u *TenantUpdate) AddOrganizations(v ...*Organization) *TenantUpdate {
 		ids[i] = v[i].ID
 	}
 	return _u.AddOrganizationIDs(ids...)
+}
+
+// AddMemberIDs adds the "members" edge to the TenantMember entity by IDs.
+func (_u *TenantUpdate) AddMemberIDs(ids ...uuid.UUID) *TenantUpdate {
+	_u.mutation.AddMemberIDs(ids...)
+	return _u
+}
+
+// AddMembers adds the "members" edges to the TenantMember entity.
+func (_u *TenantUpdate) AddMembers(v ...*TenantMember) *TenantUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddMemberIDs(ids...)
 }
 
 // Mutation returns the TenantMutation object of the builder.
@@ -112,8 +189,30 @@ func (_u *TenantUpdate) RemoveOrganizations(v ...*Organization) *TenantUpdate {
 	return _u.RemoveOrganizationIDs(ids...)
 }
 
+// ClearMembers clears all "members" edges to the TenantMember entity.
+func (_u *TenantUpdate) ClearMembers() *TenantUpdate {
+	_u.mutation.ClearMembers()
+	return _u
+}
+
+// RemoveMemberIDs removes the "members" edge to TenantMember entities by IDs.
+func (_u *TenantUpdate) RemoveMemberIDs(ids ...uuid.UUID) *TenantUpdate {
+	_u.mutation.RemoveMemberIDs(ids...)
+	return _u
+}
+
+// RemoveMembers removes "members" edges to TenantMember entities.
+func (_u *TenantUpdate) RemoveMembers(v ...*TenantMember) *TenantUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveMemberIDs(ids...)
+}
+
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (_u *TenantUpdate) Save(ctx context.Context) (int, error) {
+	_u.defaults()
 	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
@@ -139,6 +238,14 @@ func (_u *TenantUpdate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (_u *TenantUpdate) defaults() {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
+		v := tenant.UpdateDefaultUpdatedAt()
+		_u.mutation.SetUpdatedAt(v)
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (_u *TenantUpdate) check() error {
 	if v, ok := _u.mutation.Slug(); ok {
@@ -151,9 +258,19 @@ func (_u *TenantUpdate) check() error {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Tenant.name": %w`, err)}
 		}
 	}
-	if v, ok := _u.mutation.GetType(); ok {
-		if err := tenant.TypeValidator(v); err != nil {
-			return &ValidationError{Name: "type", err: fmt.Errorf(`ent: validator failed for field "Tenant.type": %w`, err)}
+	if v, ok := _u.mutation.Kind(); ok {
+		if err := tenant.KindValidator(v); err != nil {
+			return &ValidationError{Name: "kind", err: fmt.Errorf(`ent: validator failed for field "Tenant.kind": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.Domain(); ok {
+		if err := tenant.DomainValidator(v); err != nil {
+			return &ValidationError{Name: "domain", err: fmt.Errorf(`ent: validator failed for field "Tenant.domain": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.Status(); ok {
+		if err := tenant.StatusValidator(v); err != nil {
+			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Tenant.status": %w`, err)}
 		}
 	}
 	return nil
@@ -171,14 +288,32 @@ func (_u *TenantUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			}
 		}
 	}
+	if value, ok := _u.mutation.DeletedAt(); ok {
+		_spec.SetField(tenant.FieldDeletedAt, field.TypeTime, value)
+	}
+	if _u.mutation.DeletedAtCleared() {
+		_spec.ClearField(tenant.FieldDeletedAt, field.TypeTime)
+	}
 	if value, ok := _u.mutation.Slug(); ok {
 		_spec.SetField(tenant.FieldSlug, field.TypeString, value)
 	}
 	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(tenant.FieldName, field.TypeString, value)
 	}
-	if value, ok := _u.mutation.GetType(); ok {
-		_spec.SetField(tenant.FieldType, field.TypeString, value)
+	if value, ok := _u.mutation.Kind(); ok {
+		_spec.SetField(tenant.FieldKind, field.TypeEnum, value)
+	}
+	if value, ok := _u.mutation.Domain(); ok {
+		_spec.SetField(tenant.FieldDomain, field.TypeString, value)
+	}
+	if _u.mutation.DomainCleared() {
+		_spec.ClearField(tenant.FieldDomain, field.TypeString)
+	}
+	if value, ok := _u.mutation.Status(); ok {
+		_spec.SetField(tenant.FieldStatus, field.TypeEnum, value)
+	}
+	if value, ok := _u.mutation.UpdatedAt(); ok {
+		_spec.SetField(tenant.FieldUpdatedAt, field.TypeTime, value)
 	}
 	if _u.mutation.OrganizationsCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -225,6 +360,51 @@ func (_u *TenantUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if _u.mutation.MembersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   tenant.MembersTable,
+			Columns: []string{tenant.MembersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(tenantmember.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedMembersIDs(); len(nodes) > 0 && !_u.mutation.MembersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   tenant.MembersTable,
+			Columns: []string{tenant.MembersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(tenantmember.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.MembersIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   tenant.MembersTable,
+			Columns: []string{tenant.MembersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(tenantmember.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{tenant.Label}
@@ -243,6 +423,26 @@ type TenantUpdateOne struct {
 	fields   []string
 	hooks    []Hook
 	mutation *TenantMutation
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (_u *TenantUpdateOne) SetDeletedAt(v time.Time) *TenantUpdateOne {
+	_u.mutation.SetDeletedAt(v)
+	return _u
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (_u *TenantUpdateOne) SetNillableDeletedAt(v *time.Time) *TenantUpdateOne {
+	if v != nil {
+		_u.SetDeletedAt(*v)
+	}
+	return _u
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (_u *TenantUpdateOne) ClearDeletedAt() *TenantUpdateOne {
+	_u.mutation.ClearDeletedAt()
+	return _u
 }
 
 // SetSlug sets the "slug" field.
@@ -273,17 +473,57 @@ func (_u *TenantUpdateOne) SetNillableName(v *string) *TenantUpdateOne {
 	return _u
 }
 
-// SetType sets the "type" field.
-func (_u *TenantUpdateOne) SetType(v string) *TenantUpdateOne {
-	_u.mutation.SetType(v)
+// SetKind sets the "kind" field.
+func (_u *TenantUpdateOne) SetKind(v tenant.Kind) *TenantUpdateOne {
+	_u.mutation.SetKind(v)
 	return _u
 }
 
-// SetNillableType sets the "type" field if the given value is not nil.
-func (_u *TenantUpdateOne) SetNillableType(v *string) *TenantUpdateOne {
+// SetNillableKind sets the "kind" field if the given value is not nil.
+func (_u *TenantUpdateOne) SetNillableKind(v *tenant.Kind) *TenantUpdateOne {
 	if v != nil {
-		_u.SetType(*v)
+		_u.SetKind(*v)
 	}
+	return _u
+}
+
+// SetDomain sets the "domain" field.
+func (_u *TenantUpdateOne) SetDomain(v string) *TenantUpdateOne {
+	_u.mutation.SetDomain(v)
+	return _u
+}
+
+// SetNillableDomain sets the "domain" field if the given value is not nil.
+func (_u *TenantUpdateOne) SetNillableDomain(v *string) *TenantUpdateOne {
+	if v != nil {
+		_u.SetDomain(*v)
+	}
+	return _u
+}
+
+// ClearDomain clears the value of the "domain" field.
+func (_u *TenantUpdateOne) ClearDomain() *TenantUpdateOne {
+	_u.mutation.ClearDomain()
+	return _u
+}
+
+// SetStatus sets the "status" field.
+func (_u *TenantUpdateOne) SetStatus(v tenant.Status) *TenantUpdateOne {
+	_u.mutation.SetStatus(v)
+	return _u
+}
+
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (_u *TenantUpdateOne) SetNillableStatus(v *tenant.Status) *TenantUpdateOne {
+	if v != nil {
+		_u.SetStatus(*v)
+	}
+	return _u
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (_u *TenantUpdateOne) SetUpdatedAt(v time.Time) *TenantUpdateOne {
+	_u.mutation.SetUpdatedAt(v)
 	return _u
 }
 
@@ -300,6 +540,21 @@ func (_u *TenantUpdateOne) AddOrganizations(v ...*Organization) *TenantUpdateOne
 		ids[i] = v[i].ID
 	}
 	return _u.AddOrganizationIDs(ids...)
+}
+
+// AddMemberIDs adds the "members" edge to the TenantMember entity by IDs.
+func (_u *TenantUpdateOne) AddMemberIDs(ids ...uuid.UUID) *TenantUpdateOne {
+	_u.mutation.AddMemberIDs(ids...)
+	return _u
+}
+
+// AddMembers adds the "members" edges to the TenantMember entity.
+func (_u *TenantUpdateOne) AddMembers(v ...*TenantMember) *TenantUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddMemberIDs(ids...)
 }
 
 // Mutation returns the TenantMutation object of the builder.
@@ -328,6 +583,27 @@ func (_u *TenantUpdateOne) RemoveOrganizations(v ...*Organization) *TenantUpdate
 	return _u.RemoveOrganizationIDs(ids...)
 }
 
+// ClearMembers clears all "members" edges to the TenantMember entity.
+func (_u *TenantUpdateOne) ClearMembers() *TenantUpdateOne {
+	_u.mutation.ClearMembers()
+	return _u
+}
+
+// RemoveMemberIDs removes the "members" edge to TenantMember entities by IDs.
+func (_u *TenantUpdateOne) RemoveMemberIDs(ids ...uuid.UUID) *TenantUpdateOne {
+	_u.mutation.RemoveMemberIDs(ids...)
+	return _u
+}
+
+// RemoveMembers removes "members" edges to TenantMember entities.
+func (_u *TenantUpdateOne) RemoveMembers(v ...*TenantMember) *TenantUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveMemberIDs(ids...)
+}
+
 // Where appends a list predicates to the TenantUpdate builder.
 func (_u *TenantUpdateOne) Where(ps ...predicate.Tenant) *TenantUpdateOne {
 	_u.mutation.Where(ps...)
@@ -343,6 +619,7 @@ func (_u *TenantUpdateOne) Select(field string, fields ...string) *TenantUpdateO
 
 // Save executes the query and returns the updated Tenant entity.
 func (_u *TenantUpdateOne) Save(ctx context.Context) (*Tenant, error) {
+	_u.defaults()
 	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
@@ -368,6 +645,14 @@ func (_u *TenantUpdateOne) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (_u *TenantUpdateOne) defaults() {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
+		v := tenant.UpdateDefaultUpdatedAt()
+		_u.mutation.SetUpdatedAt(v)
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (_u *TenantUpdateOne) check() error {
 	if v, ok := _u.mutation.Slug(); ok {
@@ -380,9 +665,19 @@ func (_u *TenantUpdateOne) check() error {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Tenant.name": %w`, err)}
 		}
 	}
-	if v, ok := _u.mutation.GetType(); ok {
-		if err := tenant.TypeValidator(v); err != nil {
-			return &ValidationError{Name: "type", err: fmt.Errorf(`ent: validator failed for field "Tenant.type": %w`, err)}
+	if v, ok := _u.mutation.Kind(); ok {
+		if err := tenant.KindValidator(v); err != nil {
+			return &ValidationError{Name: "kind", err: fmt.Errorf(`ent: validator failed for field "Tenant.kind": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.Domain(); ok {
+		if err := tenant.DomainValidator(v); err != nil {
+			return &ValidationError{Name: "domain", err: fmt.Errorf(`ent: validator failed for field "Tenant.domain": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.Status(); ok {
+		if err := tenant.StatusValidator(v); err != nil {
+			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Tenant.status": %w`, err)}
 		}
 	}
 	return nil
@@ -417,14 +712,32 @@ func (_u *TenantUpdateOne) sqlSave(ctx context.Context) (_node *Tenant, err erro
 			}
 		}
 	}
+	if value, ok := _u.mutation.DeletedAt(); ok {
+		_spec.SetField(tenant.FieldDeletedAt, field.TypeTime, value)
+	}
+	if _u.mutation.DeletedAtCleared() {
+		_spec.ClearField(tenant.FieldDeletedAt, field.TypeTime)
+	}
 	if value, ok := _u.mutation.Slug(); ok {
 		_spec.SetField(tenant.FieldSlug, field.TypeString, value)
 	}
 	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(tenant.FieldName, field.TypeString, value)
 	}
-	if value, ok := _u.mutation.GetType(); ok {
-		_spec.SetField(tenant.FieldType, field.TypeString, value)
+	if value, ok := _u.mutation.Kind(); ok {
+		_spec.SetField(tenant.FieldKind, field.TypeEnum, value)
+	}
+	if value, ok := _u.mutation.Domain(); ok {
+		_spec.SetField(tenant.FieldDomain, field.TypeString, value)
+	}
+	if _u.mutation.DomainCleared() {
+		_spec.ClearField(tenant.FieldDomain, field.TypeString)
+	}
+	if value, ok := _u.mutation.Status(); ok {
+		_spec.SetField(tenant.FieldStatus, field.TypeEnum, value)
+	}
+	if value, ok := _u.mutation.UpdatedAt(); ok {
+		_spec.SetField(tenant.FieldUpdatedAt, field.TypeTime, value)
 	}
 	if _u.mutation.OrganizationsCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -464,6 +777,51 @@ func (_u *TenantUpdateOne) sqlSave(ctx context.Context) (_node *Tenant, err erro
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(organization.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.MembersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   tenant.MembersTable,
+			Columns: []string{tenant.MembersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(tenantmember.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedMembersIDs(); len(nodes) > 0 && !_u.mutation.MembersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   tenant.MembersTable,
+			Columns: []string{tenant.MembersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(tenantmember.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.MembersIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   tenant.MembersTable,
+			Columns: []string{tenant.MembersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(tenantmember.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

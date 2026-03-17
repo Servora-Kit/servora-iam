@@ -27,14 +27,14 @@ type UserRepo interface {
 }
 
 type UserUsecase struct {
-	repo      UserRepo
-	log       *logger.Helper
-	cfg       *conf.App
-	authnRepo AuthnRepo
-	orgRepo   OrganizationRepo
-	projRepo  ProjectRepo
-	authz     AuthZRepo
-	tenantID string
+	repo       UserRepo
+	log        *logger.Helper
+	cfg        *conf.App
+	authnRepo  AuthnRepo
+	orgRepo    OrganizationRepo
+	projRepo   ProjectRepo
+	tenantRepo TenantRepo
+	authz      AuthZRepo
 }
 
 func NewUserUsecase(
@@ -44,18 +44,18 @@ func NewUserUsecase(
 	authnRepo AuthnRepo,
 	orgRepo OrganizationRepo,
 	projRepo ProjectRepo,
+	tenantRepo TenantRepo,
 	authz AuthZRepo,
-	tenantID TenantRootID,
 ) *UserUsecase {
 	return &UserUsecase{
-		repo:      repo,
-		log:       logger.NewHelper(l, logger.WithModule("user/biz/iam-service")),
-		cfg:       cfg,
-		authnRepo: authnRepo,
-		orgRepo:   orgRepo,
-		projRepo:  projRepo,
-		authz:     authz,
-		tenantID:  string(tenantID),
+		repo:       repo,
+		log:        logger.NewHelper(l, logger.WithModule("user/biz/iam-service")),
+		cfg:        cfg,
+		authnRepo:  authnRepo,
+		orgRepo:    orgRepo,
+		projRepo:   projRepo,
+		tenantRepo: tenantRepo,
+		authz:      authz,
 	}
 }
 
@@ -221,6 +221,13 @@ func (uc *UserUsecase) PurgeUser(ctx context.Context, user *entity.User) (bool, 
 func (uc *UserUsecase) collectUserFGATuples(ctx context.Context, userID string) []Tuple {
 	var tuples []Tuple
 
+	tenantMemberships, _ := uc.tenantRepo.ListMembershipsByUserID(ctx, userID)
+	for _, m := range tenantMemberships {
+		tuples = append(tuples,
+			Tuple{User: "user:" + userID, Relation: m.Role, Object: "tenant:" + m.TenantID},
+		)
+	}
+
 	orgMemberships, _ := uc.orgRepo.ListMembershipsByUserID(ctx, userID)
 	for _, m := range orgMemberships {
 		tuples = append(tuples,
@@ -232,12 +239,6 @@ func (uc *UserUsecase) collectUserFGATuples(ctx context.Context, userID string) 
 	for _, m := range projMemberships {
 		tuples = append(tuples,
 			Tuple{User: "user:" + userID, Relation: m.Role, Object: "project:" + m.ProjectID},
-		)
-	}
-
-	if uc.tenantID != "" {
-		tuples = append(tuples,
-			Tuple{User: "user:" + userID, Relation: "admin", Object: "tenant:" + uc.tenantID},
 		)
 	}
 
@@ -287,8 +288,16 @@ func (uc *UserUsecase) CompensateUserPurge(ctx context.Context, userID string) e
 			}
 		}
 
-		if uc.tenantID != "" {
-			tuples = append(tuples, Tuple{User: "user:" + userID, Relation: "admin", Object: "tenant:" + uc.tenantID})
+		tenantRelations := []string{"owner", "admin", "member"}
+		for _, rel := range tenantRelations {
+			objects, err := uc.authz.ListObjects(ctx, userID, rel, "tenant")
+			if err != nil {
+				uc.log.Warnf("CompensateUserPurge ListObjects(tenant/%s) failed: %v", rel, err)
+				continue
+			}
+			for _, obj := range objects {
+				tuples = append(tuples, Tuple{User: "user:" + userID, Relation: rel, Object: obj})
+			}
 		}
 
 		if len(tuples) > 0 {

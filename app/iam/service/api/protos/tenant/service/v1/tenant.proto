@@ -1,0 +1,167 @@
+syntax = "proto3";
+
+package tenant.service.v1;
+
+import "buf/validate/validate.proto";
+import "errors/errors.proto";
+import "google/protobuf/timestamp.proto";
+import "pagination/v1/pagination.proto";
+
+option go_package = "github.com/Servora-Kit/servora/api/gen/go/tenant/service/v1;tenantpb";
+option java_multiple_files = true;
+option java_outer_classname = "TenantProtoV1";
+option java_package = "dev.servora.api.tenant.v1";
+
+enum ErrorReason {
+  option (errors.default_code) = 500;
+  TENANT_NOT_FOUND = 0 [(errors.code) = 404];
+  TENANT_ALREADY_EXISTS = 1 [(errors.code) = 409];
+  TENANT_MEMBER_NOT_FOUND = 2 [(errors.code) = 404];
+  TENANT_MEMBER_ALREADY_EXISTS = 3 [(errors.code) = 409];
+  TENANT_CREATE_FAILED = 4 [(errors.code) = 500];
+  TENANT_UPDATE_FAILED = 5 [(errors.code) = 500];
+  TENANT_DELETE_FAILED = 6 [(errors.code) = 500];
+}
+
+service TenantService {
+  rpc CreateTenant(CreateTenantRequest) returns (CreateTenantResponse);
+  rpc GetTenant(GetTenantRequest) returns (GetTenantResponse);
+  rpc ListTenants(ListTenantsRequest) returns (ListTenantsResponse);
+  rpc UpdateTenant(UpdateTenantRequest) returns (UpdateTenantResponse);
+  rpc DeleteTenant(DeleteTenantRequest) returns (DeleteTenantResponse);
+  rpc InviteMember(InviteTenantMemberRequest) returns (InviteTenantMemberResponse);
+  rpc AcceptInvitation(AcceptTenantInvitationRequest) returns (AcceptTenantInvitationResponse);
+  rpc RejectInvitation(RejectTenantInvitationRequest) returns (RejectTenantInvitationResponse);
+  rpc ListMembers(ListTenantMembersRequest) returns (ListTenantMembersResponse);
+  rpc UpdateMemberRole(UpdateTenantMemberRoleRequest) returns (UpdateTenantMemberRoleResponse);
+  rpc RemoveMember(RemoveTenantMemberRequest) returns (RemoveTenantMemberResponse);
+}
+
+message TenantInfo {
+  string id = 1;
+  string slug = 2;
+  string name = 3;
+  string kind = 4;
+  string domain = 5;
+  string status = 6;
+  google.protobuf.Timestamp created_at = 7;
+  google.protobuf.Timestamp updated_at = 8;
+}
+
+message TenantMemberInfo {
+  string id = 1;
+  string tenant_id = 2;
+  string user_id = 3;
+  string user_name = 4;
+  string user_email = 5;
+  string role = 6;
+  string status = 7;
+  google.protobuf.Timestamp joined_at = 8;
+  google.protobuf.Timestamp created_at = 9;
+}
+
+message CreateTenantRequest {
+  string name = 1 [(buf.validate.field).string = {min_len: 2, max_len: 128}];
+  string slug = 2 [(buf.validate.field).string = {
+    min_len: 2,
+    max_len: 64,
+    pattern: "^[a-z0-9][a-z0-9-]*[a-z0-9]$"
+  }];
+  string kind = 3 [(buf.validate.field).string = {in: ["business", "personal"]}];
+  string domain = 4;
+}
+
+message CreateTenantResponse {
+  TenantInfo tenant = 1;
+}
+
+message GetTenantRequest {
+  string id = 1 [(buf.validate.field).string.uuid = true];
+}
+
+message GetTenantResponse {
+  TenantInfo tenant = 1;
+}
+
+message ListTenantsRequest {
+  pagination.v1.PaginationRequest pagination = 1;
+}
+
+message ListTenantsResponse {
+  repeated TenantInfo tenants = 1;
+  pagination.v1.PaginationResponse pagination = 2;
+}
+
+message UpdateTenantRequest {
+  string id = 1 [(buf.validate.field).string.uuid = true];
+  string name = 2;
+  string domain = 3;
+  string status = 4;
+}
+
+message UpdateTenantResponse {
+  TenantInfo tenant = 1;
+}
+
+message DeleteTenantRequest {
+  string id = 1 [(buf.validate.field).string.uuid = true];
+}
+
+message DeleteTenantResponse {
+  bool success = 1;
+}
+
+message InviteTenantMemberRequest {
+  string tenant_id = 1 [(buf.validate.field).string.uuid = true];
+  string user_id = 2 [(buf.validate.field).string.uuid = true];
+  string role = 3 [(buf.validate.field).string = {in: ["owner", "admin", "member"]}];
+}
+
+message InviteTenantMemberResponse {
+  TenantMemberInfo member = 1;
+}
+
+message AcceptTenantInvitationRequest {
+  string tenant_id = 1 [(buf.validate.field).string.uuid = true];
+}
+
+message AcceptTenantInvitationResponse {
+  bool success = 1;
+}
+
+message RejectTenantInvitationRequest {
+  string tenant_id = 1 [(buf.validate.field).string.uuid = true];
+}
+
+message RejectTenantInvitationResponse {
+  bool success = 1;
+}
+
+message ListTenantMembersRequest {
+  string tenant_id = 1 [(buf.validate.field).string.uuid = true];
+  pagination.v1.PaginationRequest pagination = 2;
+}
+
+message ListTenantMembersResponse {
+  repeated TenantMemberInfo members = 1;
+  pagination.v1.PaginationResponse pagination = 2;
+}
+
+message UpdateTenantMemberRoleRequest {
+  string tenant_id = 1 [(buf.validate.field).string.uuid = true];
+  string user_id = 2 [(buf.validate.field).string.uuid = true];
+  string role = 3 [(buf.validate.field).string = {in: ["owner", "admin", "member"]}];
+}
+
+message UpdateTenantMemberRoleResponse {
+  TenantMemberInfo member = 1;
+}
+
+message RemoveTenantMemberRequest {
+  string tenant_id = 1 [(buf.validate.field).string.uuid = true];
+  string user_id = 2 [(buf.validate.field).string.uuid = true];
+}
+
+message RemoveTenantMemberResponse {
+  bool success = 1;
+}

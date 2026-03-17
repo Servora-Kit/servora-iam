@@ -4,6 +4,7 @@ import (
 	apppb "github.com/Servora-Kit/servora/api/gen/go/application/service/v1"
 	orgpb "github.com/Servora-Kit/servora/api/gen/go/organization/service/v1"
 	projectpb "github.com/Servora-Kit/servora/api/gen/go/project/service/v1"
+	tenantpb "github.com/Servora-Kit/servora/api/gen/go/tenant/service/v1"
 	userpb "github.com/Servora-Kit/servora/api/gen/go/user/service/v1"
 	"github.com/Servora-Kit/servora/app/iam/service/internal/biz/entity"
 	"github.com/Servora-Kit/servora/pkg/mapper"
@@ -65,6 +66,36 @@ var projectMemberInfoMapper = mapper.NewForwardMapper(func(m *entity.ProjectMemb
 		Role:      m.Role,
 		CreatedAt: timestamppb.New(m.CreatedAt),
 	}
+})
+
+var tenantInfoMapper = mapper.NewForwardMapper(func(t *entity.Tenant) *tenantpb.TenantInfo {
+	return &tenantpb.TenantInfo{
+		Id:        t.ID,
+		Slug:      t.Slug,
+		Name:      t.Name,
+		Kind:      t.Kind,
+		Domain:    t.Domain,
+		Status:    t.Status,
+		CreatedAt: timestamppb.New(t.CreatedAt),
+		UpdatedAt: timestamppb.New(t.UpdatedAt),
+	}
+})
+
+var tenantMemberInfoMapper = mapper.NewForwardMapper(func(m *entity.TenantMember) *tenantpb.TenantMemberInfo {
+	info := &tenantpb.TenantMemberInfo{
+		Id:        m.ID,
+		TenantId:  m.TenantID,
+		UserId:    m.UserID,
+		UserName:  m.UserName,
+		UserEmail: m.UserEmail,
+		Role:      m.Role,
+		Status:    m.Status,
+		CreatedAt: timestamppb.New(m.CreatedAt),
+	}
+	if m.JoinedAt != nil {
+		info.JoinedAt = timestamppb.New(*m.JoinedAt)
+	}
+	return info
 })
 
 var applicationInfoMapper = mapper.NewForwardMapper(func(a *entity.Application) *apppb.ApplicationInfo {

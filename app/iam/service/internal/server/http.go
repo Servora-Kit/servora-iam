@@ -13,7 +13,6 @@ import (
 	"github.com/Servora-Kit/servora/api/gen/go/conf/v1"
 	iamv1 "github.com/Servora-Kit/servora/api/gen/go/iam/service/v1"
 	"github.com/Servora-Kit/servora/app/iam/service/internal/assets"
-	"github.com/Servora-Kit/servora/app/iam/service/internal/biz"
 	iammw "github.com/Servora-Kit/servora/app/iam/service/internal/server/middleware"
 	"github.com/Servora-Kit/servora/app/iam/service/internal/oidc"
 	"github.com/Servora-Kit/servora/app/iam/service/internal/service"
@@ -37,7 +36,6 @@ func NewHTTPMiddleware(
 	km *jwks.KeyManager,
 	fga *openfga.Client,
 	rdb *redis.Client,
-	tenantID biz.TenantRootID,
 ) HTTPMiddleware {
 	ms := svrmw.NewChainBuilder(logger.With(l, logger.WithModule("http/server/iam-service"))).
 		WithTrace(trace).
@@ -57,7 +55,6 @@ func NewHTTPMiddleware(
 	authzOpts := []iammw.AuthzOption{
 		iammw.WithFGAClient(fga),
 		iammw.WithAuthzRules(iamv1.AuthzRules),
-		iammw.WithTenantRootID(string(tenantID)),
 	}
 	if rdb != nil {
 		authzOpts = append(authzOpts, iammw.WithAuthzCache(rdb, openfga.DefaultCheckCacheTTL))
@@ -94,6 +91,7 @@ func NewHTTPServer(
 	test *service.TestService,
 	org *service.OrganizationService,
 	proj *service.ProjectService,
+	tenant *service.TenantService,
 	app *service.ApplicationService,
 	oidcProvider *op.Provider,
 	loginHandler *oidc.LoginHandler,
@@ -114,6 +112,7 @@ func NewHTTPServer(
 			func(s *khttp.Server) { iamv1.RegisterTestServiceHTTPServer(s, test) },
 			func(s *khttp.Server) { iamv1.RegisterOrganizationServiceHTTPServer(s, org) },
 			func(s *khttp.Server) { iamv1.RegisterProjectServiceHTTPServer(s, proj) },
+			func(s *khttp.Server) { iamv1.RegisterTenantServiceHTTPServer(s, tenant) },
 			func(s *khttp.Server) { iamv1.RegisterApplicationServiceHTTPServer(s, app) },
 			func(s *khttp.Server) { oidc.Register(s, oidcProvider, loginHandler, loginCompleteHandler) },
 		),

@@ -18,6 +18,7 @@ import (
 	"github.com/Servora-Kit/servora/app/iam/service/internal/data/ent/project"
 	"github.com/Servora-Kit/servora/app/iam/service/internal/data/ent/projectmember"
 	"github.com/Servora-Kit/servora/app/iam/service/internal/data/ent/tenant"
+	"github.com/Servora-Kit/servora/app/iam/service/internal/data/ent/tenantmember"
 	"github.com/Servora-Kit/servora/app/iam/service/internal/data/ent/user"
 )
 
@@ -85,6 +86,7 @@ func checkColumn(t, c string) error {
 			project.Table:            project.ValidColumn,
 			projectmember.Table:      projectmember.ValidColumn,
 			tenant.Table:             tenant.ValidColumn,
+			tenantmember.Table:       tenantmember.ValidColumn,
 			user.Table:               user.ValidColumn,
 		})
 	})

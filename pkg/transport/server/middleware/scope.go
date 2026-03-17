@@ -12,6 +12,7 @@ import (
 )
 
 const (
+	TenantIDHeader       = "X-Tenant-ID"
 	OrganizationIDHeader = "X-Organization-ID"
 	ProjectIDHeader      = "X-Project-ID"
 )
@@ -39,6 +40,13 @@ func ScopeFromHeaders() middleware.Middleware {
 				return handler(ctx, req)
 			}
 
+			if tenantID := tr.RequestHeader().Get(TenantIDHeader); tenantID != "" {
+				if _, err := uuid.Parse(tenantID); err != nil {
+					return nil, errors.BadRequest("INVALID_TENANT_ID",
+						"invalid X-Tenant-ID header")
+				}
+				ua.SetTenantID(tenantID)
+			}
 			if orgID := tr.RequestHeader().Get(OrganizationIDHeader); orgID != "" {
 				if _, err := uuid.Parse(orgID); err != nil {
 					return nil, errors.BadRequest("INVALID_ORGANIZATION_ID",

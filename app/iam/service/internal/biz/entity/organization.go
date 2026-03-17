@@ -19,5 +19,6 @@ type OrganizationMember struct {
 	UserName       string
 	UserEmail      string
 	Role           string
+	Status         string // "active" | "invited"
 	CreatedAt      time.Time
 }

@@ -101,7 +101,7 @@ func (r *organizationRepo) GetByIDs(ctx context.Context, ids []string, page, pag
 	return orgMapper.MapSlice(orgs), int64(total), nil
 }
 
-func (r *organizationRepo) ListByUserID(ctx context.Context, userID string, page, pageSize int32) ([]*entity.Organization, int64, error) {
+func (r *organizationRepo) ListByUserID(ctx context.Context, userID, tenantID string, page, pageSize int32) ([]*entity.Organization, int64, error) {
 	uid, err := uuid.Parse(userID)
 	if err != nil {
 		return nil, 0, fmt.Errorf("invalid user ID: %w", err)
@@ -126,6 +126,10 @@ func (r *organizationRepo) ListByUserID(ctx context.Context, userID string, page
 		Where(organization.IDIn(orgUUIDs...)).
 		Where(organization.DeletedAtIsNil()).
 		Order(organization.ByCreatedAt(sql.OrderDesc()))
+
+	if tid, parseErr := uuid.Parse(tenantID); parseErr == nil {
+		query = query.Where(organization.TenantIDEQ(tid))
+	}
 
 	total, err := query.Clone().Count(ctx)
 	if err != nil {

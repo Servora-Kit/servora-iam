@@ -82,7 +82,7 @@ func TestRunWithRuntime_NilAppShouldFailFast(t *testing.T) {
 
 func TestBootstrapAndRun_CloseRuntime(t *testing.T) {
 	closed := false
-	runner := newRunner(func(_, _, _ string) (*Runtime, error) {
+	runner := newRunner(func(_, _, _ string, _ bootstrapOptions) (*Runtime, error) {
 		return &Runtime{
 			configCloser: func() { closed = true },
 		}, nil
@@ -111,7 +111,7 @@ func TestNewRunner_UsesDefaultWhenNil(t *testing.T) {
 
 func TestBootstrapAndRun_EmitStageLogs(t *testing.T) {
 	cl := &captureLogger{}
-	runner := newRunner(func(_, _, _ string) (*Runtime, error) {
+	runner := newRunner(func(_, _, _ string, _ bootstrapOptions) (*Runtime, error) {
 		return &Runtime{Logger: cl}, nil
 	}, func(_ *kratos.App) error { return nil })
 

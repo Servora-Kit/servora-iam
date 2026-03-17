@@ -15,6 +15,7 @@ import (
 	"github.com/Servora-Kit/servora/pkg/governance/registry"
 	"github.com/Servora-Kit/servora/pkg/logger"
 	"github.com/Servora-Kit/servora/pkg/mail"
+	"github.com/Servora-Kit/servora/pkg/openfga"
 	"github.com/Servora-Kit/servora/pkg/redis"
 	"github.com/Servora-Kit/servora/pkg/transport/client"
 
@@ -24,7 +25,7 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-var ProviderSet = wire.NewSet(registry.NewDiscovery, NewEntDriver, NewDBClient, NewTenantRootID, NewRedis, NewData, NewAuthnRepo, NewAuthZRepo, NewUserRepo, NewTestRepo, NewOrganizationRepo, NewProjectRepo, NewOTPRepo, NewMailSender, NewApplicationRepo, NewOIDCStorage)
+var ProviderSet = wire.NewSet(registry.NewDiscovery, NewEntDriver, NewDBClient, NewRedis, NewData, NewAuthnRepo, NewAuthZRepo, NewUserRepo, NewTestRepo, NewTenantRepo, NewOrganizationRepo, NewProjectRepo, NewOTPRepo, NewMailSender, NewApplicationRepo, NewOIDCStorage)
 
 type Data struct {
 	entClient *ent.Client
@@ -85,7 +86,7 @@ func NewEntDriver(cfg *conf.Data) (*entsql.Driver, error) {
 	return entdrv.NewDriver(cfg)
 }
 
-func NewDBClient(driver *entsql.Driver, app *conf.App, bizConf *iamconf.Biz, l logger.Logger) (*ent.Client, error) {
+func NewDBClient(driver *entsql.Driver, app *conf.App, bizConf *iamconf.Biz, fga *openfga.Client, l logger.Logger) (*ent.Client, error) {
 	opts := []ent.Option{
 		ent.Driver(driver),
 		ent.Log(logger.EntLogFuncFrom(l, "ent/data/iam-service")),
@@ -101,7 +102,8 @@ func NewDBClient(driver *entsql.Driver, app *conf.App, bizConf *iamconf.Biz, l l
 		return nil, errors.New("ent auto-migrate: " + err.Error())
 	}
 
-	if _, err := seedTenant(ctx, ec); err != nil {
+	tenantID, err := seedTenant(ctx, ec)
+	if err != nil {
 		return nil, errors.New("seed tenant: " + err.Error())
 	}
 
@@ -109,6 +111,8 @@ func NewDBClient(driver *entsql.Driver, app *conf.App, bizConf *iamconf.Biz, l l
 		seedLog := logger.NewHelper(l, logger.WithModule("seed/data/iam-service"))
 		seedLog.Warnf("seed tenant admin: %v", err)
 	}
+
+	seedFGA(ctx, ec, fga, tenantID, bizConf.GetSeed(), l)
 
 	return ec, nil
 }

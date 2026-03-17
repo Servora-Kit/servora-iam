@@ -12,15 +12,12 @@ import (
 	"github.com/Servora-Kit/servora/pkg/logger"
 )
 
-// TenantRootID is the UUID string of the root tenant record, used for Wire injection.
-type TenantRootID string
-
 type OrganizationRepo interface {
 	Create(ctx context.Context, org *entity.Organization) (*entity.Organization, error)
 	GetByID(ctx context.Context, id string) (*entity.Organization, error)
 	GetByIDs(ctx context.Context, ids []string, page, pageSize int32) ([]*entity.Organization, int64, error)
 	GetBySlug(ctx context.Context, slug string) (*entity.Organization, error)
-	ListByUserID(ctx context.Context, userID string, page, pageSize int32) ([]*entity.Organization, int64, error)
+	ListByUserID(ctx context.Context, userID, tenantID string, page, pageSize int32) ([]*entity.Organization, int64, error)
 	Update(ctx context.Context, org *entity.Organization) (*entity.Organization, error)
 	Delete(ctx context.Context, id string) error
 	Purge(ctx context.Context, id string) error
@@ -43,16 +40,14 @@ type OrganizationUsecase struct {
 	projRepo ProjectRepo
 	authz    AuthZRepo
 	log      *logger.Helper
-	tenantID string
 }
 
-func NewOrganizationUsecase(repo OrganizationRepo, projRepo ProjectRepo, authz AuthZRepo, l logger.Logger, tenantID TenantRootID) *OrganizationUsecase {
+func NewOrganizationUsecase(repo OrganizationRepo, projRepo ProjectRepo, authz AuthZRepo, l logger.Logger) *OrganizationUsecase {
 	return &OrganizationUsecase{
 		repo:     repo,
 		projRepo: projRepo,
 		authz:    authz,
 		log:      logger.NewHelper(l, logger.WithModule("organization/biz/iam-service")),
-		tenantID: string(tenantID),
 	}
 }
 
@@ -70,7 +65,9 @@ func (uc *OrganizationUsecase) Create(ctx context.Context, org *entity.Organizat
 		return nil, errors.InternalServer("INTERNAL", "internal error")
 	}
 
-	org.TenantID = uc.tenantID
+	if org.TenantID == "" {
+		return nil, orgpb.ErrorOrganizationCreateFailed("tenant_id is required")
+	}
 	created, err := uc.repo.Create(ctx, org)
 	if err != nil {
 		uc.log.Errorf("create organization failed: %v", err)
@@ -91,7 +88,7 @@ func (uc *OrganizationUsecase) Create(ctx context.Context, org *entity.Organizat
 
 	if uc.authz != nil {
 		if err := uc.authz.WriteTuples(ctx,
-			Tuple{User: "tenant:" + uc.tenantID, Relation: "tenant", Object: "organization:" + created.ID},
+			Tuple{User: "tenant:" + created.TenantID, Relation: "tenant", Object: "organization:" + created.ID},
 			Tuple{User: "user:" + userID, Relation: "owner", Object: "organization:" + created.ID},
 		); err != nil {
 			uc.log.Errorf("write FGA tuples failed, rolling back org: %v", err)
@@ -106,9 +103,9 @@ func (uc *OrganizationUsecase) Create(ctx context.Context, org *entity.Organizat
 	return created, nil
 }
 
-func (uc *OrganizationUsecase) CreateDefault(ctx context.Context, userID, name, slug string) (*entity.Organization, error) {
+func (uc *OrganizationUsecase) CreateDefault(ctx context.Context, userID, name, slug, tenantID string) (*entity.Organization, error) {
 	org := &entity.Organization{
-		TenantID:    uc.tenantID,
+		TenantID:    tenantID,
 		Name:        name,
 		Slug:        slug,
 		DisplayName: name,
@@ -133,7 +130,7 @@ func (uc *OrganizationUsecase) CreateDefault(ctx context.Context, userID, name, 
 
 	if uc.authz != nil {
 		if err := uc.authz.WriteTuples(ctx,
-			Tuple{User: "tenant:" + uc.tenantID, Relation: "tenant", Object: "organization:" + created.ID},
+			Tuple{User: "tenant:" + tenantID, Relation: "tenant", Object: "organization:" + created.ID},
 			Tuple{User: "user:" + userID, Relation: "owner", Object: "organization:" + created.ID},
 		); err != nil {
 			uc.log.Errorf("write FGA tuples failed, rolling back org: %v", err)
@@ -166,11 +163,13 @@ func (uc *OrganizationUsecase) List(ctx context.Context, page, pageSize int32) (
 		return nil, 0, orgpb.ErrorOrganizationNotFound("user not authenticated")
 	}
 
+	tenantID, _ := actor.TenantIDFromContext(ctx)
+
 	if uc.authz != nil {
 		ids, err := uc.authz.CachedListObjects(ctx, DefaultListCacheTTL, a.ID(), "can_view", "organization")
 		if err != nil {
 			uc.log.Warnf("ListObjects fallback to DB: %v", err)
-			orgs, total, err := uc.repo.ListByUserID(ctx, a.ID(), page, pageSize)
+			orgs, total, err := uc.repo.ListByUserID(ctx, a.ID(), tenantID, page, pageSize)
 			if err != nil {
 				uc.log.Errorf("list organizations failed: %v", err)
 				return nil, 0, errors.InternalServer("INTERNAL", "internal error")
@@ -185,7 +184,7 @@ func (uc *OrganizationUsecase) List(ctx context.Context, page, pageSize int32) (
 		return orgs, total, nil
 	}
 
-	orgs, total, err := uc.repo.ListByUserID(ctx, a.ID(), page, pageSize)
+	orgs, total, err := uc.repo.ListByUserID(ctx, a.ID(), tenantID, page, pageSize)
 	if err != nil {
 		uc.log.Errorf("list organizations failed: %v", err)
 		return nil, 0, errors.InternalServer("INTERNAL", "internal error")
@@ -221,7 +220,8 @@ func (uc *OrganizationUsecase) Delete(ctx context.Context, id string) error {
 }
 
 func (uc *OrganizationUsecase) Purge(ctx context.Context, id string) error {
-	if _, err := uc.repo.GetByID(ctx, id); err != nil {
+	org, err := uc.repo.GetByID(ctx, id)
+	if err != nil {
 		if ent.IsNotFound(err) {
 			return orgpb.ErrorOrganizationNotFound("organization %s not found", id)
 		}
@@ -229,7 +229,7 @@ func (uc *OrganizationUsecase) Purge(ctx context.Context, id string) error {
 		return errors.InternalServer("INTERNAL", "internal error")
 	}
 
-	uc.purgeOrgFGA(ctx, id)
+	uc.purgeOrgFGA(ctx, id, org.TenantID)
 
 	if err := uc.repo.PurgeCascade(ctx, id); err != nil {
 		uc.log.Errorf("purge organization failed: %v", err)
@@ -254,7 +254,7 @@ func (uc *OrganizationUsecase) Restore(ctx context.Context, id string) (*entity.
 	return org, nil
 }
 
-func (uc *OrganizationUsecase) purgeOrgFGA(ctx context.Context, orgID string) {
+func (uc *OrganizationUsecase) purgeOrgFGA(ctx context.Context, orgID, tenantID string) {
 	if uc.authz == nil {
 		return
 	}
@@ -279,9 +279,11 @@ func (uc *OrganizationUsecase) purgeOrgFGA(ctx context.Context, orgID string) {
 			Tuple{User: "user:" + m.UserID, Relation: m.Role, Object: "organization:" + orgID},
 		)
 	}
-	tuples = append(tuples,
-		Tuple{User: "tenant:" + uc.tenantID, Relation: "tenant", Object: "organization:" + orgID},
-	)
+	if tenantID != "" {
+		tuples = append(tuples,
+			Tuple{User: "tenant:" + tenantID, Relation: "tenant", Object: "organization:" + orgID},
+		)
+	}
 
 	if err := uc.authz.DeleteTuples(ctx, tuples...); err != nil {
 		uc.log.Warnf("purge org %s FGA tuples: %v", orgID, err)
@@ -395,4 +397,77 @@ func (uc *OrganizationUsecase) UpdateMemberRole(ctx context.Context, orgID, user
 		}
 	}
 	return updated, nil
+}
+
+func (uc *OrganizationUsecase) InviteMember(ctx context.Context, orgID, userID, role string) (*entity.OrganizationMember, error) {
+	if err := ValidateOrganizationRole(role); err != nil {
+		return nil, orgpb.ErrorOrganizationCreateFailed("%v", err)
+	}
+
+	if _, err := uc.repo.GetMember(ctx, orgID, userID); err == nil {
+		return nil, orgpb.ErrorOrganizationMemberAlreadyExists("user is already a member")
+	}
+
+	created, err := uc.repo.AddMember(ctx, &entity.OrganizationMember{
+		OrganizationID: orgID,
+		UserID:         userID,
+		Role:           role,
+		Status:         "invited",
+	})
+	if err != nil {
+		uc.log.Errorf("invite member failed: %v", err)
+		return nil, orgpb.ErrorOrganizationCreateFailed("failed to invite member")
+	}
+
+	if uc.authz != nil {
+		if err := uc.authz.WriteTuples(ctx,
+			Tuple{User: "user:" + userID, Relation: role, Object: "organization:" + orgID},
+		); err != nil {
+			uc.log.Errorf("write FGA tuple failed, rolling back invite: %v", err)
+			if rbErr := uc.repo.RemoveMember(ctx, orgID, userID); rbErr != nil {
+				uc.log.Errorf("rollback remove member failed: %v", rbErr)
+			}
+			return nil, orgpb.ErrorOrganizationCreateFailed("failed to write authorization tuple")
+		}
+	}
+	return created, nil
+}
+
+func (uc *OrganizationUsecase) AcceptInvitation(ctx context.Context, orgID, userID string) error {
+	member, err := uc.repo.GetMember(ctx, orgID, userID)
+	if err != nil {
+		return orgpb.ErrorOrganizationMemberNotFound("invitation not found")
+	}
+	if member.Status == "active" {
+		return nil
+	}
+	if _, err := uc.repo.UpdateMemberRole(ctx, orgID, userID, member.Role); err != nil {
+		uc.log.Errorf("accept invitation failed: %v", err)
+		return orgpb.ErrorOrganizationUpdateFailed("failed to accept invitation")
+	}
+	return nil
+}
+
+func (uc *OrganizationUsecase) RejectInvitation(ctx context.Context, orgID, userID string) error {
+	member, err := uc.repo.GetMember(ctx, orgID, userID)
+	if err != nil {
+		return orgpb.ErrorOrganizationMemberNotFound("invitation not found")
+	}
+	if member.Status != "invited" {
+		return orgpb.ErrorOrganizationUpdateFailed("can only reject pending invitations")
+	}
+
+	if err := uc.repo.RemoveMember(ctx, orgID, userID); err != nil {
+		uc.log.Errorf("reject invitation - remove member failed: %v", err)
+		return orgpb.ErrorOrganizationDeleteFailed("failed to reject invitation")
+	}
+
+	if uc.authz != nil {
+		if err := uc.authz.DeleteTuples(ctx,
+			Tuple{User: "user:" + userID, Relation: member.Role, Object: "organization:" + orgID},
+		); err != nil {
+			uc.log.Warnf("delete FGA tuple on reject failed: %v", err)
+		}
+	}
+	return nil
 }

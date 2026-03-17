@@ -22,7 +22,7 @@ func LoadServiceConfig(serviceName string) (*ServiceConfig, error) {
 	servicePath := filepath.Join("app", serviceName, "service")
 	configPath := filepath.Join(servicePath, "configs", "local")
 
-	bc, krCfg, err := config.LoadBootstrap(configPath, serviceName)
+	bc, krCfg, err := config.LoadBootstrap(configPath, serviceName, false)
 	if err != nil {
 		return nil, fmt.Errorf("failed to load config: %w", err)
 	}

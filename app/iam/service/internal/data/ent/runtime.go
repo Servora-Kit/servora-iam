@@ -11,6 +11,7 @@ import (
 	"github.com/Servora-Kit/servora/app/iam/service/internal/data/ent/project"
 	"github.com/Servora-Kit/servora/app/iam/service/internal/data/ent/projectmember"
 	"github.com/Servora-Kit/servora/app/iam/service/internal/data/ent/tenant"
+	"github.com/Servora-Kit/servora/app/iam/service/internal/data/ent/tenantmember"
 	"github.com/Servora-Kit/servora/app/iam/service/internal/data/ent/user"
 	"github.com/Servora-Kit/servora/app/iam/service/internal/data/schema"
 	"github.com/google/uuid"
@@ -101,11 +102,11 @@ func init() {
 	// organizationmember.RoleValidator is a validator for the "role" field. It is called by the builders before save.
 	organizationmember.RoleValidator = organizationmemberDescRole.Validators[0].(func(string) error)
 	// organizationmemberDescCreatedAt is the schema descriptor for created_at field.
-	organizationmemberDescCreatedAt := organizationmemberFields[4].Descriptor()
+	organizationmemberDescCreatedAt := organizationmemberFields[5].Descriptor()
 	// organizationmember.DefaultCreatedAt holds the default value on creation for the created_at field.
 	organizationmember.DefaultCreatedAt = organizationmemberDescCreatedAt.Default.(func() time.Time)
 	// organizationmemberDescUpdatedAt is the schema descriptor for updated_at field.
-	organizationmemberDescUpdatedAt := organizationmemberFields[5].Descriptor()
+	organizationmemberDescUpdatedAt := organizationmemberFields[6].Descriptor()
 	// organizationmember.DefaultUpdatedAt holds the default value on creation for the updated_at field.
 	organizationmember.DefaultUpdatedAt = organizationmemberDescUpdatedAt.Default.(func() time.Time)
 	// organizationmember.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
@@ -151,11 +152,11 @@ func init() {
 	// projectmember.RoleValidator is a validator for the "role" field. It is called by the builders before save.
 	projectmember.RoleValidator = projectmemberDescRole.Validators[0].(func(string) error)
 	// projectmemberDescCreatedAt is the schema descriptor for created_at field.
-	projectmemberDescCreatedAt := projectmemberFields[4].Descriptor()
+	projectmemberDescCreatedAt := projectmemberFields[5].Descriptor()
 	// projectmember.DefaultCreatedAt holds the default value on creation for the created_at field.
 	projectmember.DefaultCreatedAt = projectmemberDescCreatedAt.Default.(func() time.Time)
 	// projectmemberDescUpdatedAt is the schema descriptor for updated_at field.
-	projectmemberDescUpdatedAt := projectmemberFields[5].Descriptor()
+	projectmemberDescUpdatedAt := projectmemberFields[6].Descriptor()
 	// projectmember.DefaultUpdatedAt holds the default value on creation for the updated_at field.
 	projectmember.DefaultUpdatedAt = projectmemberDescUpdatedAt.Default.(func() time.Time)
 	// projectmember.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
@@ -174,20 +175,40 @@ func init() {
 	tenantDescName := tenantFields[2].Descriptor()
 	// tenant.NameValidator is a validator for the "name" field. It is called by the builders before save.
 	tenant.NameValidator = tenantDescName.Validators[0].(func(string) error)
-	// tenantDescType is the schema descriptor for type field.
-	tenantDescType := tenantFields[3].Descriptor()
-	// tenant.DefaultType holds the default value on creation for the type field.
-	tenant.DefaultType = tenantDescType.Default.(string)
-	// tenant.TypeValidator is a validator for the "type" field. It is called by the builders before save.
-	tenant.TypeValidator = tenantDescType.Validators[0].(func(string) error)
+	// tenantDescDomain is the schema descriptor for domain field.
+	tenantDescDomain := tenantFields[4].Descriptor()
+	// tenant.DomainValidator is a validator for the "domain" field. It is called by the builders before save.
+	tenant.DomainValidator = tenantDescDomain.Validators[0].(func(string) error)
 	// tenantDescCreatedAt is the schema descriptor for created_at field.
-	tenantDescCreatedAt := tenantFields[4].Descriptor()
+	tenantDescCreatedAt := tenantFields[6].Descriptor()
 	// tenant.DefaultCreatedAt holds the default value on creation for the created_at field.
 	tenant.DefaultCreatedAt = tenantDescCreatedAt.Default.(func() time.Time)
+	// tenantDescUpdatedAt is the schema descriptor for updated_at field.
+	tenantDescUpdatedAt := tenantFields[7].Descriptor()
+	// tenant.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	tenant.DefaultUpdatedAt = tenantDescUpdatedAt.Default.(func() time.Time)
+	// tenant.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	tenant.UpdateDefaultUpdatedAt = tenantDescUpdatedAt.UpdateDefault.(func() time.Time)
 	// tenantDescID is the schema descriptor for id field.
 	tenantDescID := tenantFields[0].Descriptor()
 	// tenant.DefaultID holds the default value on creation for the id field.
 	tenant.DefaultID = tenantDescID.Default.(func() uuid.UUID)
+	tenantmemberFields := schema.TenantMember{}.Fields()
+	_ = tenantmemberFields
+	// tenantmemberDescCreatedAt is the schema descriptor for created_at field.
+	tenantmemberDescCreatedAt := tenantmemberFields[6].Descriptor()
+	// tenantmember.DefaultCreatedAt holds the default value on creation for the created_at field.
+	tenantmember.DefaultCreatedAt = tenantmemberDescCreatedAt.Default.(func() time.Time)
+	// tenantmemberDescUpdatedAt is the schema descriptor for updated_at field.
+	tenantmemberDescUpdatedAt := tenantmemberFields[7].Descriptor()
+	// tenantmember.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	tenantmember.DefaultUpdatedAt = tenantmemberDescUpdatedAt.Default.(func() time.Time)
+	// tenantmember.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	tenantmember.UpdateDefaultUpdatedAt = tenantmemberDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// tenantmemberDescID is the schema descriptor for id field.
+	tenantmemberDescID := tenantmemberFields[0].Descriptor()
+	// tenantmember.DefaultID holds the default value on creation for the id field.
+	tenantmember.DefaultID = tenantmemberDescID.Default.(func() uuid.UUID)
 	userFields := schema.User{}.Fields()
 	_ = userFields
 	// userDescName is the schema descriptor for name field.

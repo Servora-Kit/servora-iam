@@ -24,5 +24,8 @@ type ProjectMember func(*sql.Selector)
 // Tenant is the predicate function for tenant builders.
 type Tenant func(*sql.Selector)
 
+// TenantMember is the predicate function for tenantmember builders.
+type TenantMember func(*sql.Selector)
+
 // User is the predicate function for user builders.
 type User func(*sql.Selector)

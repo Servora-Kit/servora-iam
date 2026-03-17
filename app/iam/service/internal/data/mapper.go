@@ -50,6 +50,22 @@ var projectMapper = mapper.NewForwardMapper(func(p *ent.Project) *entity.Project
 	return e
 })
 
+var tenantMapper = mapper.NewForwardMapper(func(t *ent.Tenant) *entity.Tenant {
+	e := &entity.Tenant{
+		ID:        t.ID.String(),
+		Slug:      t.Slug,
+		Name:      t.Name,
+		Kind:      string(t.Kind),
+		Status:    string(t.Status),
+		CreatedAt: t.CreatedAt,
+		UpdatedAt: t.UpdatedAt,
+	}
+	if t.Domain != nil {
+		e.Domain = *t.Domain
+	}
+	return e
+})
+
 var applicationMapper = mapper.NewForwardMapper(func(a *ent.Application) *entity.Application {
 	return &entity.Application{
 		ID:               a.ID.String(),

@@ -174,6 +174,60 @@ var AuthzRules = map[string]AuthzRuleEntry{
 		Relation: v1.Relation_RELATION_CAN_EDIT,
 		IDField:  "id",
 	},
+	"/iam.service.v1.TenantService/AcceptInvitation": {
+		Mode: v1.AuthzMode_AUTHZ_MODE_NONE,
+	},
+	"/iam.service.v1.TenantService/CreateTenant": {
+		Mode: v1.AuthzMode_AUTHZ_MODE_NONE,
+	},
+	"/iam.service.v1.TenantService/DeleteTenant": {
+		Mode:       v1.AuthzMode_AUTHZ_MODE_OBJECT,
+		Relation:   v1.Relation_RELATION_CAN_MANAGE,
+		ObjectType: v1.ObjectType_OBJECT_TYPE_TENANT,
+		IDField:    "id",
+	},
+	"/iam.service.v1.TenantService/GetTenant": {
+		Mode:       v1.AuthzMode_AUTHZ_MODE_OBJECT,
+		Relation:   v1.Relation_RELATION_CAN_VIEW,
+		ObjectType: v1.ObjectType_OBJECT_TYPE_TENANT,
+		IDField:    "id",
+	},
+	"/iam.service.v1.TenantService/InviteMember": {
+		Mode:       v1.AuthzMode_AUTHZ_MODE_OBJECT,
+		Relation:   v1.Relation_RELATION_CAN_MANAGE_MEMBERS,
+		ObjectType: v1.ObjectType_OBJECT_TYPE_TENANT,
+		IDField:    "tenant_id",
+	},
+	"/iam.service.v1.TenantService/ListMembers": {
+		Mode:       v1.AuthzMode_AUTHZ_MODE_OBJECT,
+		Relation:   v1.Relation_RELATION_CAN_VIEW,
+		ObjectType: v1.ObjectType_OBJECT_TYPE_TENANT,
+		IDField:    "tenant_id",
+	},
+	"/iam.service.v1.TenantService/ListTenants": {
+		Mode: v1.AuthzMode_AUTHZ_MODE_NONE,
+	},
+	"/iam.service.v1.TenantService/RejectInvitation": {
+		Mode: v1.AuthzMode_AUTHZ_MODE_NONE,
+	},
+	"/iam.service.v1.TenantService/RemoveMember": {
+		Mode:       v1.AuthzMode_AUTHZ_MODE_OBJECT,
+		Relation:   v1.Relation_RELATION_CAN_MANAGE_MEMBERS,
+		ObjectType: v1.ObjectType_OBJECT_TYPE_TENANT,
+		IDField:    "tenant_id",
+	},
+	"/iam.service.v1.TenantService/UpdateMemberRole": {
+		Mode:       v1.AuthzMode_AUTHZ_MODE_OBJECT,
+		Relation:   v1.Relation_RELATION_CAN_MANAGE_MEMBERS,
+		ObjectType: v1.ObjectType_OBJECT_TYPE_TENANT,
+		IDField:    "tenant_id",
+	},
+	"/iam.service.v1.TenantService/UpdateTenant": {
+		Mode:       v1.AuthzMode_AUTHZ_MODE_OBJECT,
+		Relation:   v1.Relation_RELATION_CAN_MANAGE,
+		ObjectType: v1.ObjectType_OBJECT_TYPE_TENANT,
+		IDField:    "id",
+	},
 	"/iam.service.v1.TestService/Hello": {
 		Mode: v1.AuthzMode_AUTHZ_MODE_NONE,
 	},

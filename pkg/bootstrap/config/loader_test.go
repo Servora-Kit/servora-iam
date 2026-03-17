@@ -15,7 +15,7 @@ func TestLoadBootstrap(t *testing.T) {
 		t.Fatalf("write config file failed: %v", err)
 	}
 
-	bc, cfg, err := LoadBootstrap(configPath, "svc.service")
+	bc, cfg, err := LoadBootstrap(configPath, "svc.service", false)
 	if err != nil {
 		t.Fatalf("LoadBootstrap() error = %v", err)
 	}
@@ -38,7 +38,7 @@ func TestLoadBootstrapFromDirectory(t *testing.T) {
 		t.Fatalf("write config file failed: %v", err)
 	}
 
-	bc, cfg, err := LoadBootstrap(configDir, "svc.service")
+	bc, cfg, err := LoadBootstrap(configDir, "svc.service", false)
 	if err != nil {
 		t.Fatalf("LoadBootstrap() error = %v", err)
 	}

@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/Servora-Kit/servora/app/iam/service/internal/data/ent/organization"
 	"github.com/Servora-Kit/servora/app/iam/service/internal/data/ent/tenant"
+	"github.com/Servora-Kit/servora/app/iam/service/internal/data/ent/tenantmember"
 	"github.com/google/uuid"
 )
 
@@ -20,6 +21,20 @@ type TenantCreate struct {
 	config
 	mutation *TenantMutation
 	hooks    []Hook
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (_c *TenantCreate) SetDeletedAt(v time.Time) *TenantCreate {
+	_c.mutation.SetDeletedAt(v)
+	return _c
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (_c *TenantCreate) SetNillableDeletedAt(v *time.Time) *TenantCreate {
+	if v != nil {
+		_c.SetDeletedAt(*v)
+	}
+	return _c
 }
 
 // SetSlug sets the "slug" field.
@@ -34,16 +49,44 @@ func (_c *TenantCreate) SetName(v string) *TenantCreate {
 	return _c
 }
 
-// SetType sets the "type" field.
-func (_c *TenantCreate) SetType(v string) *TenantCreate {
-	_c.mutation.SetType(v)
+// SetKind sets the "kind" field.
+func (_c *TenantCreate) SetKind(v tenant.Kind) *TenantCreate {
+	_c.mutation.SetKind(v)
 	return _c
 }
 
-// SetNillableType sets the "type" field if the given value is not nil.
-func (_c *TenantCreate) SetNillableType(v *string) *TenantCreate {
+// SetNillableKind sets the "kind" field if the given value is not nil.
+func (_c *TenantCreate) SetNillableKind(v *tenant.Kind) *TenantCreate {
 	if v != nil {
-		_c.SetType(*v)
+		_c.SetKind(*v)
+	}
+	return _c
+}
+
+// SetDomain sets the "domain" field.
+func (_c *TenantCreate) SetDomain(v string) *TenantCreate {
+	_c.mutation.SetDomain(v)
+	return _c
+}
+
+// SetNillableDomain sets the "domain" field if the given value is not nil.
+func (_c *TenantCreate) SetNillableDomain(v *string) *TenantCreate {
+	if v != nil {
+		_c.SetDomain(*v)
+	}
+	return _c
+}
+
+// SetStatus sets the "status" field.
+func (_c *TenantCreate) SetStatus(v tenant.Status) *TenantCreate {
+	_c.mutation.SetStatus(v)
+	return _c
+}
+
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (_c *TenantCreate) SetNillableStatus(v *tenant.Status) *TenantCreate {
+	if v != nil {
+		_c.SetStatus(*v)
 	}
 	return _c
 }
@@ -58,6 +101,20 @@ func (_c *TenantCreate) SetCreatedAt(v time.Time) *TenantCreate {
 func (_c *TenantCreate) SetNillableCreatedAt(v *time.Time) *TenantCreate {
 	if v != nil {
 		_c.SetCreatedAt(*v)
+	}
+	return _c
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (_c *TenantCreate) SetUpdatedAt(v time.Time) *TenantCreate {
+	_c.mutation.SetUpdatedAt(v)
+	return _c
+}
+
+// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
+func (_c *TenantCreate) SetNillableUpdatedAt(v *time.Time) *TenantCreate {
+	if v != nil {
+		_c.SetUpdatedAt(*v)
 	}
 	return _c
 }
@@ -89,6 +146,21 @@ func (_c *TenantCreate) AddOrganizations(v ...*Organization) *TenantCreate {
 		ids[i] = v[i].ID
 	}
 	return _c.AddOrganizationIDs(ids...)
+}
+
+// AddMemberIDs adds the "members" edge to the TenantMember entity by IDs.
+func (_c *TenantCreate) AddMemberIDs(ids ...uuid.UUID) *TenantCreate {
+	_c.mutation.AddMemberIDs(ids...)
+	return _c
+}
+
+// AddMembers adds the "members" edges to the TenantMember entity.
+func (_c *TenantCreate) AddMembers(v ...*TenantMember) *TenantCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddMemberIDs(ids...)
 }
 
 // Mutation returns the TenantMutation object of the builder.
@@ -126,13 +198,21 @@ func (_c *TenantCreate) ExecX(ctx context.Context) {
 
 // defaults sets the default values of the builder before save.
 func (_c *TenantCreate) defaults() {
-	if _, ok := _c.mutation.GetType(); !ok {
-		v := tenant.DefaultType
-		_c.mutation.SetType(v)
+	if _, ok := _c.mutation.Kind(); !ok {
+		v := tenant.DefaultKind
+		_c.mutation.SetKind(v)
+	}
+	if _, ok := _c.mutation.Status(); !ok {
+		v := tenant.DefaultStatus
+		_c.mutation.SetStatus(v)
 	}
 	if _, ok := _c.mutation.CreatedAt(); !ok {
 		v := tenant.DefaultCreatedAt()
 		_c.mutation.SetCreatedAt(v)
+	}
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
+		v := tenant.DefaultUpdatedAt()
+		_c.mutation.SetUpdatedAt(v)
 	}
 	if _, ok := _c.mutation.ID(); !ok {
 		v := tenant.DefaultID()
@@ -158,16 +238,32 @@ func (_c *TenantCreate) check() error {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Tenant.name": %w`, err)}
 		}
 	}
-	if _, ok := _c.mutation.GetType(); !ok {
-		return &ValidationError{Name: "type", err: errors.New(`ent: missing required field "Tenant.type"`)}
+	if _, ok := _c.mutation.Kind(); !ok {
+		return &ValidationError{Name: "kind", err: errors.New(`ent: missing required field "Tenant.kind"`)}
 	}
-	if v, ok := _c.mutation.GetType(); ok {
-		if err := tenant.TypeValidator(v); err != nil {
-			return &ValidationError{Name: "type", err: fmt.Errorf(`ent: validator failed for field "Tenant.type": %w`, err)}
+	if v, ok := _c.mutation.Kind(); ok {
+		if err := tenant.KindValidator(v); err != nil {
+			return &ValidationError{Name: "kind", err: fmt.Errorf(`ent: validator failed for field "Tenant.kind": %w`, err)}
+		}
+	}
+	if v, ok := _c.mutation.Domain(); ok {
+		if err := tenant.DomainValidator(v); err != nil {
+			return &ValidationError{Name: "domain", err: fmt.Errorf(`ent: validator failed for field "Tenant.domain": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.Status(); !ok {
+		return &ValidationError{Name: "status", err: errors.New(`ent: missing required field "Tenant.status"`)}
+	}
+	if v, ok := _c.mutation.Status(); ok {
+		if err := tenant.StatusValidator(v); err != nil {
+			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Tenant.status": %w`, err)}
 		}
 	}
 	if _, ok := _c.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "Tenant.created_at"`)}
+	}
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
+		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "Tenant.updated_at"`)}
 	}
 	return nil
 }
@@ -204,6 +300,10 @@ func (_c *TenantCreate) createSpec() (*Tenant, *sqlgraph.CreateSpec) {
 		_node.ID = id
 		_spec.ID.Value = &id
 	}
+	if value, ok := _c.mutation.DeletedAt(); ok {
+		_spec.SetField(tenant.FieldDeletedAt, field.TypeTime, value)
+		_node.DeletedAt = &value
+	}
 	if value, ok := _c.mutation.Slug(); ok {
 		_spec.SetField(tenant.FieldSlug, field.TypeString, value)
 		_node.Slug = value
@@ -212,13 +312,25 @@ func (_c *TenantCreate) createSpec() (*Tenant, *sqlgraph.CreateSpec) {
 		_spec.SetField(tenant.FieldName, field.TypeString, value)
 		_node.Name = value
 	}
-	if value, ok := _c.mutation.GetType(); ok {
-		_spec.SetField(tenant.FieldType, field.TypeString, value)
-		_node.Type = value
+	if value, ok := _c.mutation.Kind(); ok {
+		_spec.SetField(tenant.FieldKind, field.TypeEnum, value)
+		_node.Kind = value
+	}
+	if value, ok := _c.mutation.Domain(); ok {
+		_spec.SetField(tenant.FieldDomain, field.TypeString, value)
+		_node.Domain = &value
+	}
+	if value, ok := _c.mutation.Status(); ok {
+		_spec.SetField(tenant.FieldStatus, field.TypeEnum, value)
+		_node.Status = value
 	}
 	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(tenant.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
+	}
+	if value, ok := _c.mutation.UpdatedAt(); ok {
+		_spec.SetField(tenant.FieldUpdatedAt, field.TypeTime, value)
+		_node.UpdatedAt = value
 	}
 	if nodes := _c.mutation.OrganizationsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -229,6 +341,22 @@ func (_c *TenantCreate) createSpec() (*Tenant, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(organization.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.MembersIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   tenant.MembersTable,
+			Columns: []string{tenant.MembersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(tenantmember.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

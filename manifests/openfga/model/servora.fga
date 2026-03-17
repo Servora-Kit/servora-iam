@@ -3,19 +3,27 @@ model
 
 type user
 
-type tenant
+type platform
   relations
     define admin: [user]
+    define can_view_all_tenants: admin
+    define can_manage_all_tenants: admin
+
+type tenant
+  relations
+    define owner: [user]
+    define admin: [user] or owner
     define member: [user] or admin
     define can_view: member
     define can_manage: admin
+    define can_manage_members: owner or admin
 
 type organization
   relations
     define tenant: [tenant]
     define owner: [user]
-    define admin: [user] or owner
-    define member: [user] or admin
+    define admin: [user] or owner or admin from tenant
+    define member: [user] or admin or member from tenant
     define viewer: [user] or member
     define can_view: member or viewer
     define can_manage: admin

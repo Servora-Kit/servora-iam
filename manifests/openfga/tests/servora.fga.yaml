@@ -2,9 +2,22 @@ name: servora authorization model tests
 model_file: ../model/servora.fga
 
 tuples:
-  # Tenant admin
+  # Platform admin
+  - user: user:platform-admin
+    relation: admin
+    object: platform:default
+
+  # Tenant setup
+  - user: user:tenant-owner
+    relation: owner
+    object: tenant:root
+
   - user: user:tenant-admin
     relation: admin
+    object: tenant:root
+
+  - user: user:tenant-member
+    relation: member
     object: tenant:root
 
   # Organization setup
@@ -28,11 +41,6 @@ tuples:
     relation: viewer
     object: organization:acme
 
-  # Organization member also on tenant
-  - user: user:org-owner
-    relation: member
-    object: tenant:root
-
   # Project setup
   - user: organization:acme
     relation: organization
@@ -47,15 +55,65 @@ tuples:
     object: project:alpha
 
 tests:
+  # --- Platform tests ---
+
+  - name: platform admin can manage all tenants
+    check:
+      - user: user:platform-admin
+        object: platform:default
+        assertions:
+          admin: true
+          can_view_all_tenants: true
+          can_manage_all_tenants: true
+
+  - name: tenant admin has no platform admin permission
+    check:
+      - user: user:tenant-admin
+        object: platform:default
+        assertions:
+          admin: false
+          can_view_all_tenants: false
+          can_manage_all_tenants: false
+
+  # --- Tenant tests ---
+
+  - name: tenant owner inherits admin and member
+    check:
+      - user: user:tenant-owner
+        object: tenant:root
+        assertions:
+          owner: true
+          admin: true
+          member: true
+          can_view: true
+          can_manage: true
+          can_manage_members: true
+
   - name: tenant admin has member and can_manage access
     check:
       - user: user:tenant-admin
         object: tenant:root
         assertions:
+          owner: false
           admin: true
           member: true
           can_view: true
           can_manage: true
+          can_manage_members: true
+
+  - name: tenant member can view but not manage
+    check:
+      - user: user:tenant-member
+        object: tenant:root
+        assertions:
+          owner: false
+          admin: false
+          member: true
+          can_view: true
+          can_manage: false
+          can_manage_members: false
+
+  # --- Organization tests ---
 
   - name: organization owner inherits admin and member
     check:
@@ -109,6 +167,34 @@ tests:
           can_manage: false
           can_manage_members: false
 
+  - name: tenant admin inherits organization admin via tenant relation
+    check:
+      - user: user:tenant-admin
+        object: organization:acme
+        assertions:
+          owner: false
+          admin: true
+          member: true
+          viewer: true
+          can_view: true
+          can_manage: true
+          can_manage_members: true
+
+  - name: tenant member inherits organization member via tenant relation
+    check:
+      - user: user:tenant-member
+        object: organization:acme
+        assertions:
+          owner: false
+          admin: false
+          member: true
+          viewer: true
+          can_view: true
+          can_manage: false
+          can_manage_members: false
+
+  # --- Project tests ---
+
   - name: organization owner inherits project admin via relation
     check:
       - user: user:org-owner
@@ -124,6 +210,18 @@ tests:
   - name: organization admin inherits project admin via relation
     check:
       - user: user:org-admin
+        object: project:alpha
+        assertions:
+          admin: true
+          member: true
+          viewer: true
+          can_view: true
+          can_edit: true
+          can_admin: true
+
+  - name: tenant admin inherits project admin via tenant-org-project chain
+    check:
+      - user: user:tenant-admin
         object: project:alpha
         assertions:
           admin: true

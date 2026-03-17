@@ -50,7 +50,7 @@ cmd/svr/
 - 发现与配置校验逻辑在 `internal/discovery/`
 
 ### `svr openfga init`
-- 连接 OpenFGA API（默认 `http://localhost:8080`，可通过 `--api-url` 或 `FGA_API_URL` 环境变量配置）
+- 连接 OpenFGA API（默认 `http://localhost:18080`，与 docker-compose 映射一致；可通过 `--api-url` 或 `FGA_API_URL` 环境变量配置）
 - 查找或创建名为 `servora` 的 store（可通过 `--store` 指定）
 - 解析 `.fga` DSL 模型文件并上传为 authorization model
 - 自动更新 `.env` 中的 `FGA_API_URL`、`FGA_STORE_ID`、`FGA_MODEL_ID`
@@ -76,7 +76,7 @@ go run ./cmd/svr new api billing.invoice iam
 go run ./cmd/svr gen gorm iam
 go run ./cmd/svr gen gorm iam --dry-run
 svr openfga init
-svr openfga init --api-url http://localhost:8080 --store servora --env-prefix IAM_
+svr openfga init --api-url http://localhost:18080 --store servora --env-prefix IAM_
 svr openfga model apply
 svr openfga model apply --store-id <store-id> --model manifests/openfga/model/servora.fga --env-prefix IAM_
 ```

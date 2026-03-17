@@ -73,6 +73,20 @@ func (_u *ProjectMemberUpdate) SetNillableRole(v *string) *ProjectMemberUpdate {
 	return _u
 }
 
+// SetStatus sets the "status" field.
+func (_u *ProjectMemberUpdate) SetStatus(v projectmember.Status) *ProjectMemberUpdate {
+	_u.mutation.SetStatus(v)
+	return _u
+}
+
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (_u *ProjectMemberUpdate) SetNillableStatus(v *projectmember.Status) *ProjectMemberUpdate {
+	if v != nil {
+		_u.SetStatus(*v)
+	}
+	return _u
+}
+
 // SetUpdatedAt sets the "updated_at" field.
 func (_u *ProjectMemberUpdate) SetUpdatedAt(v time.Time) *ProjectMemberUpdate {
 	_u.mutation.SetUpdatedAt(v)
@@ -149,6 +163,11 @@ func (_u *ProjectMemberUpdate) check() error {
 			return &ValidationError{Name: "role", err: fmt.Errorf(`ent: validator failed for field "ProjectMember.role": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.Status(); ok {
+		if err := projectmember.StatusValidator(v); err != nil {
+			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "ProjectMember.status": %w`, err)}
+		}
+	}
 	if _u.mutation.ProjectCleared() && len(_u.mutation.ProjectIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "ProjectMember.project"`)
 	}
@@ -172,6 +191,9 @@ func (_u *ProjectMemberUpdate) sqlSave(ctx context.Context) (_node int, err erro
 	}
 	if value, ok := _u.mutation.Role(); ok {
 		_spec.SetField(projectmember.FieldRole, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.Status(); ok {
+		_spec.SetField(projectmember.FieldStatus, field.TypeEnum, value)
 	}
 	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(projectmember.FieldUpdatedAt, field.TypeTime, value)
@@ -296,6 +318,20 @@ func (_u *ProjectMemberUpdateOne) SetNillableRole(v *string) *ProjectMemberUpdat
 	return _u
 }
 
+// SetStatus sets the "status" field.
+func (_u *ProjectMemberUpdateOne) SetStatus(v projectmember.Status) *ProjectMemberUpdateOne {
+	_u.mutation.SetStatus(v)
+	return _u
+}
+
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (_u *ProjectMemberUpdateOne) SetNillableStatus(v *projectmember.Status) *ProjectMemberUpdateOne {
+	if v != nil {
+		_u.SetStatus(*v)
+	}
+	return _u
+}
+
 // SetUpdatedAt sets the "updated_at" field.
 func (_u *ProjectMemberUpdateOne) SetUpdatedAt(v time.Time) *ProjectMemberUpdateOne {
 	_u.mutation.SetUpdatedAt(v)
@@ -385,6 +421,11 @@ func (_u *ProjectMemberUpdateOne) check() error {
 			return &ValidationError{Name: "role", err: fmt.Errorf(`ent: validator failed for field "ProjectMember.role": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.Status(); ok {
+		if err := projectmember.StatusValidator(v); err != nil {
+			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "ProjectMember.status": %w`, err)}
+		}
+	}
 	if _u.mutation.ProjectCleared() && len(_u.mutation.ProjectIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "ProjectMember.project"`)
 	}
@@ -425,6 +466,9 @@ func (_u *ProjectMemberUpdateOne) sqlSave(ctx context.Context) (_node *ProjectMe
 	}
 	if value, ok := _u.mutation.Role(); ok {
 		_spec.SetField(projectmember.FieldRole, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.Status(); ok {
+		_spec.SetField(projectmember.FieldStatus, field.TypeEnum, value)
 	}
 	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(projectmember.FieldUpdatedAt, field.TypeTime, value)

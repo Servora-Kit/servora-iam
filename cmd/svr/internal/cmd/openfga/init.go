@@ -37,7 +37,7 @@ also written so that Kratos env.NewSource can resolve ${FGA_STORE_ID} in YAML.`,
 		},
 	}
 
-	cmd.Flags().StringVar(&apiURL, "api-url", envOrDefault("FGA_API_URL", "http://localhost:8080"), "OpenFGA API URL")
+	cmd.Flags().StringVar(&apiURL, "api-url", envOrDefault("FGA_API_URL", "http://localhost:18080"), "OpenFGA API URL")
 	cmd.Flags().StringVar(&modelFile, "model", "manifests/openfga/model/servora.fga", "path to .fga model file")
 	cmd.Flags().StringVar(&storeName, "store", "servora", "OpenFGA store name")
 	cmd.Flags().StringVar(&envFile, "env-file", ".env", "path to .env file for output")

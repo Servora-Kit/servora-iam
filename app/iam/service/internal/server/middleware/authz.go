@@ -23,11 +23,10 @@ import (
 type AuthzOption func(*authzConfig)
 
 type authzConfig struct {
-	fga        *openfga.Client
-	redis      *redis.Client
-	cacheTTL   time.Duration
-	rules      map[string]iamv1.AuthzRuleEntry
-	tenantRootID string
+	fga      *openfga.Client
+	redis    *redis.Client
+	cacheTTL time.Duration
+	rules    map[string]iamv1.AuthzRuleEntry
 }
 
 func WithFGAClient(c *openfga.Client) AuthzOption {
@@ -37,10 +36,6 @@ func WithFGAClient(c *openfga.Client) AuthzOption {
 // WithAuthzRules sets the operation→rule mapping directly from generated code.
 func WithAuthzRules(rules map[string]iamv1.AuthzRuleEntry) AuthzOption {
 	return func(cfg *authzConfig) { cfg.rules = rules }
-}
-
-func WithTenantRootID(id string) AuthzOption {
-	return func(cfg *authzConfig) { cfg.tenantRootID = id }
 }
 
 func WithAuthzCache(rdb *redis.Client, ttl time.Duration) AuthzOption {
@@ -94,7 +89,7 @@ func Authz(opts ...AuthzOption) middleware.Middleware {
 				return nil, errors.ServiceUnavailable("AUTHZ_UNAVAILABLE", "authorization service not available")
 			}
 
-			objectType, objectID, err := resolveObject(rule, cfg.tenantRootID, req, a)
+			objectType, objectID, err := resolveObject(rule, req, a)
 			if err != nil {
 				return nil, errors.BadRequest("AUTHZ_BAD_REQUEST",
 					fmt.Sprintf("cannot resolve authorization target: %v", err))
@@ -120,7 +115,7 @@ func Authz(opts ...AuthzOption) middleware.Middleware {
 	}
 }
 
-func resolveObject(rule iamv1.AuthzRuleEntry, tenantRootID string, req any, a actor.Actor) (objectType, objectID string, err error) {
+func resolveObject(rule iamv1.AuthzRuleEntry, req any, a actor.Actor) (objectType, objectID string, err error) {
 	switch rule.Mode {
 	case authzpb.AuthzMode_AUTHZ_MODE_ORGANIZATION:
 		objectType = "organization"
@@ -138,8 +133,8 @@ func resolveObject(rule iamv1.AuthzRuleEntry, tenantRootID string, req any, a ac
 		}
 	case authzpb.AuthzMode_AUTHZ_MODE_OBJECT:
 		objectType = objectTypeToFGA(rule.ObjectType)
-		if rule.IDField == "root" && objectType == "tenant" {
-			objectID = tenantRootID
+		if objectType == "tenant" && rule.IDField == "" {
+			objectID, err = scopeFromActor(a, "TenantID")
 		} else {
 			objectID, err = extractProtoField(req, rule.IDField)
 		}
@@ -155,6 +150,11 @@ func scopeFromActor(a actor.Actor, field string) (string, error) {
 		return "", fmt.Errorf("actor is not a UserActor")
 	}
 	switch field {
+	case "TenantID":
+		if id := ua.TenantID(); id != "" {
+			return id, nil
+		}
+		return "", fmt.Errorf("missing X-Tenant-ID header")
 	case "OrganizationID":
 		if id := ua.OrganizationID(); id != "" {
 			return id, nil

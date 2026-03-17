@@ -29,7 +29,7 @@ func TestResolveObject_OrgScope_FromActor(t *testing.T) {
 		IDField:  "",
 	}
 
-	objType, objID, err := resolveObject(rule, "tenant-root", nil, ua)
+	objType, objID, err := resolveObject(rule, nil, ua)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -49,7 +49,7 @@ func TestResolveObject_OrgScope_MissingHeader(t *testing.T) {
 		IDField:  "",
 	}
 
-	_, _, err := resolveObject(rule, "tenant-root", nil, ua)
+	_, _, err := resolveObject(rule, nil, ua)
 	if err == nil {
 		t.Fatal("expected error for missing org scope")
 	}
@@ -64,7 +64,7 @@ func TestResolveObject_OrgResource_FromRequest(t *testing.T) {
 	}
 	req := &orgpb.GetOrganizationRequest{Id: "org-from-request"}
 
-	objType, objID, err := resolveObject(rule, "tenant-root", req, ua)
+	objType, objID, err := resolveObject(rule, req, ua)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -84,7 +84,7 @@ func TestResolveObject_ProjectScope_FromActor(t *testing.T) {
 		IDField:  "",
 	}
 
-	objType, objID, err := resolveObject(rule, "tenant-root", nil, ua)
+	objType, objID, err := resolveObject(rule, nil, ua)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -105,7 +105,7 @@ func TestResolveObject_ProjectResource_FromRequest(t *testing.T) {
 	}
 	req := &projectpb.GetProjectRequest{Id: "proj-from-request"}
 
-	objType, objID, err := resolveObject(rule, "tenant-root", req, ua)
+	objType, objID, err := resolveObject(rule, req, ua)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -119,14 +119,15 @@ func TestResolveObject_ProjectResource_FromRequest(t *testing.T) {
 
 func TestResolveObject_TenantRoot(t *testing.T) {
 	ua := userActorWithScope("", "")
+	ua.SetTenantID("tenant-root-id")
 	rule := iamv1.AuthzRuleEntry{
 		Mode:       authzpb.AuthzMode_AUTHZ_MODE_OBJECT,
 		ObjectType: authzpb.ObjectType_OBJECT_TYPE_TENANT,
 		Relation:   authzpb.Relation_RELATION_ADMIN,
-		IDField:    "root",
+		IDField:    "",
 	}
 
-	objType, objID, err := resolveObject(rule, "tenant-root-id", nil, ua)
+	objType, objID, err := resolveObject(rule, nil, ua)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}

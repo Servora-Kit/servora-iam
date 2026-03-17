@@ -49,6 +49,20 @@ func (_c *ProjectMemberCreate) SetNillableRole(v *string) *ProjectMemberCreate {
 	return _c
 }
 
+// SetStatus sets the "status" field.
+func (_c *ProjectMemberCreate) SetStatus(v projectmember.Status) *ProjectMemberCreate {
+	_c.mutation.SetStatus(v)
+	return _c
+}
+
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (_c *ProjectMemberCreate) SetNillableStatus(v *projectmember.Status) *ProjectMemberCreate {
+	if v != nil {
+		_c.SetStatus(*v)
+	}
+	return _c
+}
+
 // SetCreatedAt sets the "created_at" field.
 func (_c *ProjectMemberCreate) SetCreatedAt(v time.Time) *ProjectMemberCreate {
 	_c.mutation.SetCreatedAt(v)
@@ -140,6 +154,10 @@ func (_c *ProjectMemberCreate) defaults() {
 		v := projectmember.DefaultRole
 		_c.mutation.SetRole(v)
 	}
+	if _, ok := _c.mutation.Status(); !ok {
+		v := projectmember.DefaultStatus
+		_c.mutation.SetStatus(v)
+	}
 	if _, ok := _c.mutation.CreatedAt(); !ok {
 		v := projectmember.DefaultCreatedAt()
 		_c.mutation.SetCreatedAt(v)
@@ -168,6 +186,14 @@ func (_c *ProjectMemberCreate) check() error {
 	if v, ok := _c.mutation.Role(); ok {
 		if err := projectmember.RoleValidator(v); err != nil {
 			return &ValidationError{Name: "role", err: fmt.Errorf(`ent: validator failed for field "ProjectMember.role": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.Status(); !ok {
+		return &ValidationError{Name: "status", err: errors.New(`ent: missing required field "ProjectMember.status"`)}
+	}
+	if v, ok := _c.mutation.Status(); ok {
+		if err := projectmember.StatusValidator(v); err != nil {
+			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "ProjectMember.status": %w`, err)}
 		}
 	}
 	if _, ok := _c.mutation.CreatedAt(); !ok {
@@ -220,6 +246,10 @@ func (_c *ProjectMemberCreate) createSpec() (*ProjectMember, *sqlgraph.CreateSpe
 	if value, ok := _c.mutation.Role(); ok {
 		_spec.SetField(projectmember.FieldRole, field.TypeString, value)
 		_node.Role = value
+	}
+	if value, ok := _c.mutation.Status(); ok {
+		_spec.SetField(projectmember.FieldStatus, field.TypeEnum, value)
+		_node.Status = value
 	}
 	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(projectmember.FieldCreatedAt, field.TypeTime, value)

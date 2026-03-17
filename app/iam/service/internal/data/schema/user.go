@@ -43,6 +43,7 @@ func (User) Mixin() []ent.Mixin {
 
 func (User) Edges() []ent.Edge {
 	return []ent.Edge{
+		edge.To("tenant_members", TenantMember.Type),
 		edge.To("org_memberships", OrganizationMember.Type),
 		edge.To("project_memberships", ProjectMember.Type),
 	}

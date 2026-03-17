@@ -73,6 +73,20 @@ func (_u *OrganizationMemberUpdate) SetNillableRole(v *string) *OrganizationMemb
 	return _u
 }
 
+// SetStatus sets the "status" field.
+func (_u *OrganizationMemberUpdate) SetStatus(v organizationmember.Status) *OrganizationMemberUpdate {
+	_u.mutation.SetStatus(v)
+	return _u
+}
+
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (_u *OrganizationMemberUpdate) SetNillableStatus(v *organizationmember.Status) *OrganizationMemberUpdate {
+	if v != nil {
+		_u.SetStatus(*v)
+	}
+	return _u
+}
+
 // SetUpdatedAt sets the "updated_at" field.
 func (_u *OrganizationMemberUpdate) SetUpdatedAt(v time.Time) *OrganizationMemberUpdate {
 	_u.mutation.SetUpdatedAt(v)
@@ -149,6 +163,11 @@ func (_u *OrganizationMemberUpdate) check() error {
 			return &ValidationError{Name: "role", err: fmt.Errorf(`ent: validator failed for field "OrganizationMember.role": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.Status(); ok {
+		if err := organizationmember.StatusValidator(v); err != nil {
+			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "OrganizationMember.status": %w`, err)}
+		}
+	}
 	if _u.mutation.OrganizationCleared() && len(_u.mutation.OrganizationIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "OrganizationMember.organization"`)
 	}
@@ -172,6 +191,9 @@ func (_u *OrganizationMemberUpdate) sqlSave(ctx context.Context) (_node int, err
 	}
 	if value, ok := _u.mutation.Role(); ok {
 		_spec.SetField(organizationmember.FieldRole, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.Status(); ok {
+		_spec.SetField(organizationmember.FieldStatus, field.TypeEnum, value)
 	}
 	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(organizationmember.FieldUpdatedAt, field.TypeTime, value)
@@ -296,6 +318,20 @@ func (_u *OrganizationMemberUpdateOne) SetNillableRole(v *string) *OrganizationM
 	return _u
 }
 
+// SetStatus sets the "status" field.
+func (_u *OrganizationMemberUpdateOne) SetStatus(v organizationmember.Status) *OrganizationMemberUpdateOne {
+	_u.mutation.SetStatus(v)
+	return _u
+}
+
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (_u *OrganizationMemberUpdateOne) SetNillableStatus(v *organizationmember.Status) *OrganizationMemberUpdateOne {
+	if v != nil {
+		_u.SetStatus(*v)
+	}
+	return _u
+}
+
 // SetUpdatedAt sets the "updated_at" field.
 func (_u *OrganizationMemberUpdateOne) SetUpdatedAt(v time.Time) *OrganizationMemberUpdateOne {
 	_u.mutation.SetUpdatedAt(v)
@@ -385,6 +421,11 @@ func (_u *OrganizationMemberUpdateOne) check() error {
 			return &ValidationError{Name: "role", err: fmt.Errorf(`ent: validator failed for field "OrganizationMember.role": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.Status(); ok {
+		if err := organizationmember.StatusValidator(v); err != nil {
+			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "OrganizationMember.status": %w`, err)}
+		}
+	}
 	if _u.mutation.OrganizationCleared() && len(_u.mutation.OrganizationIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "OrganizationMember.organization"`)
 	}
@@ -425,6 +466,9 @@ func (_u *OrganizationMemberUpdateOne) sqlSave(ctx context.Context) (_node *Orga
 	}
 	if value, ok := _u.mutation.Role(); ok {
 		_spec.SetField(organizationmember.FieldRole, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.Status(); ok {
+		_spec.SetField(organizationmember.FieldStatus, field.TypeEnum, value)
 	}
 	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(organizationmember.FieldUpdatedAt, field.TypeTime, value)

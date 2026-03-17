@@ -39,8 +39,23 @@ type Runtime struct {
 // appBuilder 负责基于 Runtime 构造应用并返回清理函数。
 type appBuilder func(runtime *Runtime) (app *kratos.App, cleanup func(), err error)
 
+// BootstrapOption 配置启动行为的可选项。
+type BootstrapOption func(*bootstrapOptions)
+
+type bootstrapOptions struct {
+	envPrefix bool
+}
+
+// WithEnvPrefix 启用环境变量前缀。
+// 启用后，配置加载器会根据服务名推导前缀（如 iam.service → IAM_），
+// 仅读取带前缀的环境变量覆盖配置。
+// 默认不使用前缀，直接读取无前缀的环境变量。
+func WithEnvPrefix() BootstrapOption {
+	return func(o *bootstrapOptions) { o.envPrefix = true }
+}
+
 // runtimeFactory 负责创建 Runtime。
-type runtimeFactory func(configPath, name, version string) (*Runtime, error)
+type runtimeFactory func(configPath, name, version string, opts bootstrapOptions) (*Runtime, error)
 
 // appRunner 负责运行应用主循环。
 type appRunner func(app *kratos.App) error
@@ -68,8 +83,8 @@ func newRunner(runtimeFactory runtimeFactory, appRunner appRunner) runner {
 }
 
 // newRuntime 加载配置并初始化日志、追踪与身份信息。
-func newRuntime(configPath, name, version string) (*Runtime, error) {
-	bc, c, err := config.LoadBootstrap(configPath, name)
+func newRuntime(configPath, name, version string, opts bootstrapOptions) (*Runtime, error) {
+	bc, c, err := config.LoadBootstrap(configPath, name, opts.envPrefix)
 	if err != nil {
 		return nil, err
 	}
@@ -183,13 +198,17 @@ func (r runner) runWithRuntime(runtime *Runtime, builder appBuilder) error {
 }
 
 // BootstrapAndRun 对外暴露统一启动入口。
-func BootstrapAndRun(configPath, name, version string, builder appBuilder) error {
-	return defaultRunner.bootstrapAndRun(configPath, name, version, builder)
+func BootstrapAndRun(configPath, name, version string, builder appBuilder, opts ...BootstrapOption) error {
+	return defaultRunner.bootstrapAndRun(configPath, name, version, builder, opts...)
 }
 
 // bootstrapAndRun 执行完整启动链路：构造 Runtime、运行应用、回收资源。
-func (r runner) bootstrapAndRun(configPath, name, version string, builder appBuilder) error {
-	runtime, err := r.newRuntime(configPath, name, version)
+func (r runner) bootstrapAndRun(configPath, name, version string, builder appBuilder, opts ...BootstrapOption) error {
+	var o bootstrapOptions
+	for _, fn := range opts {
+		fn(&o)
+	}
+	runtime, err := r.newRuntime(configPath, name, version, o)
 	if err != nil {
 		return err
 	}

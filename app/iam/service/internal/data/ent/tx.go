@@ -24,6 +24,8 @@ type Tx struct {
 	ProjectMember *ProjectMemberClient
 	// Tenant is the client for interacting with the Tenant builders.
 	Tenant *TenantClient
+	// TenantMember is the client for interacting with the TenantMember builders.
+	TenantMember *TenantMemberClient
 	// User is the client for interacting with the User builders.
 	User *UserClient
 
@@ -163,6 +165,7 @@ func (tx *Tx) init() {
 	tx.Project = NewProjectClient(tx.config)
 	tx.ProjectMember = NewProjectMemberClient(tx.config)
 	tx.Tenant = NewTenantClient(tx.config)
+	tx.TenantMember = NewTenantMemberClient(tx.config)
 	tx.User = NewUserClient(tx.config)
 }
 

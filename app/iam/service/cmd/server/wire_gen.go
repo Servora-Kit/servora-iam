@@ -46,22 +46,17 @@ func wireApp(confServer *conf.Server, discovery *conf.Discovery, confRegistry *c
 	if err != nil {
 		return nil, nil, err
 	}
+	grpcMiddleware := server.NewGRPCMiddleware(trace, telemetryMetrics, logger, keyManager, openfgaClient, redisClient)
 	driver, err := data.NewEntDriver(confData)
 	if err != nil {
 		cleanup()
 		return nil, nil, err
 	}
-	entClient, err := data.NewDBClient(driver, app, confBiz, logger)
+	entClient, err := data.NewDBClient(driver, app, confBiz, openfgaClient, logger)
 	if err != nil {
 		cleanup()
 		return nil, nil, err
 	}
-	tenantRootID, err := data.NewTenantRootID(entClient, openfgaClient, confBiz, logger)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	grpcMiddleware := server.NewGRPCMiddleware(trace, telemetryMetrics, logger, keyManager, openfgaClient, redisClient, tenantRootID)
 	registryDiscovery := registry.NewDiscovery(discovery)
 	clientClient, err := client.NewClient(confData, trace, registryDiscovery, logger)
 	if err != nil {
@@ -76,23 +71,26 @@ func wireApp(confServer *conf.Server, discovery *conf.Discovery, confRegistry *c
 	authnRepo := data.NewAuthnRepo(dataData, logger)
 	otpRepo := data.NewOTPRepo(redisClient, logger)
 	sender := data.NewMailSender(mail)
+	tenantRepo := data.NewTenantRepo(dataData, logger)
 	organizationRepo := data.NewOrganizationRepo(dataData, logger)
 	projectRepo := data.NewProjectRepo(dataData, logger)
 	authZRepo := data.NewAuthZRepo(openfgaClient, redisClient)
-	organizationUsecase := biz.NewOrganizationUsecase(organizationRepo, projectRepo, authZRepo, logger, tenantRootID)
+	organizationUsecase := biz.NewOrganizationUsecase(organizationRepo, projectRepo, authZRepo, logger)
 	projectUsecase := biz.NewProjectUsecase(projectRepo, organizationRepo, authZRepo, logger)
-	authnUsecase := biz.NewAuthnUsecase(authnRepo, otpRepo, sender, mail, logger, app, keyManager, organizationUsecase, projectUsecase)
+	tenantUsecase := biz.NewTenantUsecase(tenantRepo, organizationUsecase, projectUsecase, authZRepo, logger)
+	authnUsecase := biz.NewAuthnUsecase(authnRepo, otpRepo, sender, mail, logger, app, keyManager, tenantUsecase)
 	authnService := service.NewAuthnService(authnUsecase)
 	userRepo := data.NewUserRepo(dataData, logger)
-	userUsecase := biz.NewUserUsecase(userRepo, logger, app, authnRepo, organizationRepo, projectRepo, authZRepo, tenantRootID)
+	userUsecase := biz.NewUserUsecase(userRepo, logger, app, authnRepo, organizationRepo, projectRepo, tenantRepo, authZRepo)
 	userService := service.NewUserService(userUsecase)
 	testRepo := data.NewTestRepo(dataData, logger)
 	testUsecase := biz.NewTestUsecase(testRepo, logger)
 	testService := service.NewTestService(testUsecase)
 	organizationService := service.NewOrganizationService(organizationUsecase)
 	projectService := service.NewProjectService(projectUsecase)
-	grpcServer := server.NewGRPCServer(confServer, grpcMiddleware, logger, authnService, userService, testService, organizationService, projectService)
-	httpMiddleware := server.NewHTTPMiddleware(trace, telemetryMetrics, logger, keyManager, openfgaClient, redisClient, tenantRootID)
+	tenantService := service.NewTenantService(tenantUsecase)
+	grpcServer := server.NewGRPCServer(confServer, grpcMiddleware, logger, authnService, userService, testService, organizationService, projectService, tenantService)
+	httpMiddleware := server.NewHTTPMiddleware(trace, telemetryMetrics, logger, keyManager, openfgaClient, redisClient)
 	handler := server.NewHealthHandler(redisClient, driver)
 	applicationRepo := data.NewApplicationRepo(dataData, logger)
 	applicationUsecase := biz.NewApplicationUsecase(applicationRepo, logger)
@@ -106,7 +104,7 @@ func wireApp(confServer *conf.Server, discovery *conf.Discovery, confRegistry *c
 	}
 	loginHandler := oidc.NewLoginHandler(authnRepo, redisClient, logger)
 	loginCompleteHandler := oidc.NewLoginCompleteHandler(loginHandler)
-	httpServer := server.NewHTTPServer(confServer, app, httpMiddleware, telemetryMetrics, logger, handler, authnService, userService, testService, organizationService, projectService, applicationService, provider, loginHandler, loginCompleteHandler)
+	httpServer := server.NewHTTPServer(confServer, app, httpMiddleware, telemetryMetrics, logger, handler, authnService, userService, testService, organizationService, projectService, tenantService, applicationService, provider, loginHandler, loginCompleteHandler)
 	kratosApp := newApp(svcIdentity, logger, registrar, grpcServer, httpServer)
 	return kratosApp, func() {
 		cleanup2()

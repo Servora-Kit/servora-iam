@@ -49,6 +49,20 @@ func (_c *OrganizationMemberCreate) SetNillableRole(v *string) *OrganizationMemb
 	return _c
 }
 
+// SetStatus sets the "status" field.
+func (_c *OrganizationMemberCreate) SetStatus(v organizationmember.Status) *OrganizationMemberCreate {
+	_c.mutation.SetStatus(v)
+	return _c
+}
+
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (_c *OrganizationMemberCreate) SetNillableStatus(v *organizationmember.Status) *OrganizationMemberCreate {
+	if v != nil {
+		_c.SetStatus(*v)
+	}
+	return _c
+}
+
 // SetCreatedAt sets the "created_at" field.
 func (_c *OrganizationMemberCreate) SetCreatedAt(v time.Time) *OrganizationMemberCreate {
 	_c.mutation.SetCreatedAt(v)
@@ -140,6 +154,10 @@ func (_c *OrganizationMemberCreate) defaults() {
 		v := organizationmember.DefaultRole
 		_c.mutation.SetRole(v)
 	}
+	if _, ok := _c.mutation.Status(); !ok {
+		v := organizationmember.DefaultStatus
+		_c.mutation.SetStatus(v)
+	}
 	if _, ok := _c.mutation.CreatedAt(); !ok {
 		v := organizationmember.DefaultCreatedAt()
 		_c.mutation.SetCreatedAt(v)
@@ -168,6 +186,14 @@ func (_c *OrganizationMemberCreate) check() error {
 	if v, ok := _c.mutation.Role(); ok {
 		if err := organizationmember.RoleValidator(v); err != nil {
 			return &ValidationError{Name: "role", err: fmt.Errorf(`ent: validator failed for field "OrganizationMember.role": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.Status(); !ok {
+		return &ValidationError{Name: "status", err: errors.New(`ent: missing required field "OrganizationMember.status"`)}
+	}
+	if v, ok := _c.mutation.Status(); ok {
+		if err := organizationmember.StatusValidator(v); err != nil {
+			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "OrganizationMember.status": %w`, err)}
 		}
 	}
 	if _, ok := _c.mutation.CreatedAt(); !ok {
@@ -220,6 +246,10 @@ func (_c *OrganizationMemberCreate) createSpec() (*OrganizationMember, *sqlgraph
 	if value, ok := _c.mutation.Role(); ok {
 		_spec.SetField(organizationmember.FieldRole, field.TypeString, value)
 		_node.Role = value
+	}
+	if value, ok := _c.mutation.Status(); ok {
+		_spec.SetField(organizationmember.FieldStatus, field.TypeEnum, value)
+		_node.Status = value
 	}
 	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(organizationmember.FieldCreatedAt, field.TypeTime, value)

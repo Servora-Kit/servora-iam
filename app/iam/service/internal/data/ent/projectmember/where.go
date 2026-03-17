@@ -186,6 +186,26 @@ func RoleContainsFold(v string) predicate.ProjectMember {
 	return predicate.ProjectMember(sql.FieldContainsFold(FieldRole, v))
 }
 
+// StatusEQ applies the EQ predicate on the "status" field.
+func StatusEQ(v Status) predicate.ProjectMember {
+	return predicate.ProjectMember(sql.FieldEQ(FieldStatus, v))
+}
+
+// StatusNEQ applies the NEQ predicate on the "status" field.
+func StatusNEQ(v Status) predicate.ProjectMember {
+	return predicate.ProjectMember(sql.FieldNEQ(FieldStatus, v))
+}
+
+// StatusIn applies the In predicate on the "status" field.
+func StatusIn(vs ...Status) predicate.ProjectMember {
+	return predicate.ProjectMember(sql.FieldIn(FieldStatus, vs...))
+}
+
+// StatusNotIn applies the NotIn predicate on the "status" field.
+func StatusNotIn(vs ...Status) predicate.ProjectMember {
+	return predicate.ProjectMember(sql.FieldNotIn(FieldStatus, vs...))
+}
+
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v time.Time) predicate.ProjectMember {
 	return predicate.ProjectMember(sql.FieldEQ(FieldCreatedAt, v))

@@ -12,9 +12,9 @@ import (
 	iamv1 "github.com/Servora-Kit/servora/api/gen/go/iam/service/v1"
 	orgpb "github.com/Servora-Kit/servora/api/gen/go/organization/service/v1"
 	projectpb "github.com/Servora-Kit/servora/api/gen/go/project/service/v1"
+	tenantpb "github.com/Servora-Kit/servora/api/gen/go/tenant/service/v1"
 	testpb "github.com/Servora-Kit/servora/api/gen/go/test/service/v1"
 	userpb "github.com/Servora-Kit/servora/api/gen/go/user/service/v1"
-	"github.com/Servora-Kit/servora/app/iam/service/internal/biz"
 	iammw "github.com/Servora-Kit/servora/app/iam/service/internal/server/middleware"
 	"github.com/Servora-Kit/servora/app/iam/service/internal/service"
 	"github.com/Servora-Kit/servora/pkg/governance/telemetry"
@@ -37,7 +37,6 @@ func NewGRPCMiddleware(
 	km *jwks.KeyManager,
 	fga *openfga.Client,
 	rdb *redis.Client,
-	tenantID biz.TenantRootID,
 ) GRPCMiddleware {
 	ms := svrmw.NewChainBuilder(logger.With(l, logger.WithModule("grpc/server/iam-service"))).
 		WithTrace(trace).
@@ -58,7 +57,6 @@ func NewGRPCMiddleware(
 	authzOpts := []iammw.AuthzOption{
 		iammw.WithFGAClient(fga),
 		iammw.WithAuthzRules(authzRules),
-		iammw.WithTenantRootID(string(tenantID)),
 	}
 	if rdb != nil {
 		authzOpts = append(authzOpts, iammw.WithAuthzCache(rdb, openfga.DefaultCheckCacheTTL))
@@ -115,6 +113,7 @@ func NewGRPCServer(
 	test *service.TestService,
 	org *service.OrganizationService,
 	proj *service.ProjectService,
+	tenant *service.TenantService,
 ) *kgrpc.Server {
 	glog := logger.With(l, logger.WithModule("grpc/server/iam-service"))
 
@@ -133,6 +132,7 @@ func NewGRPCServer(
 	testpb.RegisterTestServiceServer(srv, test)
 	orgpb.RegisterOrganizationServiceServer(srv, org)
 	projectpb.RegisterProjectServiceServer(srv, proj)
+	tenantpb.RegisterTenantServiceServer(srv, tenant)
 
 	return srv
 }

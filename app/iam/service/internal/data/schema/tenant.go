@@ -8,6 +8,7 @@ import (
 	"entgo.io/ent/schema"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
+	entmixin "github.com/Servora-Kit/servora/pkg/ent/mixin"
 	"github.com/google/uuid"
 )
 
@@ -20,14 +21,24 @@ func (Tenant) Fields() []ent.Field {
 		field.UUID("id", uuid.UUID{}).Default(newUUIDv7),
 		field.String("slug").MaxLen(64).Unique(),
 		field.String("name").MaxLen(128),
-		field.String("type").MaxLen(32).Default("system"),
+		field.Enum("kind").Values("business", "personal").Default("business"),
+		field.String("domain").MaxLen(128).Optional().Nillable().Unique(),
+		field.Enum("status").Values("active", "disabled").Default("active"),
 		field.Time("created_at").Default(time.Now).Immutable(),
+		field.Time("updated_at").Default(time.Now).UpdateDefault(time.Now),
+	}
+}
+
+func (Tenant) Mixin() []ent.Mixin {
+	return []ent.Mixin{
+		entmixin.SoftDeleteMixin{},
 	}
 }
 
 func (Tenant) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.To("organizations", Organization.Type),
+		edge.To("members", TenantMember.Type),
 	}
 }
 
