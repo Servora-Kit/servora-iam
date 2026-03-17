@@ -27,7 +27,7 @@ var File_iam_service_v1_i_project_proto protoreflect.FileDescriptor
 
 const file_iam_service_v1_i_project_proto_rawDesc = "" +
 	"\n" +
-	"\x1eiam/service/v1/i_project.proto\x12\x0eiam.service.v1\x1a\x1cgoogle/api/annotations.proto\x1a project/service/v1/project.proto\x1a\x1cauthz/service/v1/authz.proto2\x9d\r\n" +
+	"\x1eiam/service/v1/i_project.proto\x12\x0eiam.service.v1\x1a\x1cgoogle/api/annotations.proto\x1a project/service/v1/project.proto\x1a\x1cauthz/service/v1/authz.proto2\x91\r\n" +
 	"\x0eProjectService\x12\x85\x01\n" +
 	"\rCreateProject\x12(.project.service.v1.CreateProjectRequest\x1a).project.service.v1.CreateProjectResponse\"\x1f\xa2\xbb\x18\x04\b\x02\x10\r\x82\xd3\xe4\x93\x02\x11:\x01*\"\f/v1/projects\x12\x82\x01\n" +
 	"\n" +
@@ -36,9 +36,9 @@ const file_iam_service_v1_i_project_proto_rawDesc = "" +
 	"\fListProjects\x12'.project.service.v1.ListProjectsRequest\x1a(.project.service.v1.ListProjectsResponse\"\x1c\xa2\xbb\x18\x04\b\x02\x10\n" +
 	"\x82\xd3\xe4\x93\x02\x0e\x12\f/v1/projects\x12\x8e\x01\n" +
 	"\rUpdateProject\x12(.project.service.v1.UpdateProjectRequest\x1a).project.service.v1.UpdateProjectResponse\"(\xa2\xbb\x18\b\b\x03\x10\v\"\x02id\x82\xd3\xe4\x93\x02\x16:\x01*\x1a\x11/v1/projects/{id}\x12\x8b\x01\n" +
-	"\rDeleteProject\x12(.project.service.v1.DeleteProjectRequest\x1a).project.service.v1.DeleteProjectResponse\"%\xa2\xbb\x18\b\b\x03\x10\f\"\x02id\x82\xd3\xe4\x93\x02\x13*\x11/v1/projects/{id}\x12\x92\x01\n" +
-	"\fPurgeProject\x12'.project.service.v1.PurgeProjectRequest\x1a(.project.service.v1.PurgeProjectResponse\"/\xa2\xbb\x18\f\b\x04\x10\x02\x18\x01\"\x04root\x82\xd3\xe4\x93\x02\x19*\x17/v1/projects/{id}/purge\x12\x9d\x01\n" +
-	"\x0eRestoreProject\x12).project.service.v1.RestoreProjectRequest\x1a*.project.service.v1.RestoreProjectResponse\"4\xa2\xbb\x18\f\b\x04\x10\x02\x18\x01\"\x04root\x82\xd3\xe4\x93\x02\x1e:\x01*\"\x19/v1/projects/{id}/restore\x12\x9a\x01\n" +
+	"\rDeleteProject\x12(.project.service.v1.DeleteProjectRequest\x1a).project.service.v1.DeleteProjectResponse\"%\xa2\xbb\x18\b\b\x03\x10\f\"\x02id\x82\xd3\xe4\x93\x02\x13*\x11/v1/projects/{id}\x12\x8c\x01\n" +
+	"\fPurgeProject\x12'.project.service.v1.PurgeProjectRequest\x1a(.project.service.v1.PurgeProjectResponse\")\xa2\xbb\x18\x06\b\x04\x10\x02\x18\x01\x82\xd3\xe4\x93\x02\x19*\x17/v1/projects/{id}/purge\x12\x97\x01\n" +
+	"\x0eRestoreProject\x12).project.service.v1.RestoreProjectRequest\x1a*.project.service.v1.RestoreProjectResponse\".\xa2\xbb\x18\x06\b\x04\x10\x02\x18\x01\x82\xd3\xe4\x93\x02\x1e:\x01*\"\x19/v1/projects/{id}/restore\x12\x9a\x01\n" +
 	"\tAddMember\x12$.project.service.v1.AddMemberRequest\x1a%.project.service.v1.AddMemberResponse\"@\xa2\xbb\x18\x10\b\x03\x10\f\"\n" +
 	"project_id\x82\xd3\xe4\x93\x02&:\x01*\"!/v1/projects/{project_id}/members\x12\xaa\x01\n" +
 	"\fRemoveMember\x12'.project.service.v1.RemoveMemberRequest\x1a(.project.service.v1.RemoveMemberResponse\"G\xa2\xbb\x18\x10\b\x03\x10\f\"\n" +

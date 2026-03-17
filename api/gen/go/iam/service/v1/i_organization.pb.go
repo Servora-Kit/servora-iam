@@ -27,16 +27,16 @@ var File_iam_service_v1_i_organization_proto protoreflect.FileDescriptor
 
 const file_iam_service_v1_i_organization_proto_rawDesc = "" +
 	"\n" +
-	"#iam/service/v1/i_organization.proto\x12\x0eiam.service.v1\x1a\x1cgoogle/api/annotations.proto\x1a*organization/service/v1/organization.proto\x1a\x1cauthz/service/v1/authz.proto2\xd5\x0f\n" +
+	"#iam/service/v1/i_organization.proto\x12\x0eiam.service.v1\x1a\x1cgoogle/api/annotations.proto\x1a*organization/service/v1/organization.proto\x1a\x1cauthz/service/v1/authz.proto2\xc9\x0f\n" +
 	"\x13OrganizationService\x12\xa1\x01\n" +
 	"\x12CreateOrganization\x122.organization.service.v1.CreateOrganizationRequest\x1a3.organization.service.v1.CreateOrganizationResponse\"\"\xa2\xbb\x18\x02\b\x01\x82\xd3\xe4\x93\x02\x16:\x01*\"\x11/v1/organizations\x12\xa0\x01\n" +
 	"\x0fGetOrganization\x12/.organization.service.v1.GetOrganizationRequest\x1a0.organization.service.v1.GetOrganizationResponse\"*\xa2\xbb\x18\b\b\x02\x10\n" +
 	"\"\x02id\x82\xd3\xe4\x93\x02\x18\x12\x16/v1/organizations/{id}\x12\x9b\x01\n" +
 	"\x11ListOrganizations\x121.organization.service.v1.ListOrganizationsRequest\x1a2.organization.service.v1.ListOrganizationsResponse\"\x1f\xa2\xbb\x18\x02\b\x01\x82\xd3\xe4\x93\x02\x13\x12\x11/v1/organizations\x12\xac\x01\n" +
 	"\x12UpdateOrganization\x122.organization.service.v1.UpdateOrganizationRequest\x1a3.organization.service.v1.UpdateOrganizationResponse\"-\xa2\xbb\x18\b\b\x02\x10\r\"\x02id\x82\xd3\xe4\x93\x02\x1b:\x01*\x1a\x16/v1/organizations/{id}\x12\xa9\x01\n" +
-	"\x12DeleteOrganization\x122.organization.service.v1.DeleteOrganizationRequest\x1a3.organization.service.v1.DeleteOrganizationResponse\"*\xa2\xbb\x18\b\b\x02\x10\r\"\x02id\x82\xd3\xe4\x93\x02\x18*\x16/v1/organizations/{id}\x12\xb0\x01\n" +
-	"\x11PurgeOrganization\x121.organization.service.v1.PurgeOrganizationRequest\x1a2.organization.service.v1.PurgeOrganizationResponse\"4\xa2\xbb\x18\f\b\x04\x10\x02\x18\x01\"\x04root\x82\xd3\xe4\x93\x02\x1e*\x1c/v1/organizations/{id}/purge\x12\xbb\x01\n" +
-	"\x13RestoreOrganization\x123.organization.service.v1.RestoreOrganizationRequest\x1a4.organization.service.v1.RestoreOrganizationResponse\"9\xa2\xbb\x18\f\b\x04\x10\x02\x18\x01\"\x04root\x82\xd3\xe4\x93\x02#:\x01*\"\x1e/v1/organizations/{id}/restore\x12\xb3\x01\n" +
+	"\x12DeleteOrganization\x122.organization.service.v1.DeleteOrganizationRequest\x1a3.organization.service.v1.DeleteOrganizationResponse\"*\xa2\xbb\x18\b\b\x02\x10\r\"\x02id\x82\xd3\xe4\x93\x02\x18*\x16/v1/organizations/{id}\x12\xaa\x01\n" +
+	"\x11PurgeOrganization\x121.organization.service.v1.PurgeOrganizationRequest\x1a2.organization.service.v1.PurgeOrganizationResponse\".\xa2\xbb\x18\x06\b\x04\x10\x02\x18\x01\x82\xd3\xe4\x93\x02\x1e*\x1c/v1/organizations/{id}/purge\x12\xb5\x01\n" +
+	"\x13RestoreOrganization\x123.organization.service.v1.RestoreOrganizationRequest\x1a4.organization.service.v1.RestoreOrganizationResponse\"3\xa2\xbb\x18\x06\b\x04\x10\x02\x18\x01\x82\xd3\xe4\x93\x02#:\x01*\"\x1e/v1/organizations/{id}/restore\x12\xb3\x01\n" +
 	"\tAddMember\x12).organization.service.v1.AddMemberRequest\x1a*.organization.service.v1.AddMemberResponse\"O\xa2\xbb\x18\x15\b\x02\x10\x0e\"\x0forganization_id\x82\xd3\xe4\x93\x020:\x01*\"+/v1/organizations/{organization_id}/members\x12\xc3\x01\n" +
 	"\fRemoveMember\x12,.organization.service.v1.RemoveMemberRequest\x1a-.organization.service.v1.RemoveMemberResponse\"V\xa2\xbb\x18\x15\b\x02\x10\x0e\"\x0forganization_id\x82\xd3\xe4\x93\x027*5/v1/organizations/{organization_id}/members/{user_id}\x12\xb6\x01\n" +
 	"\vListMembers\x12+.organization.service.v1.ListMembersRequest\x1a,.organization.service.v1.ListMembersResponse\"L\xa2\xbb\x18\x15\b\x02\x10\n" +

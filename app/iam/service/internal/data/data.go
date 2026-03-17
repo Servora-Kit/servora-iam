@@ -8,14 +8,12 @@ import (
 
 	entsql "entgo.io/ent/dialect/sql"
 	"github.com/Servora-Kit/servora/api/gen/go/conf/v1"
-	iamconf "github.com/Servora-Kit/servora/api/gen/go/iam/conf/v1"
 	"github.com/Servora-Kit/servora/app/iam/service/internal/data/ent"
 
 	entdrv "github.com/Servora-Kit/servora/pkg/ent"
 	"github.com/Servora-Kit/servora/pkg/governance/registry"
 	"github.com/Servora-Kit/servora/pkg/logger"
 	"github.com/Servora-Kit/servora/pkg/mail"
-	"github.com/Servora-Kit/servora/pkg/openfga"
 	"github.com/Servora-Kit/servora/pkg/redis"
 	"github.com/Servora-Kit/servora/pkg/transport/client"
 
@@ -25,7 +23,7 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-var ProviderSet = wire.NewSet(registry.NewDiscovery, NewEntDriver, NewDBClient, NewRedis, NewData, NewAuthnRepo, NewAuthZRepo, NewUserRepo, NewTestRepo, NewTenantRepo, NewOrganizationRepo, NewProjectRepo, NewOTPRepo, NewMailSender, NewApplicationRepo, NewOIDCStorage)
+var ProviderSet = wire.NewSet(registry.NewDiscovery, NewEntDriver, NewDBClient, NewRedis, NewData, NewAuthnRepo, NewAuthZRepo, NewUserRepo, NewTestRepo, NewTenantRepo, NewOrganizationRepo, NewProjectRepo, NewOTPRepo, NewMailSender, NewApplicationRepo, NewOIDCStorage, NewSeeder)
 
 type Data struct {
 	entClient *ent.Client
@@ -86,7 +84,7 @@ func NewEntDriver(cfg *conf.Data) (*entsql.Driver, error) {
 	return entdrv.NewDriver(cfg)
 }
 
-func NewDBClient(driver *entsql.Driver, app *conf.App, bizConf *iamconf.Biz, fga *openfga.Client, l logger.Logger) (*ent.Client, error) {
+func NewDBClient(driver *entsql.Driver, app *conf.App, l logger.Logger) (*ent.Client, error) {
 	opts := []ent.Option{
 		ent.Driver(driver),
 		ent.Log(logger.EntLogFuncFrom(l, "ent/data/iam-service")),
@@ -101,18 +99,6 @@ func NewDBClient(driver *entsql.Driver, app *conf.App, bizConf *iamconf.Biz, fga
 	if err := ec.Schema.Create(ctx); err != nil {
 		return nil, errors.New("ent auto-migrate: " + err.Error())
 	}
-
-	tenantID, err := seedTenant(ctx, ec)
-	if err != nil {
-		return nil, errors.New("seed tenant: " + err.Error())
-	}
-
-	if err := seedTenantAdmin(ctx, ec, bizConf.GetSeed()); err != nil {
-		seedLog := logger.NewHelper(l, logger.WithModule("seed/data/iam-service"))
-		seedLog.Warnf("seed tenant admin: %v", err)
-	}
-
-	seedFGA(ctx, ec, fga, tenantID, bizConf.GetSeed(), l)
 
 	return ec, nil
 }

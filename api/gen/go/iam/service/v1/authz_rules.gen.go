@@ -96,7 +96,6 @@ var AuthzRules = map[string]AuthzRuleEntry{
 		Mode:       v1.AuthzMode_AUTHZ_MODE_OBJECT,
 		Relation:   v1.Relation_RELATION_ADMIN,
 		ObjectType: v1.ObjectType_OBJECT_TYPE_TENANT,
-		IDField:    "root",
 	},
 	"/iam.service.v1.OrganizationService/RemoveMember": {
 		Mode:     v1.AuthzMode_AUTHZ_MODE_ORGANIZATION,
@@ -107,7 +106,6 @@ var AuthzRules = map[string]AuthzRuleEntry{
 		Mode:       v1.AuthzMode_AUTHZ_MODE_OBJECT,
 		Relation:   v1.Relation_RELATION_ADMIN,
 		ObjectType: v1.ObjectType_OBJECT_TYPE_TENANT,
-		IDField:    "root",
 	},
 	"/iam.service.v1.OrganizationService/UpdateMemberRole": {
 		Mode:     v1.AuthzMode_AUTHZ_MODE_ORGANIZATION,
@@ -151,7 +149,6 @@ var AuthzRules = map[string]AuthzRuleEntry{
 		Mode:       v1.AuthzMode_AUTHZ_MODE_OBJECT,
 		Relation:   v1.Relation_RELATION_ADMIN,
 		ObjectType: v1.ObjectType_OBJECT_TYPE_TENANT,
-		IDField:    "root",
 	},
 	"/iam.service.v1.ProjectService/RemoveMember": {
 		Mode:     v1.AuthzMode_AUTHZ_MODE_PROJECT,
@@ -162,7 +159,6 @@ var AuthzRules = map[string]AuthzRuleEntry{
 		Mode:       v1.AuthzMode_AUTHZ_MODE_OBJECT,
 		Relation:   v1.Relation_RELATION_ADMIN,
 		ObjectType: v1.ObjectType_OBJECT_TYPE_TENANT,
-		IDField:    "root",
 	},
 	"/iam.service.v1.ProjectService/UpdateMemberRole": {
 		Mode:     v1.AuthzMode_AUTHZ_MODE_PROJECT,
@@ -244,7 +240,6 @@ var AuthzRules = map[string]AuthzRuleEntry{
 		Mode:       v1.AuthzMode_AUTHZ_MODE_OBJECT,
 		Relation:   v1.Relation_RELATION_ADMIN,
 		ObjectType: v1.ObjectType_OBJECT_TYPE_TENANT,
-		IDField:    "root",
 	},
 	"/iam.service.v1.UserService/GetUser": {
 		Mode: v1.AuthzMode_AUTHZ_MODE_NONE,
@@ -253,25 +248,21 @@ var AuthzRules = map[string]AuthzRuleEntry{
 		Mode:       v1.AuthzMode_AUTHZ_MODE_OBJECT,
 		Relation:   v1.Relation_RELATION_ADMIN,
 		ObjectType: v1.ObjectType_OBJECT_TYPE_TENANT,
-		IDField:    "root",
 	},
 	"/iam.service.v1.UserService/PurgeUser": {
 		Mode:       v1.AuthzMode_AUTHZ_MODE_OBJECT,
 		Relation:   v1.Relation_RELATION_ADMIN,
 		ObjectType: v1.ObjectType_OBJECT_TYPE_TENANT,
-		IDField:    "root",
 	},
 	"/iam.service.v1.UserService/RestoreUser": {
 		Mode:       v1.AuthzMode_AUTHZ_MODE_OBJECT,
 		Relation:   v1.Relation_RELATION_ADMIN,
 		ObjectType: v1.ObjectType_OBJECT_TYPE_TENANT,
-		IDField:    "root",
 	},
 	"/iam.service.v1.UserService/SaveUser": {
 		Mode:       v1.AuthzMode_AUTHZ_MODE_OBJECT,
 		Relation:   v1.Relation_RELATION_ADMIN,
 		ObjectType: v1.ObjectType_OBJECT_TYPE_TENANT,
-		IDField:    "root",
 	},
 	"/iam.service.v1.UserService/UpdateUser": {
 		Mode: v1.AuthzMode_AUTHZ_MODE_NONE,

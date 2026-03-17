@@ -4,6 +4,7 @@ import (
 	"flag"
 
 	iamconf "github.com/Servora-Kit/servora/api/gen/go/iam/conf/v1"
+	"github.com/Servora-Kit/servora/app/iam/service/internal/data"
 	"github.com/Servora-Kit/servora/pkg/bootstrap"
 
 	"github.com/go-kratos/kratos/v2"
@@ -29,7 +30,7 @@ func init() {
 	flag.StringVar(&flagconf, "conf", "./configs", "config path, eg: -conf config.yaml")
 }
 
-func newApp(identity bootstrap.SvcIdentity, l log.Logger, reg registry.Registrar, gs *grpc.Server, hs *http.Server) *kratos.App {
+func newApp(identity bootstrap.SvcIdentity, l log.Logger, reg registry.Registrar, gs *grpc.Server, hs *http.Server, seeder *data.Seeder) *kratos.App {
 	return kratos.New(
 		kratos.ID(identity.ID),
 		kratos.Name(identity.Name),
@@ -38,6 +39,7 @@ func newApp(identity bootstrap.SvcIdentity, l log.Logger, reg registry.Registrar
 		kratos.Logger(l),
 		kratos.Server(gs, hs),
 		kratos.Registrar(reg),
+		kratos.BeforeStart(seeder.Run),
 	)
 }
 

@@ -29,7 +29,6 @@ service UserService {
       mode: AUTHZ_MODE_OBJECT
       object_type: OBJECT_TYPE_TENANT
       relation: RELATION_ADMIN
-      id_field: "root"
     };
   }
 
@@ -52,7 +51,6 @@ service UserService {
       mode: AUTHZ_MODE_OBJECT
       object_type: OBJECT_TYPE_TENANT
       relation: RELATION_ADMIN
-      id_field: "root"
     };
   }
 
@@ -62,7 +60,6 @@ service UserService {
       mode: AUTHZ_MODE_OBJECT
       object_type: OBJECT_TYPE_TENANT
       relation: RELATION_ADMIN
-      id_field: "root"
     };
   }
 
@@ -72,7 +69,6 @@ service UserService {
       mode: AUTHZ_MODE_OBJECT
       object_type: OBJECT_TYPE_TENANT
       relation: RELATION_ADMIN
-      id_field: "root"
     };
   }
 
@@ -85,7 +81,6 @@ service UserService {
       mode: AUTHZ_MODE_OBJECT
       object_type: OBJECT_TYPE_TENANT
       relation: RELATION_ADMIN
-      id_field: "root"
     };
   }
 }

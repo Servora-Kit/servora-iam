@@ -52,7 +52,7 @@ func wireApp(confServer *conf.Server, discovery *conf.Discovery, confRegistry *c
 		cleanup()
 		return nil, nil, err
 	}
-	entClient, err := data.NewDBClient(driver, app, confBiz, openfgaClient, logger)
+	entClient, err := data.NewDBClient(driver, app, logger)
 	if err != nil {
 		cleanup()
 		return nil, nil, err
@@ -105,7 +105,8 @@ func wireApp(confServer *conf.Server, discovery *conf.Discovery, confRegistry *c
 	loginHandler := oidc.NewLoginHandler(authnRepo, redisClient, logger)
 	loginCompleteHandler := oidc.NewLoginCompleteHandler(loginHandler)
 	httpServer := server.NewHTTPServer(confServer, app, httpMiddleware, telemetryMetrics, logger, handler, authnService, userService, testService, organizationService, projectService, tenantService, applicationService, provider, loginHandler, loginCompleteHandler)
-	kratosApp := newApp(svcIdentity, logger, registrar, grpcServer, httpServer)
+	seeder := data.NewSeeder(entClient, tenantUsecase, openfgaClient, confBiz, logger)
+	kratosApp := newApp(svcIdentity, logger, registrar, grpcServer, httpServer, seeder)
 	return kratosApp, func() {
 		cleanup2()
 		cleanup()
