@@ -16,6 +16,7 @@ import (
 	iammw "github.com/Servora-Kit/servora/app/iam/service/internal/server/middleware"
 	"github.com/Servora-Kit/servora/app/iam/service/internal/oidc"
 	"github.com/Servora-Kit/servora/app/iam/service/internal/service"
+	"github.com/Servora-Kit/servora/pkg/cap"
 	"github.com/Servora-Kit/servora/pkg/governance/telemetry"
 	"github.com/Servora-Kit/servora/pkg/health"
 	"github.com/Servora-Kit/servora/pkg/jwks"
@@ -43,9 +44,19 @@ func NewHTTPMiddleware(
 		Build()
 
 	publicWhitelist := svrmw.NewWhiteList(svrmw.Exact,
+		// 登录/注册/刷新 token —— 用户尚未持有 JWT，无需鉴权
 		iamv1.OperationAuthnServiceLoginByEmailPassword,
 		iamv1.OperationAuthnServiceRefreshToken,
 		iamv1.OperationAuthnServiceSignupByEmail,
+		// 邮箱验证/密码重置 —— 用户可能未登录，且业务逻辑本身已防信息泄露
+		iamv1.OperationAuthnServiceRequestEmailVerification,
+		iamv1.OperationAuthnServiceVerifyEmail,
+		iamv1.OperationAuthnServiceRequestPasswordReset,
+		iamv1.OperationAuthnServiceResetPassword,
+		// Cap 人机验证 —— 在注册页面使用，用户此时尚未登录
+		cap.OperationCapChallenge,
+		cap.OperationCapRedeem,
+		// 测试接口
 		iamv1.OperationTestServiceTest,
 		iamv1.OperationTestServiceHello,
 	)
@@ -92,6 +103,7 @@ func NewHTTPServer(
 	org *service.OrganizationService,
 	tenant *service.TenantService,
 	app *service.ApplicationService,
+	capSvc *cap.Cap,
 	oidcProvider *op.Provider,
 	loginHandler *oidc.LoginHandler,
 	loginCompleteHandler *oidc.LoginCompleteHandler,
@@ -106,6 +118,7 @@ func NewHTTPServer(
 		http.WithSwagger(assets.OpenAPIData, swagger.WithTitle("IAM API")),
 		http.WithServices(
 			forwardAuthVerify(authn),
+			func(s *khttp.Server) { cap.Register(s, capSvc) },
 			func(s *khttp.Server) { iamv1.RegisterAuthnServiceHTTPServer(s, authn) },
 			func(s *khttp.Server) { iamv1.RegisterUserServiceHTTPServer(s, user) },
 			func(s *khttp.Server) { iamv1.RegisterTestServiceHTTPServer(s, test) },

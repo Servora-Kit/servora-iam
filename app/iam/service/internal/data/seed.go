@@ -62,6 +62,16 @@ func (s *Seeder) Run(ctx context.Context) error {
 func (s *Seeder) ensureAdminUser(ctx context.Context) (*ent.User, error) {
 	existing, err := s.ec.User.Query().Where(user.EmailEQ(s.seed.AdminEmail)).Only(ctx)
 	if err == nil {
+		// 补偿修复：若 seed 管理员的 email_verified 为 false（历史数据），强制更新为 true。
+		if !existing.EmailVerified {
+			updated, uerr := s.ec.User.UpdateOneID(existing.ID).SetEmailVerified(true).Save(ctx)
+			if uerr != nil {
+				s.log.Warnf("fix admin email_verified: %v", uerr)
+			} else {
+				s.log.Infof("fixed email_verified=true for admin user %s", existing.Email)
+				return updated, nil
+			}
+		}
 		return existing, nil
 	}
 	if !ent.IsNotFound(err) {
@@ -83,6 +93,7 @@ func (s *Seeder) ensureAdminUser(ctx context.Context) (*ent.User, error) {
 		SetEmail(s.seed.AdminEmail).
 		SetPassword(pw).
 		SetRole("admin").
+		SetEmailVerified(true). // seed 管理员无需邮箱验证流程
 		Save(ctx)
 	if err != nil {
 		return nil, err
@@ -99,20 +110,14 @@ func (s *Seeder) ensurePlatformAdmin(ctx context.Context, userID string) {
 		return
 	}
 
-	allowed, err := s.fga.Check(ctx, userID, "admin", "platform", platformObjectID)
-	if err != nil {
-		s.log.Warnf("FGA check platform admin: %v", err)
-	}
-	if !allowed {
-		if err := s.fga.WriteTuples(ctx, openfga.Tuple{
-			User:     "user:" + userID,
-			Relation: "admin",
-			Object:   "platform:" + platformObjectID,
-		}); err != nil {
-			s.log.Warnf("FGA write platform admin tuple: %v", err)
-		} else {
-			s.log.Infof("seeded platform admin FGA tuple for user %s", userID)
-		}
+	if err := s.fga.EnsureTuples(ctx, openfga.Tuple{
+		User:     "user:" + userID,
+		Relation: "admin",
+		Object:   "platform:" + platformObjectID,
+	}); err != nil {
+		s.log.Warnf("FGA ensure platform admin tuple: %v", err)
+	} else {
+		s.log.Infof("seeded platform admin FGA tuple for user %s", userID)
 	}
 
 	// Ensure every tenant this user belongs to has the platform:default → tenant tuple,
@@ -131,12 +136,12 @@ func (s *Seeder) ensurePlatformAdmin(ctx context.Context, userID string) {
 	}
 	for _, m := range memberships {
 		tid := m.TenantID.String()
-		if err := s.fga.WriteTuples(ctx, openfga.Tuple{
+		if err := s.fga.EnsureTuples(ctx, openfga.Tuple{
 			User:     "platform:" + platformObjectID,
 			Relation: "platform",
 			Object:   "tenant:" + tid,
 		}); err != nil {
-			s.log.Warnf("FGA write platform-tenant tuple for tenant %s: %v", tid, err)
+			s.log.Warnf("FGA ensure platform-tenant tuple for tenant %s: %v", tid, err)
 		}
 	}
 }

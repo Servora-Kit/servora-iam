@@ -119,7 +119,34 @@ func (uc *AuthnUsecase) SignupByEmail(ctx context.Context, user *entity.User) (*
 		uc.log.Warnf("auto-create personal tenant failed for user %s: %v", createdUser.ID, err)
 	}
 
+	// Automatically send verification email; failure is non-fatal.
+	if err := uc.sendVerificationEmail(ctx, createdUser); err != nil {
+		uc.log.Warnf("auto-send verification email failed for user %s: %v", createdUser.ID, err)
+	}
+
 	return createdUser, nil
+}
+
+// sendVerificationEmail generates a verification token and sends the email.
+func (uc *AuthnUsecase) sendVerificationEmail(ctx context.Context, user *entity.User) error {
+	raw, err := uc.generateOpaqueToken()
+	if err != nil {
+		return err
+	}
+	if err := uc.tokenStore.SetToken(ctx, purposeVerifyEmail, tokenHash(raw), user.ID, verifyEmailTTL); err != nil {
+		return err
+	}
+	link := uc.buildTokenLink(mailPathVerifyEmail, raw)
+	subject, html, err := RenderVerifyEmail(uc.mailCfg, link)
+	if err != nil {
+		return err
+	}
+	return uc.mailer.Send(ctx, mail.Email{
+		From:    mail.DefaultFrom(uc.mailCfg),
+		To:      []string{user.Email},
+		Subject: subject,
+		HTML:    html,
+	})
 }
 
 func (uc *AuthnUsecase) generateAccessToken(claims *UserClaims) (string, error) {
@@ -148,6 +175,10 @@ func (uc *AuthnUsecase) LoginByEmailPassword(ctx context.Context, user *entity.U
 	}
 	if !helpers.BcryptCheck(user.Password, foundUser.Password) {
 		return nil, authnpb.ErrorIncorrectPassword("invalid email or password")
+	}
+
+	if !foundUser.EmailVerified {
+		return nil, authnpb.ErrorEmailNotVerified("please verify your email before logging in")
 	}
 
 	nonce, err := uc.generateOpaqueToken()

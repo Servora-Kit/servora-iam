@@ -12,11 +12,12 @@ import (
 
 var userInfoMapper = mapper.NewForwardMapper(func(u *entity.User) *userpb.UserInfo {
 	return &userpb.UserInfo{
-		Id:            u.ID,
-		Name:          u.Name,
-		Email:         u.Email,
-		Role:          u.Role,
-		EmailVerified: u.EmailVerified,
+		Id:              u.ID,
+		Name:            u.Name,
+		Email:           u.Email,
+		Role:            u.Role,
+		EmailVerified:   u.EmailVerified,
+		OrganizationIds: u.OrganizationIDs,
 	}
 })
 

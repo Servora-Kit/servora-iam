@@ -15,6 +15,7 @@ import (
 	"github.com/Servora-Kit/servora/app/iam/service/internal/server"
 	"github.com/Servora-Kit/servora/app/iam/service/internal/service"
 	"github.com/Servora-Kit/servora/pkg/bootstrap"
+	cap2 "github.com/Servora-Kit/servora/pkg/cap"
 	"github.com/Servora-Kit/servora/pkg/governance/registry"
 	"github.com/Servora-Kit/servora/pkg/governance/telemetry"
 	"github.com/Servora-Kit/servora/pkg/jwks"
@@ -77,7 +78,8 @@ func wireApp(confServer *conf.Server, discovery *conf.Discovery, confRegistry *c
 	organizationUsecase := biz.NewOrganizationUsecase(organizationRepo, authZRepo, logger)
 	tenantUsecase := biz.NewTenantUsecase(tenantRepo, organizationUsecase, authZRepo, logger)
 	authnUsecase := biz.NewAuthnUsecase(authnRepo, otpRepo, sender, mail, logger, app, keyManager, tenantUsecase)
-	authnService := service.NewAuthnService(authnUsecase)
+	capCap := cap2.New(redisClient)
+	authnService := service.NewAuthnService(authnUsecase, capCap)
 	userRepo := data.NewUserRepo(dataData, logger)
 	userUsecase := biz.NewUserUsecase(userRepo, logger, app, authnRepo, organizationRepo, tenantRepo, authZRepo)
 	userService := service.NewUserService(userUsecase)
@@ -101,7 +103,7 @@ func wireApp(confServer *conf.Server, discovery *conf.Discovery, confRegistry *c
 	}
 	loginHandler := oidc.NewLoginHandler(authnRepo, redisClient, logger)
 	loginCompleteHandler := oidc.NewLoginCompleteHandler(loginHandler)
-	httpServer := server.NewHTTPServer(confServer, app, httpMiddleware, telemetryMetrics, logger, handler, authnService, userService, testService, organizationService, tenantService, applicationService, provider, loginHandler, loginCompleteHandler)
+	httpServer := server.NewHTTPServer(confServer, app, httpMiddleware, telemetryMetrics, logger, handler, authnService, userService, testService, organizationService, tenantService, applicationService, capCap, provider, loginHandler, loginCompleteHandler)
 	seeder := data.NewSeeder(entClient, tenantUsecase, openfgaClient, confBiz, logger)
 	kratosApp := newApp(svcIdentity, logger, registrar, grpcServer, httpServer, seeder)
 	return kratosApp, func() {

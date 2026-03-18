@@ -10,22 +10,33 @@ import (
 	"github.com/Servora-Kit/servora/app/iam/service/internal/biz"
 	"github.com/Servora-Kit/servora/app/iam/service/internal/biz/entity"
 	"github.com/Servora-Kit/servora/pkg/actor"
+	"github.com/Servora-Kit/servora/pkg/cap"
 )
 
 type AuthnService struct {
 	authnpb.UnimplementedAuthnServiceServer
 
-	uc *biz.AuthnUsecase
+	uc  *biz.AuthnUsecase
+	cap *cap.Cap
 }
 
-func NewAuthnService(uc *biz.AuthnUsecase) *AuthnService {
-	return &AuthnService{uc: uc}
+func NewAuthnService(uc *biz.AuthnUsecase, capSvc *cap.Cap) *AuthnService {
+	return &AuthnService{uc: uc, cap: capSvc}
 }
 
 func (s *AuthnService) SignupByEmail(ctx context.Context, req *authnpb.SignupByEmailRequest) (*authnpb.SignupByEmailResponse, error) {
 	if req.Password != req.PasswordConfirm {
 		return nil, errors.BadRequest("INVALID_REQUEST", "password and confirm password do not match")
 	}
+
+	if req.CapToken == "" {
+		return nil, authnpb.ErrorInvalidCaptcha("captcha token is required")
+	}
+	valid, err := s.cap.ValidateToken(ctx, req.CapToken)
+	if err != nil || !valid {
+		return nil, authnpb.ErrorInvalidCaptcha("invalid or expired captcha token")
+	}
+
 	user, err := s.uc.SignupByEmail(ctx, &entity.User{
 		Name:     req.Name,
 		Email:    req.Email,
