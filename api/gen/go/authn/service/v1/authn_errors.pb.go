@@ -154,3 +154,27 @@ func IsInvalidResetToken(err error) bool {
 func ErrorInvalidResetToken(format string, args ...interface{}) *errors.Error {
 	return errors.New(400, ErrorReason_INVALID_RESET_TOKEN.String(), fmt.Sprintf(format, args...))
 }
+
+func IsEmailNotVerified(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == ErrorReason_EMAIL_NOT_VERIFIED.String() && e.Code == 403
+}
+
+func ErrorEmailNotVerified(format string, args ...interface{}) *errors.Error {
+	return errors.New(403, ErrorReason_EMAIL_NOT_VERIFIED.String(), fmt.Sprintf(format, args...))
+}
+
+func IsInvalidCaptcha(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == ErrorReason_INVALID_CAPTCHA.String() && e.Code == 400
+}
+
+func ErrorInvalidCaptcha(format string, args ...interface{}) *errors.Error {
+	return errors.New(400, ErrorReason_INVALID_CAPTCHA.String(), fmt.Sprintf(format, args...))
+}

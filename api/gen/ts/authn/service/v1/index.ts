@@ -14,12 +14,15 @@ export type ErrorReason =
   | "UNAUTHORIZED"
   | "INVALID_REFRESH_TOKEN"
   | "INVALID_VERIFICATION_TOKEN"
-  | "INVALID_RESET_TOKEN";
+  | "INVALID_RESET_TOKEN"
+  | "EMAIL_NOT_VERIFIED"
+  | "INVALID_CAPTCHA";
 export type SignupByEmailRequest = {
   name: string | undefined;
   password: string | undefined;
   passwordConfirm: string | undefined;
   email: string | undefined;
+  capToken: string | undefined;
 };
 
 export type SignupByEmailResponse = {

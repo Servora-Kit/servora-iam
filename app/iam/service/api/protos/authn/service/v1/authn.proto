@@ -21,6 +21,8 @@ enum ErrorReason {
   INVALID_REFRESH_TOKEN = 9 [(errors.code) = 401];
   INVALID_VERIFICATION_TOKEN = 10 [(errors.code) = 400];
   INVALID_RESET_TOKEN = 11 [(errors.code) = 400];
+  EMAIL_NOT_VERIFIED = 12 [(errors.code) = 403];
+  INVALID_CAPTCHA = 13 [(errors.code) = 400];
 }
 
 service AuthnService {
@@ -39,14 +41,15 @@ service AuthnService {
 message SignupByEmailRequest {
   string name = 1 [(buf.validate.field).string.min_len = 5];
   string password = 2 [(buf.validate.field).string = {
-    min_len: 5
-    max_len: 10
+    min_len: 6
+    max_len: 20
   }];
   string password_confirm = 3 [(buf.validate.field).string = {
-    min_len: 5
-    max_len: 10
+    min_len: 6
+    max_len: 20
   }];
   string email = 4 [(buf.validate.field).string.email = true];
+  string cap_token = 5;
 }
 
 message SignupByEmailResponse {
@@ -59,8 +62,8 @@ message SignupByEmailResponse {
 message LoginByEmailPasswordRequest {
   string email = 1;
   string password = 2 [(buf.validate.field).string = {
-    min_len: 5
-    max_len: 10
+    min_len: 6
+    max_len: 20
   }];
 }
 
@@ -91,12 +94,12 @@ message LogoutResponse {
 message ChangePasswordRequest {
   string current_password = 1 [(buf.validate.field).string.min_len = 1];
   string new_password = 2 [(buf.validate.field).string = {
-    min_len: 5
-    max_len: 10
+    min_len: 6
+    max_len: 20
   }];
   string new_password_confirm = 3 [(buf.validate.field).string = {
-    min_len: 5
-    max_len: 10
+    min_len: 6
+    max_len: 20
   }];
 }
 
@@ -137,12 +140,12 @@ message RequestPasswordResetResponse {
 message ResetPasswordRequest {
   string token = 1 [(buf.validate.field).string.min_len = 1];
   string new_password = 2 [(buf.validate.field).string = {
-    min_len: 5
-    max_len: 10
+    min_len: 6
+    max_len: 20
   }];
   string new_password_confirm = 3 [(buf.validate.field).string = {
-    min_len: 5
-    max_len: 10
+    min_len: 6
+    max_len: 20
   }];
 }
 

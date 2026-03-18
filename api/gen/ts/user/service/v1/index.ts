@@ -20,6 +20,7 @@ export type UserInfo = {
   email: string | undefined;
   role: string | undefined;
   emailVerified: boolean | undefined;
+  organizationIds: string[] | undefined;
 };
 
 export type CurrentUserInfoRequest = {

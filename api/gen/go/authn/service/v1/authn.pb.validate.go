@@ -65,6 +65,8 @@ func (m *SignupByEmailRequest) validate(all bool) error {
 
 	// no validation rules for Email
 
+	// no validation rules for CapToken
+
 	if len(errors) > 0 {
 		return SignupByEmailRequestMultiError(errors)
 	}

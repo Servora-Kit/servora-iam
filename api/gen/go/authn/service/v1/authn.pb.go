@@ -38,6 +38,8 @@ const (
 	ErrorReason_INVALID_REFRESH_TOKEN      ErrorReason = 9
 	ErrorReason_INVALID_VERIFICATION_TOKEN ErrorReason = 10
 	ErrorReason_INVALID_RESET_TOKEN        ErrorReason = 11
+	ErrorReason_EMAIL_NOT_VERIFIED         ErrorReason = 12
+	ErrorReason_INVALID_CAPTCHA            ErrorReason = 13
 )
 
 // Enum value maps for ErrorReason.
@@ -55,6 +57,8 @@ var (
 		9:  "INVALID_REFRESH_TOKEN",
 		10: "INVALID_VERIFICATION_TOKEN",
 		11: "INVALID_RESET_TOKEN",
+		12: "EMAIL_NOT_VERIFIED",
+		13: "INVALID_CAPTCHA",
 	}
 	ErrorReason_value = map[string]int32{
 		"USER_NOT_FOUND":             0,
@@ -69,6 +73,8 @@ var (
 		"INVALID_REFRESH_TOKEN":      9,
 		"INVALID_VERIFICATION_TOKEN": 10,
 		"INVALID_RESET_TOKEN":        11,
+		"EMAIL_NOT_VERIFIED":         12,
+		"INVALID_CAPTCHA":            13,
 	}
 )
 
@@ -105,6 +111,7 @@ type SignupByEmailRequest struct {
 	Password        string                 `protobuf:"bytes,2,opt,name=password,proto3" json:"password,omitempty"`
 	PasswordConfirm string                 `protobuf:"bytes,3,opt,name=password_confirm,json=passwordConfirm,proto3" json:"password_confirm,omitempty"`
 	Email           string                 `protobuf:"bytes,4,opt,name=email,proto3" json:"email,omitempty"`
+	CapToken        string                 `protobuf:"bytes,5,opt,name=cap_token,json=capToken,proto3" json:"cap_token,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -163,6 +170,13 @@ func (x *SignupByEmailRequest) GetPasswordConfirm() string {
 func (x *SignupByEmailRequest) GetEmail() string {
 	if x != nil {
 		return x.Email
+	}
+	return ""
+}
+
+func (x *SignupByEmailRequest) GetCapToken() string {
+	if x != nil {
+		return x.CapToken
 	}
 	return ""
 }
@@ -1095,14 +1109,13 @@ var File_authn_service_v1_authn_proto protoreflect.FileDescriptor
 
 const file_authn_service_v1_authn_proto_rawDesc = "" +
 	"\n" +
-	"\x1cauthn/service/v1/authn.proto\x12\x10authn.service.v1\x1a\x1bbuf/validate/validate.proto\x1a\x13errors/errors.proto\"\xaf\x01\n" +
+	"\x1cauthn/service/v1/authn.proto\x12\x10authn.service.v1\x1a\x1bbuf/validate/validate.proto\x1a\x13errors/errors.proto\"\xcc\x01\n" +
 	"\x14SignupByEmailRequest\x12\x1b\n" +
 	"\x04name\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x05R\x04name\x12%\n" +
-	"\bpassword\x18\x02 \x01(\tB\t\xbaH\x06r\x04\x10\x05\x18\n" +
-	"R\bpassword\x124\n" +
-	"\x10password_confirm\x18\x03 \x01(\tB\t\xbaH\x06r\x04\x10\x05\x18\n" +
-	"R\x0fpasswordConfirm\x12\x1d\n" +
-	"\x05email\x18\x04 \x01(\tB\a\xbaH\x04r\x02`\x01R\x05email\"e\n" +
+	"\bpassword\x18\x02 \x01(\tB\t\xbaH\x06r\x04\x10\x06\x18\x14R\bpassword\x124\n" +
+	"\x10password_confirm\x18\x03 \x01(\tB\t\xbaH\x06r\x04\x10\x06\x18\x14R\x0fpasswordConfirm\x12\x1d\n" +
+	"\x05email\x18\x04 \x01(\tB\a\xbaH\x04r\x02`\x01R\x05email\x12\x1b\n" +
+	"\tcap_token\x18\x05 \x01(\tR\bcapToken\"e\n" +
 	"\x15SignupByEmailResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x14\n" +
@@ -1110,8 +1123,7 @@ const file_authn_service_v1_authn_proto_rawDesc = "" +
 	"\x04role\x18\x04 \x01(\tR\x04role\"Z\n" +
 	"\x1bLoginByEmailPasswordRequest\x12\x14\n" +
 	"\x05email\x18\x01 \x01(\tR\x05email\x12%\n" +
-	"\bpassword\x18\x02 \x01(\tB\t\xbaH\x06r\x04\x10\x05\x18\n" +
-	"R\bpassword\"\x85\x01\n" +
+	"\bpassword\x18\x02 \x01(\tB\t\xbaH\x06r\x04\x10\x06\x18\x14R\bpassword\"\x85\x01\n" +
 	"\x1cLoginByEmailPasswordResponse\x12!\n" +
 	"\faccess_token\x18\x01 \x01(\tR\vaccessToken\x12#\n" +
 	"\rrefresh_token\x18\x02 \x01(\tR\frefreshToken\x12\x1d\n" +
@@ -1130,10 +1142,8 @@ const file_authn_service_v1_authn_proto_rawDesc = "" +
 	"\asuccess\x18\x01 \x01(\bR\asuccess\"\xb6\x01\n" +
 	"\x15ChangePasswordRequest\x122\n" +
 	"\x10current_password\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x0fcurrentPassword\x12,\n" +
-	"\fnew_password\x18\x02 \x01(\tB\t\xbaH\x06r\x04\x10\x05\x18\n" +
-	"R\vnewPassword\x12;\n" +
-	"\x14new_password_confirm\x18\x03 \x01(\tB\t\xbaH\x06r\x04\x10\x05\x18\n" +
-	"R\x12newPasswordConfirm\"2\n" +
+	"\fnew_password\x18\x02 \x01(\tB\t\xbaH\x06r\x04\x10\x06\x18\x14R\vnewPassword\x12;\n" +
+	"\x14new_password_confirm\x18\x03 \x01(\tB\t\xbaH\x06r\x04\x10\x06\x18\x14R\x12newPasswordConfirm\"2\n" +
 	"\x16ChangePasswordResponse\x12\x18\n" +
 	"\asuccess\x18\x01 \x01(\bR\asuccess\"\x19\n" +
 	"\x17LogoutAllDevicesRequest\"4\n" +
@@ -1153,12 +1163,10 @@ const file_authn_service_v1_authn_proto_rawDesc = "" +
 	"\asuccess\x18\x01 \x01(\bR\asuccess\"\xa0\x01\n" +
 	"\x14ResetPasswordRequest\x12\x1d\n" +
 	"\x05token\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x05token\x12,\n" +
-	"\fnew_password\x18\x02 \x01(\tB\t\xbaH\x06r\x04\x10\x05\x18\n" +
-	"R\vnewPassword\x12;\n" +
-	"\x14new_password_confirm\x18\x03 \x01(\tB\t\xbaH\x06r\x04\x10\x05\x18\n" +
-	"R\x12newPasswordConfirm\"1\n" +
+	"\fnew_password\x18\x02 \x01(\tB\t\xbaH\x06r\x04\x10\x06\x18\x14R\vnewPassword\x12;\n" +
+	"\x14new_password_confirm\x18\x03 \x01(\tB\t\xbaH\x06r\x04\x10\x06\x18\x14R\x12newPasswordConfirm\"1\n" +
 	"\x15ResetPasswordResponse\x12\x18\n" +
-	"\asuccess\x18\x01 \x01(\bR\asuccess*\xfa\x02\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess*\xb3\x03\n" +
 	"\vErrorReason\x12\x18\n" +
 	"\x0eUSER_NOT_FOUND\x10\x00\x1a\x04\xa8E\x94\x03\x12\x1d\n" +
 	"\x13USER_ALREADY_EXISTS\x10\x01\x1a\x04\xa8E\x90\x03\x12\x1c\n" +
@@ -1172,7 +1180,9 @@ const file_authn_service_v1_authn_proto_rawDesc = "" +
 	"\x15INVALID_REFRESH_TOKEN\x10\t\x1a\x04\xa8E\x91\x03\x12$\n" +
 	"\x1aINVALID_VERIFICATION_TOKEN\x10\n" +
 	"\x1a\x04\xa8E\x90\x03\x12\x1d\n" +
-	"\x13INVALID_RESET_TOKEN\x10\v\x1a\x04\xa8E\x90\x03\x1a\x04\xa0E\xf4\x032\x9c\b\n" +
+	"\x13INVALID_RESET_TOKEN\x10\v\x1a\x04\xa8E\x90\x03\x12\x1c\n" +
+	"\x12EMAIL_NOT_VERIFIED\x10\f\x1a\x04\xa8E\x93\x03\x12\x19\n" +
+	"\x0fINVALID_CAPTCHA\x10\r\x1a\x04\xa8E\x90\x03\x1a\x04\xa0E\xf4\x032\x9c\b\n" +
 	"\fAuthnService\x12`\n" +
 	"\rSignupByEmail\x12&.authn.service.v1.SignupByEmailRequest\x1a'.authn.service.v1.SignupByEmailResponse\x12u\n" +
 	"\x14LoginByEmailPassword\x12-.authn.service.v1.LoginByEmailPasswordRequest\x1a..authn.service.v1.LoginByEmailPasswordResponse\x12]\n" +

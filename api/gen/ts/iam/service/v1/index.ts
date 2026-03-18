@@ -457,6 +457,7 @@ export type authnservicev1_SignupByEmailRequest = {
   password: string | undefined;
   passwordConfirm: string | undefined;
   email: string | undefined;
+  capToken: string | undefined;
 };
 
 export type authnservicev1_SignupByEmailResponse = {
@@ -1667,6 +1668,7 @@ export type userservicev1_UserInfo = {
   email: string | undefined;
   role: string | undefined;
   emailVerified: boolean | undefined;
+  organizationIds: string[] | undefined;
 };
 
 export type userservicev1_ListUsersRequest = {

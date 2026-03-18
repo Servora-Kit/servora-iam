@@ -86,14 +86,15 @@ func (ErrorReason) EnumDescriptor() ([]byte, []int) {
 }
 
 type UserInfo struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	Email         string                 `protobuf:"bytes,3,opt,name=email,proto3" json:"email,omitempty"`
-	Role          string                 `protobuf:"bytes,4,opt,name=role,proto3" json:"role,omitempty"`
-	EmailVerified bool                   `protobuf:"varint,5,opt,name=email_verified,json=emailVerified,proto3" json:"email_verified,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	Id              string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Name            string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Email           string                 `protobuf:"bytes,3,opt,name=email,proto3" json:"email,omitempty"`
+	Role            string                 `protobuf:"bytes,4,opt,name=role,proto3" json:"role,omitempty"`
+	EmailVerified   bool                   `protobuf:"varint,5,opt,name=email_verified,json=emailVerified,proto3" json:"email_verified,omitempty"`
+	OrganizationIds []string               `protobuf:"bytes,6,rep,name=organization_ids,json=organizationIds,proto3" json:"organization_ids,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *UserInfo) Reset() {
@@ -159,6 +160,13 @@ func (x *UserInfo) GetEmailVerified() bool {
 		return x.EmailVerified
 	}
 	return false
+}
+
+func (x *UserInfo) GetOrganizationIds() []string {
+	if x != nil {
+		return x.OrganizationIds
+	}
+	return nil
 }
 
 type CurrentUserInfoRequest struct {
@@ -941,13 +949,14 @@ var File_user_service_v1_user_proto protoreflect.FileDescriptor
 
 const file_user_service_v1_user_proto_rawDesc = "" +
 	"\n" +
-	"\x1auser/service/v1/user.proto\x12\x0fuser.service.v1\x1a\x1bbuf/validate/validate.proto\x1a\x13errors/errors.proto\x1a\x1epagination/v1/pagination.proto\"\x7f\n" +
+	"\x1auser/service/v1/user.proto\x12\x0fuser.service.v1\x1a\x1bbuf/validate/validate.proto\x1a\x13errors/errors.proto\x1a\x1epagination/v1/pagination.proto\"\xaa\x01\n" +
 	"\bUserInfo\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x14\n" +
 	"\x05email\x18\x03 \x01(\tR\x05email\x12\x12\n" +
 	"\x04role\x18\x04 \x01(\tR\x04role\x12%\n" +
-	"\x0eemail_verified\x18\x05 \x01(\bR\remailVerified\"\x18\n" +
+	"\x0eemail_verified\x18\x05 \x01(\bR\remailVerified\x12)\n" +
+	"\x10organization_ids\x18\x06 \x03(\tR\x0forganizationIds\"\x18\n" +
 	"\x16CurrentUserInfoRequest\"g\n" +
 	"\x17CurrentUserInfoResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
