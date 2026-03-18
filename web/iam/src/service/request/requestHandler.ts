@@ -183,7 +183,12 @@ export function createRequestHandler(
           }
         }
 
-        onError?.(apiErr, meta)
+        // 延迟到宏任务再调 onError，让 promise 链先跑完（含 toast.promise 的 _mark），
+        // 避免全局 handler 与 sonner.promise error callback 同时弹出双重 toast。
+        if (onError) {
+          const _err = apiErr
+          setTimeout(() => onError(_err, meta), 0)
+        }
         throw apiErr
       }
 
@@ -199,7 +204,10 @@ export function createRequestHandler(
         method: meta.method,
         cause: err,
       })
-      onError?.(apiErr, meta)
+      if (onError) {
+        const _err = apiErr
+        setTimeout(() => onError(_err, meta), 0)
+      }
       throw apiErr
     }
   }
