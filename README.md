@@ -108,6 +108,9 @@ make gen
 # 仅启动基础设施（Consul、Postgres、Redis、OpenFGA、OTel、Jaeger 等）
 make compose.up
 
+# 构建开发镜像（首次或 Dockerfile.air / Go 版本变更后需执行，否则 compose.dev 可能因镜像过旧报错）
+make compose.dev.build
+
 # 启动基础设施 + Air 热重载开发容器
 make compose.dev
 ```

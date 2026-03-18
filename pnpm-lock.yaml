@@ -12,6 +12,9 @@ importers:
 
   web/iam:
     dependencies:
+      '@cap.js/widget':
+        specifier: ^0.1.41
+        version: 0.1.41
       '@faker-js/faker':
         specifier: ^10.3.0
         version: 10.3.0
@@ -341,6 +344,9 @@ packages:
   '@bramus/specificity@2.4.2':
     resolution: {integrity: sha512-ctxtJ/eA+t+6q2++vj5j7FYX3nRu311q1wfYH3xjlLOsczhlhxAg2FWNUXhpGvAw3BWo1xBcvOV6/YLc2r5FJw==}
     hasBin: true
+
+  '@cap.js/widget@0.1.41':
+    resolution: {integrity: sha512-M3z3lnHGvTIY9WMxzeuXAJVDnpxkadjMzxjmEVeq6bN/eESxoDY7+lvkvkrn8xhCnEMMMuifPdNSNwKDHdD7BQ==}
 
   '@csstools/color-helpers@6.0.2':
     resolution: {integrity: sha512-LMGQLS9EuADloEFkcTBR3BwV/CGHV7zyDxVRtVDTwdI2Ca4it0CCVTT9wCkxSgokjE5Ho41hEPgb8OEUwoXr6Q==}
@@ -5114,6 +5120,8 @@ snapshots:
   '@bramus/specificity@2.4.2':
     dependencies:
       css-tree: 3.2.1
+
+  '@cap.js/widget@0.1.41': {}
 
   '@csstools/color-helpers@6.0.2': {}
 

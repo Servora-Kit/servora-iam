@@ -1,6 +1,6 @@
 module github.com/Servora-Kit/servora/app/iam/service
 
-go 1.26.0
+go 1.26.1
 
 require (
 	entgo.io/ent v0.14.5

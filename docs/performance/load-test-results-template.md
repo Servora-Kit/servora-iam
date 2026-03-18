@@ -8,7 +8,7 @@
 - 提交：18716000328e49b3a70d36889d2537986ee248ed
 - 环境：`compose`
 - 服务版本：servora example branch (local compose stack)
-- k6 版本：k6 v1.6.1 (go1.26.0, darwin/arm64)
+- k6 版本：k6 v1.6.1 (go1.26.1, darwin/arm64)
 - 压测机规格：Mac (Apple Silicon, local)
 
 ## 2. 环境信息

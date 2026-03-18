@@ -17,6 +17,7 @@
     "check": "prettier --write . && eslint --fix"
   },
   "dependencies": {
+    "@cap.js/widget": "^0.1.41",
     "@faker-js/faker": "^10.3.0",
     "@sentry/tanstackstart-react": "^10.42.0",
     "@servora/api-client": "workspace:*",
