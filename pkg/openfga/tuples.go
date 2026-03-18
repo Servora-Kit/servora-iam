@@ -36,6 +36,40 @@ func (c *Client) WriteTuples(ctx context.Context, tuples ...Tuple) error {
 	return nil
 }
 
+// TupleExists reports whether the exact tuple already exists in the store.
+func (c *Client) TupleExists(ctx context.Context, t Tuple) (bool, error) {
+	resp, err := c.sdk.Read(ctx).
+		Body(fgaclient.ClientReadRequest{
+			User:     &t.User,
+			Relation: &t.Relation,
+			Object:   &t.Object,
+		}).
+		Execute()
+	if err != nil {
+		return false, fmt.Errorf("openfga read: %w", err)
+	}
+	return len(resp.GetTuples()) > 0, nil
+}
+
+// EnsureTuples writes each tuple only if it does not already exist.
+// It is safe to call repeatedly (idempotent) and does not rely on error
+// message text matching.
+func (c *Client) EnsureTuples(ctx context.Context, tuples ...Tuple) error {
+	for _, t := range tuples {
+		exists, err := c.TupleExists(ctx, t)
+		if err != nil {
+			return err
+		}
+		if exists {
+			continue
+		}
+		if err := c.WriteTuples(ctx, t); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 // DeleteTuples deletes one or more relationship tuples atomically.
 func (c *Client) DeleteTuples(ctx context.Context, tuples ...Tuple) error {
 	if len(tuples) == 0 {
