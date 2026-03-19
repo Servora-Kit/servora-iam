@@ -14,12 +14,12 @@ func newTestApp() *entity.Application {
 		ID:              "app-1",
 		ClientID:        "client-123",
 		Name:            "test-app",
+		Type:            "web",
 		RedirectURIs:    []string{"http://localhost:8080/callback", "http://example.com/cb"},
 		Scopes:          []string{"openid", "profile", "email"},
 		GrantTypes:      []string{"authorization_code", "refresh_token"},
 		ApplicationType: "web",
 		AccessTokenType: "jwt",
-		TenantID:        "tenant-1",
 		IDTokenLifetime: 5 * time.Minute,
 	}
 }

@@ -32,7 +32,7 @@ func (r *fakeApplicationRepo) Create(_ context.Context, app *entity.Application)
 	return &out, nil
 }
 
-func (r *fakeApplicationRepo) GetByID(_ context.Context, _, id string) (*entity.Application, error) {
+func (r *fakeApplicationRepo) GetByID(_ context.Context, id string) (*entity.Application, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 	a, ok := r.apps[id]
@@ -55,15 +55,13 @@ func (r *fakeApplicationRepo) GetByClientID(_ context.Context, clientID string) 
 	return nil, fmt.Errorf("application not found by client_id: %s", clientID)
 }
 
-func (r *fakeApplicationRepo) ListByTenantID(_ context.Context, tenantID string, page, pageSize int32) ([]*entity.Application, int64, error) {
+func (r *fakeApplicationRepo) List(_ context.Context, page, pageSize int32) ([]*entity.Application, int64, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 	var result []*entity.Application
 	for _, a := range r.apps {
-		if a.TenantID == tenantID {
-			out := *a
-			result = append(result, &out)
-		}
+		out := *a
+		result = append(result, &out)
 	}
 	total := int64(len(result))
 	start := int((page - 1) * pageSize)
@@ -77,7 +75,7 @@ func (r *fakeApplicationRepo) ListByTenantID(_ context.Context, tenantID string,
 	return result[start:end], total, nil
 }
 
-func (r *fakeApplicationRepo) Update(_ context.Context, _ string, app *entity.Application) (*entity.Application, error) {
+func (r *fakeApplicationRepo) Update(_ context.Context, app *entity.Application) (*entity.Application, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	if _, ok := r.apps[app.ID]; !ok {
@@ -89,7 +87,7 @@ func (r *fakeApplicationRepo) Update(_ context.Context, _ string, app *entity.Ap
 	return &out, nil
 }
 
-func (r *fakeApplicationRepo) Delete(_ context.Context, _, id string) error {
+func (r *fakeApplicationRepo) Delete(_ context.Context, id string) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	if _, ok := r.apps[id]; !ok {
@@ -99,7 +97,7 @@ func (r *fakeApplicationRepo) Delete(_ context.Context, _, id string) error {
 	return nil
 }
 
-func (r *fakeApplicationRepo) UpdateClientSecretHash(_ context.Context, _, id string, hash string) error {
+func (r *fakeApplicationRepo) UpdateClientSecretHash(_ context.Context, id string, hash string) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	a, ok := r.apps[id]
@@ -120,7 +118,7 @@ func TestApplicationUsecase_Create(t *testing.T) {
 	uc, repo := newTestApplicationUsecase()
 	ctx := context.Background()
 
-	app := &entity.Application{Name: "test-app", TenantID: "tenant-1"}
+	app := &entity.Application{Name: "test-app", Type: "web"}
 	created, plainSecret, err := uc.Create(ctx, app)
 	if err != nil {
 		t.Fatalf("Create() error: %v", err)
@@ -148,7 +146,7 @@ func TestApplicationUsecase_Get(t *testing.T) {
 	uc, _ := newTestApplicationUsecase()
 	ctx := context.Background()
 
-	app := &entity.Application{Name: "get-test", TenantID: "tenant-1"}
+	app := &entity.Application{Name: "get-test", Type: "m2m"}
 	created, _, err := uc.Create(ctx, app)
 	if err != nil {
 		t.Fatalf("Create() error: %v", err)
@@ -170,7 +168,7 @@ func TestApplicationUsecase_RegenerateClientSecret(t *testing.T) {
 	uc, repo := newTestApplicationUsecase()
 	ctx := context.Background()
 
-	app := &entity.Application{Name: "regen-test", TenantID: "tenant-1"}
+	app := &entity.Application{Name: "regen-test", Type: "web"}
 	created, oldSecret, err := uc.Create(ctx, app)
 	if err != nil {
 		t.Fatalf("Create() error: %v", err)
@@ -207,7 +205,7 @@ func TestApplicationUsecase_Delete(t *testing.T) {
 	uc, _ := newTestApplicationUsecase()
 	ctx := context.Background()
 
-	app := &entity.Application{Name: "delete-test", TenantID: "tenant-1"}
+	app := &entity.Application{Name: "delete-test", Type: "web"}
 	created, _, err := uc.Create(ctx, app)
 	if err != nil {
 		t.Fatalf("Create() error: %v", err)
