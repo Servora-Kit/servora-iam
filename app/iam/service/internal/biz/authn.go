@@ -29,7 +29,6 @@ type AuthnUsecase struct {
 	log        *logger.Helper
 	cfg        *conf.App
 	keyManager *jwks.KeyManager
-	tenantUC   *TenantUsecase
 }
 
 func NewAuthnUsecase(
@@ -40,7 +39,6 @@ func NewAuthnUsecase(
 	l logger.Logger,
 	cfg *conf.App,
 	km *jwks.KeyManager,
-	tenantUC *TenantUsecase,
 ) *AuthnUsecase {
 	return &AuthnUsecase{
 		repo:       repo,
@@ -50,15 +48,14 @@ func NewAuthnUsecase(
 		log:        logger.NewHelper(l, logger.WithModule("authn/biz/iam-service")),
 		cfg:        cfg,
 		keyManager: km,
-		tenantUC:   tenantUC,
 	}
 }
 
 type UserClaims struct {
-	ID    string `json:"id"`
-	Name  string `json:"name"`
-	Role  string `json:"role"`
-	Nonce string `json:"nonce"`
+	ID       string `json:"id"`
+	Username string `json:"username"`
+	Role     string `json:"role"`
+	Nonce    string `json:"nonce"`
 	jwt.RegisteredClaims
 }
 
@@ -91,7 +88,7 @@ type OTPRepo interface {
 }
 
 func (uc *AuthnUsecase) SignupByEmail(ctx context.Context, user *entity.User) (*entity.User, error) {
-	existingUser, err := uc.repo.GetUserByUserName(ctx, user.Name)
+	existingUser, err := uc.repo.GetUserByUserName(ctx, user.Username)
 	if err != nil && !ent.IsNotFound(err) {
 		uc.log.Errorf("check username failed: %v", err)
 		return nil, kerrors.InternalServer("INTERNAL", "internal error")
@@ -113,10 +110,6 @@ func (uc *AuthnUsecase) SignupByEmail(ctx context.Context, user *entity.User) (*
 	createdUser, err := uc.repo.SaveUser(ctx, user)
 	if err != nil {
 		return nil, err
-	}
-
-	if _, err := uc.tenantUC.EnsurePersonalTenant(ctx, createdUser.ID, createdUser.Name); err != nil {
-		uc.log.Warnf("auto-create personal tenant failed for user %s: %v", createdUser.ID, err)
 	}
 
 	// Automatically send verification email; failure is non-fatal.
@@ -194,10 +187,10 @@ func (uc *AuthnUsecase) LoginByEmailPassword(ctx context.Context, user *entity.U
 	}
 
 	accessClaims := &UserClaims{
-		ID:    foundUser.ID,
-		Name:  foundUser.Name,
-		Role:  foundUser.Role,
-		Nonce: nonce,
+		ID:       foundUser.ID,
+		Username: foundUser.Username,
+		Role:     foundUser.Role,
+		Nonce:    nonce,
 		RegisteredClaims: jwt.RegisteredClaims{
 			Subject:   foundUser.ID,
 			Audience:  jwt.ClaimStrings{uc.cfg.Jwt.Audience},
@@ -253,10 +246,10 @@ func (uc *AuthnUsecase) RefreshToken(ctx context.Context, refreshToken string) (
 	}
 
 	accessClaims := &UserClaims{
-		ID:    user.ID,
-		Name:  user.Name,
-		Role:  user.Role,
-		Nonce: nonce,
+		ID:       user.ID,
+		Username: user.Username,
+		Role:     user.Role,
+		Nonce:    nonce,
 		RegisteredClaims: jwt.RegisteredClaims{
 			Subject:   user.ID,
 			Audience:  jwt.ClaimStrings{uc.cfg.Jwt.Audience},

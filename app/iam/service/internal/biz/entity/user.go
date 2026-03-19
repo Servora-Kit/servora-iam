@@ -2,15 +2,31 @@ package entity
 
 import "time"
 
+// UserProfile stores OIDC standard profile claims.
+type UserProfile struct {
+	Name       string
+	GivenName  string
+	FamilyName string
+	Nickname   string
+	Picture    string
+	Gender     string
+	Birthdate  string
+	Zoneinfo   string
+	Locale     string
+}
+
 type User struct {
 	ID              string
-	Name            string
+	Username        string
 	Email           string
 	Password        string
+	Phone           string
+	PhoneVerified   bool
 	Role            string
+	Status          string
 	EmailVerified   bool
 	EmailVerifiedAt *time.Time
-	// OrganizationIDs holds the IDs of organizations this user belongs to
-	// within the current tenant scope. Populated on ListUsers.
-	OrganizationIDs []string
+	Profile         UserProfile
+	CreatedAt       time.Time
+	UpdatedAt       time.Time
 }
