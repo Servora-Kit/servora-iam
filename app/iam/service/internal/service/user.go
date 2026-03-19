@@ -30,10 +30,10 @@ func (s *UserService) CurrentUserInfo(ctx context.Context, req *userpb.CurrentUs
 		return nil, err
 	}
 	return &userpb.CurrentUserInfoResponse{
-		Id:    user.ID,
-		Name:  user.Name,
-		Email: user.Email,
-		Role:  user.Role,
+		Id:       user.ID,
+		Username: user.Username,
+		Email:    user.Email,
+		Role:     user.Role,
 	}, nil
 }
 
@@ -46,16 +46,11 @@ func (s *UserService) GetUser(ctx context.Context, req *userpb.GetUserRequest) (
 }
 
 func (s *UserService) ListUsers(ctx context.Context, req *userpb.ListUsersRequest) (*userpb.ListUsersResponse, error) {
-	_, tenantID, err := requireTenantScope(ctx)
-	if err != nil {
-		return nil, err
-	}
 	page, pageSize := pagination.ExtractPage(req.GetPagination())
-	users, total, err := s.uc.ListUsers(ctx, tenantID, page, pageSize)
+	users, total, err := s.uc.ListUsers(ctx, page, pageSize)
 	if err != nil {
 		return nil, err
 	}
-
 	return &userpb.ListUsersResponse{
 		Users:      userInfoMapper.MapSlice(users),
 		Pagination: pagination.BuildPageResponse(total, page, pageSize),
@@ -67,27 +62,35 @@ func (s *UserService) UpdateUser(ctx context.Context, req *userpb.UpdateUserRequ
 	if err != nil {
 		return nil, err
 	}
-	updated, err := s.uc.UpdateUser(ctx, callerID, &entity.User{
+	u := &entity.User{
 		ID:       req.Id,
-		Name:     req.Name,
+		Username: req.Username,
 		Email:    req.Email,
 		Password: req.Password,
-	})
+	}
+	if req.Profile != nil {
+		u.Profile = entity.UserProfile{
+			Name:       req.Profile.Name,
+			GivenName:  req.Profile.GivenName,
+			FamilyName: req.Profile.FamilyName,
+			Nickname:   req.Profile.Nickname,
+			Picture:    req.Profile.Picture,
+			Gender:     req.Profile.Gender,
+			Birthdate:  req.Profile.Birthdate,
+			Zoneinfo:   req.Profile.Zoneinfo,
+			Locale:     req.Profile.Locale,
+		}
+	}
+	updated, err := s.uc.UpdateUser(ctx, callerID, u)
 	if err != nil {
 		return nil, err
 	}
-	return &userpb.UpdateUserResponse{
-		User: userInfoMapper.Map(updated),
-	}, nil
+	return &userpb.UpdateUserResponse{User: userInfoMapper.Map(updated)}, nil
 }
 
 func (s *UserService) CreateUser(ctx context.Context, req *userpb.CreateUserRequest) (*userpb.CreateUserResponse, error) {
-	_, tenantID, err := requireTenantScope(ctx)
-	if err != nil {
-		return nil, err
-	}
-	user, err := s.uc.CreateUser(ctx, tenantID, req.OrganizationId, &entity.User{
-		Name:     req.Name,
+	user, err := s.uc.CreateUser(ctx, &entity.User{
+		Username: req.Username,
 		Email:    req.Email,
 		Password: req.Password,
 	})
@@ -98,9 +101,7 @@ func (s *UserService) CreateUser(ctx context.Context, req *userpb.CreateUserRequ
 }
 
 func (s *UserService) DeleteUser(ctx context.Context, req *userpb.DeleteUserRequest) (*userpb.DeleteUserResponse, error) {
-	success, err := s.uc.DeleteUser(ctx, &entity.User{
-		ID: req.Id,
-	})
+	success, err := s.uc.DeleteUser(ctx, &entity.User{ID: req.Id})
 	if err != nil {
 		return nil, err
 	}

@@ -21,14 +21,13 @@ func NewApplicationService(uc *biz.ApplicationUsecase) *ApplicationService {
 }
 
 func (s *ApplicationService) CreateApplication(ctx context.Context, req *apppb.CreateApplicationRequest) (*apppb.CreateApplicationResponse, error) {
-	_, tenantID, err := requireTenantScope(ctx)
-	if err != nil {
-		return nil, err
-	}
-
 	appType := "web"
+	if req.Type != nil {
+		appType = *req.Type
+	}
+	appKind := "web"
 	if req.ApplicationType != nil {
-		appType = *req.ApplicationType
+		appKind = *req.ApplicationType
 	}
 	tokenType := "jwt"
 	if req.AccessTokenType != nil {
@@ -44,9 +43,9 @@ func (s *ApplicationService) CreateApplication(ctx context.Context, req *apppb.C
 		RedirectURIs:    req.RedirectUris,
 		Scopes:          req.Scopes,
 		GrantTypes:      req.GrantTypes,
-		ApplicationType: appType,
+		ApplicationType: appKind,
 		AccessTokenType: tokenType,
-		TenantID:        tenantID,
+		Type:            appType,
 		IDTokenLifetime: lifetime,
 	})
 	if err != nil {
@@ -67,12 +66,8 @@ func (s *ApplicationService) GetApplication(ctx context.Context, req *apppb.GetA
 }
 
 func (s *ApplicationService) ListApplications(ctx context.Context, req *apppb.ListApplicationsRequest) (*apppb.ListApplicationsResponse, error) {
-	_, tenantID, err := requireTenantScope(ctx)
-	if err != nil {
-		return nil, err
-	}
 	page, pageSize := pagination.ExtractPage(req.Pagination)
-	apps, total, err := s.uc.List(ctx, tenantID, page, pageSize)
+	apps, total, err := s.uc.List(ctx, page, pageSize)
 	if err != nil {
 		return nil, err
 	}
