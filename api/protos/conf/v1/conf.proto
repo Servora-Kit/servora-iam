@@ -153,6 +153,7 @@ message App {
     string crypto_key = 1;                // 32 字节 hex 编码 AES 密钥，用于 OIDC token 加密
     bool grant_type_refresh_token = 2;    // 是否启用 refresh_token grant type
     string default_logout_redirect_uri = 3; // 默认登出重定向 URI
+    string login_base_url = 4;            // OIDC 登录页基地址；GET /login 会 302 到 {login_base_url}/_auth/login?authRequestID=...
   }
   string env = 1; // dev test prod
   string name = 2;
@@ -268,6 +269,8 @@ message Mail {
   MailFrom from = 2; // 发件人配置
   string base_url = 3; // 邮件链接的前端基地址（如 https://app.example.com），用于拼接验证/重置等操作路径
   string template_dir = 5; // 可选：邮件 HTML 模板目录，放置 verify_email.html、reset_password.html 等，未设置或文件缺失时使用内嵌默认
+  google.protobuf.Duration verify_email_ttl = 6; // 邮箱验证链接有效期，未设置默认 24h
+  google.protobuf.Duration reset_password_ttl = 7; // 密码重置链接有效期，未设置默认 1h
 }
 
 // SMTP 服务器配置

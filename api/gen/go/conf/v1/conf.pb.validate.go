@@ -2913,6 +2913,64 @@ func (m *Mail) validate(all bool) error {
 
 	// no validation rules for TemplateDir
 
+	if all {
+		switch v := interface{}(m.GetVerifyEmailTtl()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, MailValidationError{
+					field:  "VerifyEmailTtl",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, MailValidationError{
+					field:  "VerifyEmailTtl",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetVerifyEmailTtl()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return MailValidationError{
+				field:  "VerifyEmailTtl",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if all {
+		switch v := interface{}(m.GetResetPasswordTtl()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, MailValidationError{
+					field:  "ResetPasswordTtl",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, MailValidationError{
+					field:  "ResetPasswordTtl",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetResetPasswordTtl()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return MailValidationError{
+				field:  "ResetPasswordTtl",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
 	if len(errors) > 0 {
 		return MailMultiError(errors)
 	}
@@ -4800,6 +4858,8 @@ func (m *App_Oidc) validate(all bool) error {
 	// no validation rules for GrantTypeRefreshToken
 
 	// no validation rules for DefaultLogoutRedirectUri
+
+	// no validation rules for LoginBaseUrl
 
 	if len(errors) > 0 {
 		return App_OidcMultiError(errors)

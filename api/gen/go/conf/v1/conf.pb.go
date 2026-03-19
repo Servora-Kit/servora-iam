@@ -1339,13 +1339,15 @@ func (x *Metrics) GetMeterName() string {
 
 // 邮件配置
 type Mail struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Smtp          *Smtp                  `protobuf:"bytes,1,opt,name=smtp,proto3" json:"smtp,omitempty"`                                  // SMTP 服务器配置
-	From          *MailFrom              `protobuf:"bytes,2,opt,name=from,proto3" json:"from,omitempty"`                                  // 发件人配置
-	BaseUrl       string                 `protobuf:"bytes,3,opt,name=base_url,json=baseUrl,proto3" json:"base_url,omitempty"`             // 邮件链接的前端基地址（如 https://app.example.com），用于拼接验证/重置等操作路径
-	TemplateDir   string                 `protobuf:"bytes,5,opt,name=template_dir,json=templateDir,proto3" json:"template_dir,omitempty"` // 可选：邮件 HTML 模板目录，放置 verify_email.html、reset_password.html 等，未设置或文件缺失时使用内嵌默认
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	Smtp             *Smtp                  `protobuf:"bytes,1,opt,name=smtp,proto3" json:"smtp,omitempty"`                                                   // SMTP 服务器配置
+	From             *MailFrom              `protobuf:"bytes,2,opt,name=from,proto3" json:"from,omitempty"`                                                   // 发件人配置
+	BaseUrl          string                 `protobuf:"bytes,3,opt,name=base_url,json=baseUrl,proto3" json:"base_url,omitempty"`                              // 邮件链接的前端基地址（如 https://app.example.com），用于拼接验证/重置等操作路径
+	TemplateDir      string                 `protobuf:"bytes,5,opt,name=template_dir,json=templateDir,proto3" json:"template_dir,omitempty"`                  // 可选：邮件 HTML 模板目录，放置 verify_email.html、reset_password.html 等，未设置或文件缺失时使用内嵌默认
+	VerifyEmailTtl   *durationpb.Duration   `protobuf:"bytes,6,opt,name=verify_email_ttl,json=verifyEmailTtl,proto3" json:"verify_email_ttl,omitempty"`       // 邮箱验证链接有效期，未设置默认 24h
+	ResetPasswordTtl *durationpb.Duration   `protobuf:"bytes,7,opt,name=reset_password_ttl,json=resetPasswordTtl,proto3" json:"reset_password_ttl,omitempty"` // 密码重置链接有效期，未设置默认 1h
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *Mail) Reset() {
@@ -1404,6 +1406,20 @@ func (x *Mail) GetTemplateDir() string {
 		return x.TemplateDir
 	}
 	return ""
+}
+
+func (x *Mail) GetVerifyEmailTtl() *durationpb.Duration {
+	if x != nil {
+		return x.VerifyEmailTtl
+	}
+	return nil
+}
+
+func (x *Mail) GetResetPasswordTtl() *durationpb.Duration {
+	if x != nil {
+		return x.ResetPasswordTtl
+	}
+	return nil
 }
 
 // SMTP 服务器配置
@@ -2317,6 +2333,7 @@ type App_Oidc struct {
 	CryptoKey                string                 `protobuf:"bytes,1,opt,name=crypto_key,json=cryptoKey,proto3" json:"crypto_key,omitempty"`                                                  // 32 字节 hex 编码 AES 密钥，用于 OIDC token 加密
 	GrantTypeRefreshToken    bool                   `protobuf:"varint,2,opt,name=grant_type_refresh_token,json=grantTypeRefreshToken,proto3" json:"grant_type_refresh_token,omitempty"`         // 是否启用 refresh_token grant type
 	DefaultLogoutRedirectUri string                 `protobuf:"bytes,3,opt,name=default_logout_redirect_uri,json=defaultLogoutRedirectUri,proto3" json:"default_logout_redirect_uri,omitempty"` // 默认登出重定向 URI
+	LoginBaseUrl             string                 `protobuf:"bytes,4,opt,name=login_base_url,json=loginBaseUrl,proto3" json:"login_base_url,omitempty"`                                       // OIDC 登录页基地址；GET /login 会 302 到 {login_base_url}/_auth/login?authRequestID=...
 	unknownFields            protoimpl.UnknownFields
 	sizeCache                protoimpl.SizeCache
 }
@@ -2368,6 +2385,13 @@ func (x *App_Oidc) GetGrantTypeRefreshToken() bool {
 func (x *App_Oidc) GetDefaultLogoutRedirectUri() string {
 	if x != nil {
 		return x.DefaultLogoutRedirectUri
+	}
+	return ""
+}
+
+func (x *App_Oidc) GetLoginBaseUrl() string {
+	if x != nil {
+		return x.LoginBaseUrl
 	}
 	return ""
 }
@@ -2448,7 +2472,7 @@ const file_conf_v1_conf_proto_rawDesc = "" +
 	"\x04GRPC\x12!\n" +
 	"\fservice_name\x18\x01 \x01(\tR\vserviceName\x12\x1a\n" +
 	"\bendpoint\x18\x02 \x01(\tR\bendpoint\x123\n" +
-	"\atimeout\x18\x03 \x01(\v2\x19.google.protobuf.DurationR\atimeout\"\x98\b\n" +
+	"\atimeout\x18\x03 \x01(\v2\x19.google.protobuf.DurationR\atimeout\"\xbe\b\n" +
 	"\x03App\x12\x10\n" +
 	"\x03env\x18\x01 \x01(\tR\x03env\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x18\n" +
@@ -2478,12 +2502,13 @@ const file_conf_v1_conf_proto_rawDesc = "" +
 	"\aapi_url\x18\x01 \x01(\tR\x06apiUrl\x12\x19\n" +
 	"\bstore_id\x18\x02 \x01(\tR\astoreId\x12\x19\n" +
 	"\bmodel_id\x18\x03 \x01(\tR\amodelId\x12\x1b\n" +
-	"\tapi_token\x18\x04 \x01(\tR\bapiToken\x1a\x9d\x01\n" +
+	"\tapi_token\x18\x04 \x01(\tR\bapiToken\x1a\xc3\x01\n" +
 	"\x04Oidc\x12\x1d\n" +
 	"\n" +
 	"crypto_key\x18\x01 \x01(\tR\tcryptoKey\x127\n" +
 	"\x18grant_type_refresh_token\x18\x02 \x01(\bR\x15grantTypeRefreshToken\x12=\n" +
-	"\x1bdefault_logout_redirect_uri\x18\x03 \x01(\tR\x18defaultLogoutRedirectUri\x1a;\n" +
+	"\x1bdefault_logout_redirect_uri\x18\x03 \x01(\tR\x18defaultLogoutRedirectUri\x12$\n" +
+	"\x0elogin_base_url\x18\x04 \x01(\tR\floginBaseUrl\x1a;\n" +
 	"\rMetadataEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xdd\x01\n" +
@@ -2546,12 +2571,14 @@ const file_conf_v1_conf_proto_rawDesc = "" +
 	"\aMetrics\x12\x16\n" +
 	"\x06enable\x18\x01 \x01(\bR\x06enable\x12\x1d\n" +
 	"\n" +
-	"meter_name\x18\x02 \x01(\tR\tmeterName\"\x8e\x01\n" +
+	"meter_name\x18\x02 \x01(\tR\tmeterName\"\x9c\x02\n" +
 	"\x04Mail\x12!\n" +
 	"\x04smtp\x18\x01 \x01(\v2\r.conf.v1.SmtpR\x04smtp\x12%\n" +
 	"\x04from\x18\x02 \x01(\v2\x11.conf.v1.MailFromR\x04from\x12\x19\n" +
 	"\bbase_url\x18\x03 \x01(\tR\abaseUrl\x12!\n" +
-	"\ftemplate_dir\x18\x05 \x01(\tR\vtemplateDir\"\xde\x01\n" +
+	"\ftemplate_dir\x18\x05 \x01(\tR\vtemplateDir\x12C\n" +
+	"\x10verify_email_ttl\x18\x06 \x01(\v2\x19.google.protobuf.DurationR\x0everifyEmailTtl\x12G\n" +
+	"\x12reset_password_ttl\x18\a \x01(\v2\x19.google.protobuf.DurationR\x10resetPasswordTtl\"\xde\x01\n" +
 	"\x04Smtp\x12\x12\n" +
 	"\x04host\x18\x01 \x01(\tR\x04host\x12\x12\n" +
 	"\x04port\x18\x02 \x01(\x05R\x04port\x12\x1a\n" +
@@ -2652,26 +2679,28 @@ var file_conf_v1_conf_proto_depIdxs = []int32{
 	33, // 34: conf.v1.NacosConfig.timeout:type_name -> google.protobuf.Duration
 	17, // 35: conf.v1.Mail.smtp:type_name -> conf.v1.Smtp
 	18, // 36: conf.v1.Mail.from:type_name -> conf.v1.MailFrom
-	33, // 37: conf.v1.Smtp.send_timeout:type_name -> google.protobuf.Duration
-	33, // 38: conf.v1.Server.HTTP.timeout:type_name -> google.protobuf.Duration
-	1,  // 39: conf.v1.Server.HTTP.tls:type_name -> conf.v1.TLSConfig
-	2,  // 40: conf.v1.Server.HTTP.cors:type_name -> conf.v1.CORS
-	33, // 41: conf.v1.Server.GRPC.timeout:type_name -> google.protobuf.Duration
-	1,  // 42: conf.v1.Server.GRPC.tls:type_name -> conf.v1.TLSConfig
-	1,  // 43: conf.v1.Client.GRPC.tls:type_name -> conf.v1.TLSConfig
-	21, // 44: conf.v1.Client.GrpcEntry.value:type_name -> conf.v1.Client.GRPC
-	33, // 45: conf.v1.Data.Redis.dial_timeout:type_name -> google.protobuf.Duration
-	33, // 46: conf.v1.Data.Redis.read_timeout:type_name -> google.protobuf.Duration
-	33, // 47: conf.v1.Data.Redis.write_timeout:type_name -> google.protobuf.Duration
-	27, // 48: conf.v1.Data.Client.grpc:type_name -> conf.v1.Data.Client.GRPC
-	26, // 49: conf.v1.Data.Client.http:type_name -> conf.v1.Data.Client.HTTP
-	33, // 50: conf.v1.Data.Client.HTTP.timeout:type_name -> google.protobuf.Duration
-	33, // 51: conf.v1.Data.Client.GRPC.timeout:type_name -> google.protobuf.Duration
-	52, // [52:52] is the sub-list for method output_type
-	52, // [52:52] is the sub-list for method input_type
-	52, // [52:52] is the sub-list for extension type_name
-	52, // [52:52] is the sub-list for extension extendee
-	0,  // [0:52] is the sub-list for field type_name
+	33, // 37: conf.v1.Mail.verify_email_ttl:type_name -> google.protobuf.Duration
+	33, // 38: conf.v1.Mail.reset_password_ttl:type_name -> google.protobuf.Duration
+	33, // 39: conf.v1.Smtp.send_timeout:type_name -> google.protobuf.Duration
+	33, // 40: conf.v1.Server.HTTP.timeout:type_name -> google.protobuf.Duration
+	1,  // 41: conf.v1.Server.HTTP.tls:type_name -> conf.v1.TLSConfig
+	2,  // 42: conf.v1.Server.HTTP.cors:type_name -> conf.v1.CORS
+	33, // 43: conf.v1.Server.GRPC.timeout:type_name -> google.protobuf.Duration
+	1,  // 44: conf.v1.Server.GRPC.tls:type_name -> conf.v1.TLSConfig
+	1,  // 45: conf.v1.Client.GRPC.tls:type_name -> conf.v1.TLSConfig
+	21, // 46: conf.v1.Client.GrpcEntry.value:type_name -> conf.v1.Client.GRPC
+	33, // 47: conf.v1.Data.Redis.dial_timeout:type_name -> google.protobuf.Duration
+	33, // 48: conf.v1.Data.Redis.read_timeout:type_name -> google.protobuf.Duration
+	33, // 49: conf.v1.Data.Redis.write_timeout:type_name -> google.protobuf.Duration
+	27, // 50: conf.v1.Data.Client.grpc:type_name -> conf.v1.Data.Client.GRPC
+	26, // 51: conf.v1.Data.Client.http:type_name -> conf.v1.Data.Client.HTTP
+	33, // 52: conf.v1.Data.Client.HTTP.timeout:type_name -> google.protobuf.Duration
+	33, // 53: conf.v1.Data.Client.GRPC.timeout:type_name -> google.protobuf.Duration
+	54, // [54:54] is the sub-list for method output_type
+	54, // [54:54] is the sub-list for method input_type
+	54, // [54:54] is the sub-list for extension type_name
+	54, // [54:54] is the sub-list for extension extendee
+	0,  // [0:54] is the sub-list for field type_name
 }
 
 func init() { file_conf_v1_conf_proto_init() }
