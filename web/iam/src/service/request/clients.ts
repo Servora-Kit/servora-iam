@@ -1,5 +1,5 @@
-import { createRequestHandler } from '@servora/api-client/request'
-import type { RequestHandlerOptions } from '@servora/api-client/request'
+import { createRequestHandler } from '@servora/web-pkg/request'
+import type { RequestHandlerOptions } from '@servora/web-pkg/request'
 
 import {
   createApplicationServiceClient,
@@ -30,6 +30,6 @@ export function createIamClients(
   }
 }
 
-export type { RequestHandlerOptions } from '@servora/api-client/request'
-export { ApiError } from '@servora/api-client/request'
-export type { ApiErrorKind, TokenStore, RequestHandler } from '@servora/api-client/request'
+export type { RequestHandlerOptions } from '@servora/web-pkg/request'
+export { ApiError } from '@servora/web-pkg/request'
+export type { ApiErrorKind, TokenStore, RequestHandler } from '@servora/web-pkg/request'
