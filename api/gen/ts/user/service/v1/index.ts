@@ -14,13 +14,30 @@ export type ErrorReason =
   | "SAVE_USER_FAILED"
   // 创建用户失败
   | "CREATE_USER_FAILED";
+// UserProfile 对应 OIDC Standard Claims 中的 profile scope 字段。
+// 字段命名与 OIDC UserInfo profile 对齐，签发 ID Token 时直接映射。
+export type UserProfile = {
+  name: string | undefined;
+  givenName: string | undefined;
+  familyName: string | undefined;
+  nickname: string | undefined;
+  picture: string | undefined;
+  gender: string | undefined;
+  birthdate: string | undefined;
+  zoneinfo: string | undefined;
+  locale: string | undefined;
+};
+
 export type UserInfo = {
   id: string | undefined;
-  name: string | undefined;
+  username: string | undefined;
   email: string | undefined;
   role: string | undefined;
   emailVerified: boolean | undefined;
-  organizationIds: string[] | undefined;
+  phone: string | undefined;
+  phoneVerified: boolean | undefined;
+  status: string | undefined;
+  profile: UserProfile | undefined;
 };
 
 export type CurrentUserInfoRequest = {
@@ -28,9 +45,11 @@ export type CurrentUserInfoRequest = {
 
 export type CurrentUserInfoResponse = {
   id: string | undefined;
-  name: string | undefined;
+  username: string | undefined;
   email: string | undefined;
   role: string | undefined;
+  status: string | undefined;
+  profile: UserProfile | undefined;
 };
 
 export type GetUserRequest = {
@@ -107,9 +126,11 @@ export type RestoreUserResponse = {
 
 export type UpdateUserRequest = {
   id: string | undefined;
-  name: string | undefined;
-  email: string | undefined;
-  password: string | undefined;
+  username?: string;
+  email?: string;
+  phone?: string;
+  status?: string;
+  profile?: UserProfile;
 };
 
 export type UpdateUserResponse = {
@@ -117,10 +138,9 @@ export type UpdateUserResponse = {
 };
 
 export type CreateUserRequest = {
-  name: string | undefined;
+  username: string | undefined;
   email: string | undefined;
   password: string | undefined;
-  organizationId: string | undefined;
 };
 
 export type CreateUserResponse = {

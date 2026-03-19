@@ -18,7 +18,8 @@ export type ApplicationInfo = {
   grantTypes: string[] | undefined;
   applicationType: string | undefined;
   accessTokenType: string | undefined;
-  tenantId: string | undefined;
+  // type 区分应用类型：web | native | m2m
+  type: string | undefined;
   idTokenLifetime: number | undefined;
   createdAt: wellKnownTimestamp | undefined;
   updatedAt: wellKnownTimestamp | undefined;
@@ -37,6 +38,8 @@ export type CreateApplicationRequest = {
   applicationType?: string;
   accessTokenType?: string;
   idTokenLifetime?: number;
+  // type: "web" | "native" | "m2m"（默认 "web"）
+  type?: string;
 };
 
 export type CreateApplicationResponse = {

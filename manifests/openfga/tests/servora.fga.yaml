@@ -7,137 +7,80 @@ tuples:
     relation: admin
     object: platform:default
 
-  # Tenant setup (platform:default linked for inheritance chain)
+  # Application with platform link
   - user: platform:default
     relation: platform
-    object: tenant:root
+    object: application:app-1
 
-  - user: user:tenant-owner
-    relation: owner
-    object: tenant:root
-
-  # Organization setup
-  - user: tenant:root
-    relation: tenant
-    object: organization:acme
-
-  - user: user:org-admin
+  # Application with direct user admin
+  - user: user:app-owner
     relation: admin
-    object: organization:acme
-
-  - user: user:org-member
-    relation: member
-    object: organization:acme
+    object: application:app-2
 
 tests:
   # --- Platform tests ---
 
-  - name: platform admin can manage all tenants
+  - name: platform admin has admin and can manage users and applications
     check:
       - user: user:platform-admin
         object: platform:default
         assertions:
           admin: true
-          can_view_all_tenants: true
-          can_manage_all_tenants: true
+          can_manage_users: true
+          can_manage_applications: true
 
-  - name: tenant owner has no platform admin permission
+  - name: non-admin has no platform permissions
     check:
-      - user: user:tenant-owner
+      - user: user:regular-user
         object: platform:default
         assertions:
           admin: false
-          can_view_all_tenants: false
-          can_manage_all_tenants: false
+          can_manage_users: false
+          can_manage_applications: false
 
-  # --- Tenant tests ---
+  # --- Application tests ---
 
-  - name: tenant owner can view manage and transfer
-    check:
-      - user: user:tenant-owner
-        object: tenant:root
-        assertions:
-          owner: true
-          effective_admin: true
-          can_view: true
-          can_manage: true
-          can_transfer_ownership: true
-
-  - name: platform admin inherits tenant effective_admin via inheritance chain
+  - name: platform admin inherits application admin via platform relation
     check:
       - user: user:platform-admin
-        object: tenant:root
-        assertions:
-          owner: false
-          effective_admin: true
-          can_view: true
-          can_manage: true
-          can_transfer_ownership: true
-
-  - name: org member has no direct tenant permissions
-    check:
-      - user: user:org-member
-        object: tenant:root
-        assertions:
-          owner: false
-          effective_admin: false
-          can_view: false
-          can_manage: false
-          can_transfer_ownership: false
-
-  # --- Organization tests ---
-
-  - name: org admin can manage org and members
-    check:
-      - user: user:org-admin
-        object: organization:acme
+        object: application:app-1
         assertions:
           admin: true
-          member: true
           can_view: true
           can_manage: true
-          can_manage_members: true
 
-  - name: org member can view but not manage
+  - name: direct app admin can view and manage
     check:
-      - user: user:org-member
-        object: organization:acme
+      - user: user:app-owner
+        object: application:app-2
+        assertions:
+          admin: true
+          can_view: true
+          can_manage: true
+
+  - name: unrelated user has no application permissions
+    check:
+      - user: user:regular-user
+        object: application:app-1
         assertions:
           admin: false
-          member: true
-          can_view: true
+          can_view: false
           can_manage: false
-          can_manage_members: false
 
-  - name: tenant owner inherits org admin via effective_admin
+  - name: app-owner cannot access other applications
     check:
-      - user: user:tenant-owner
-        object: organization:acme
+      - user: user:app-owner
+        object: application:app-1
         assertions:
-          admin: true
-          member: true
-          can_view: true
-          can_manage: true
-          can_manage_members: true
+          admin: false
+          can_view: false
+          can_manage: false
 
-  - name: platform admin inherits org admin via full inheritance chain
+  - name: platform admin without platform link has no app-2 permissions
     check:
       - user: user:platform-admin
-        object: organization:acme
-        assertions:
-          admin: true
-          member: true
-          can_view: true
-          can_manage: true
-          can_manage_members: true
-
-  - name: unrelated user has no org permissions
-    check:
-      - user: user:tenant-owner
-        object: organization:other
+        object: application:app-2
         assertions:
           admin: false
-          member: false
           can_view: false
           can_manage: false
-          can_manage_members: false
