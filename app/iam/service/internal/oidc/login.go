@@ -4,8 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"html/template"
 	"net/http"
+	"net/url"
 	"time"
 
 	"github.com/Servora-Kit/servora/app/iam/service/internal/biz"
@@ -15,61 +15,21 @@ import (
 	"github.com/Servora-Kit/servora/pkg/redis"
 )
 
-const loginTmpl = `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sign In — Servora</title>
-  <style>
-    *{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:system-ui,-apple-system,sans-serif;background:#f5f5f5;display:flex;align-items:center;justify-content:center;min-height:100vh}
-    .card{background:#fff;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.08);padding:2rem;width:100%;max-width:380px}
-    h1{font-size:1.25rem;margin-bottom:1.5rem;text-align:center;color:#111}
-    .field{margin-bottom:1rem}
-    label{display:block;font-size:.875rem;color:#555;margin-bottom:.25rem}
-    input{width:100%;padding:.5rem .75rem;border:1px solid #ddd;border-radius:4px;font-size:.875rem}
-    input:focus{outline:none;border-color:#4f46e5}
-    .btn{width:100%;padding:.625rem;background:#4f46e5;color:#fff;border:none;border-radius:4px;font-size:.875rem;cursor:pointer;margin-top:.5rem}
-    .btn:hover{background:#4338ca}
-    .err{color:#dc2626;font-size:.8rem;margin-bottom:1rem;text-align:center}
-  </style>
-</head>
-<body>
-  <div class="card">
-    <h1>Sign In</h1>
-    {{if .Error}}<p class="err">{{.Error}}</p>{{end}}
-    <form method="POST" action="/login">
-      <input type="hidden" name="authRequestID" value="{{.AuthRequestID}}">
-      <div class="field">
-        <label for="email">Email</label>
-        <input id="email" name="email" type="email" required autofocus>
-      </div>
-      <div class="field">
-        <label for="password">Password</label>
-        <input id="password" name="password" type="password" required>
-      </div>
-      <button class="btn" type="submit">Sign In</button>
-    </form>
-  </div>
-</body>
-</html>`
-
-var loginTemplate = template.Must(template.New("login").Parse(loginTmpl))
-
-// LoginHandler handles the SSR login page (GET/POST /login).
+// LoginHandler handles the OIDC login flow (GET redirects to SPA, POST handles form submission).
 type LoginHandler struct {
-	authnRepo biz.AuthnRepo
-	redis     *redis.Client
-	log       *logger.Helper
+	authnRepo  biz.AuthnRepo
+	redis      *redis.Client
+	log        *logger.Helper
+	spaBaseURL string // base URL of the accounts SPA; TODO: make configurable via config file
 }
 
 // NewLoginHandler builds a handler that authenticates users and marks OIDC auth requests done.
 func NewLoginHandler(authnRepo biz.AuthnRepo, rdb *redis.Client, l logger.Logger) *LoginHandler {
 	return &LoginHandler{
-		authnRepo: authnRepo,
-		redis:     rdb,
-		log:       logger.NewHelper(l, logger.WithModule("oidc/login/iam-service")),
+		authnRepo:  authnRepo,
+		redis:      rdb,
+		log:        logger.NewHelper(l, logger.WithModule("oidc/login/iam-service")),
+		spaBaseURL: "http://localhost:3001",
 	}
 }
 
@@ -91,11 +51,8 @@ func (h *LoginHandler) renderLogin(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "missing authRequestID", http.StatusBadRequest)
 		return
 	}
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = loginTemplate.Execute(w, map[string]string{
-		"AuthRequestID": authRequestID,
-		"Error":         "",
-	})
+	spaLoginURL := fmt.Sprintf("%s/login?authRequestID=%s", h.spaBaseURL, url.QueryEscape(authRequestID))
+	http.Redirect(w, r, spaLoginURL, http.StatusFound)
 }
 
 func (h *LoginHandler) handleLogin(w http.ResponseWriter, r *http.Request) {
@@ -109,11 +66,13 @@ func (h *LoginHandler) handleLogin(w http.ResponseWriter, r *http.Request) {
 
 	callbackURL, err := h.authenticate(r.Context(), authRequestID, email, password)
 	if err != nil {
-		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		_ = loginTemplate.Execute(w, map[string]string{
-			"AuthRequestID": authRequestID,
-			"Error":         err.Error(),
-		})
+		// Redirect back to the SPA login page with the error message.
+		target := fmt.Sprintf("%s/login?authRequestID=%s&error=%s",
+			h.spaBaseURL,
+			url.QueryEscape(authRequestID),
+			url.QueryEscape(err.Error()),
+		)
+		http.Redirect(w, r, target, http.StatusFound)
 		return
 	}
 	http.Redirect(w, r, callbackURL, http.StatusFound)
