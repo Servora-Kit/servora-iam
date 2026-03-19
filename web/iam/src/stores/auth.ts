@@ -5,7 +5,7 @@ const REFRESH_TOKEN_KEY = 'iam_refresh_token'
 const USER_KEY = 'iam_user'
 
 function hasStorage(): boolean {
-  return typeof window !== 'undefined' && typeof window.localStorage?.getItem === 'function'
+  return typeof window !== 'undefined' && typeof window.localStorage.getItem === 'function'
 }
 
 function readStorage(key: string): string | null {

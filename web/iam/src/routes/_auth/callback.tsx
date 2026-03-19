@@ -11,7 +11,7 @@ function CallbackPage() {
   useEffect(() => {
     // TODO: Process OAuth callback with authorization code from URL params
     // For now, redirect to login
-    void navigate({ to: '/login', search: { redirect: '' } })
+    void navigate({ to: '/login', search: { redirect: '', authRequestID: '' } })
   }, [navigate])
 
   return (

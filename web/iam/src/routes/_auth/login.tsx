@@ -1,52 +1,127 @@
-import { createFileRoute, Link, useNavigate, useSearch } from '@tanstack/react-router'
-import { useState } from 'react'
+import {
+  createFileRoute,
+  Link,
+  useNavigate,
+  useSearch,
+} from '@tanstack/react-router'
+import { useReducer } from 'react'
 import { Button } from '#/components/ui/button'
 import { Input } from '#/components/ui/input'
 import { Label } from '#/components/ui/label'
 import { iamClients } from '#/api'
 import { clearAuth, setTokens, setUser } from '#/stores/auth'
+import { useResendVerification } from '#/hooks/use-resend-verification'
+import type { ApiError } from '@servora/web-pkg/request'
+import { isKratosReason, kratosMessage } from '@servora/web-pkg/errors'
 
 export const Route = createFileRoute('/_auth/login')({
   validateSearch: (search: Record<string, unknown>) => ({
     redirect: (search.redirect as string) || '',
+    authRequestID: (search.authRequestID as string) || '',
   }),
   component: LoginPage,
 })
 
+// ---------- State / Reducer ----------
+
+type Status = 'idle' | 'submitting'
+
+interface LoginState {
+  email: string
+  password: string
+  status: Status
+  error: string
+  emailNotVerified: boolean
+}
+
+type LoginAction =
+  | { type: 'SET_FIELD'; field: 'email' | 'password'; value: string }
+  | { type: 'SUBMIT' }
+  | { type: 'SUBMIT_ERROR'; error: string }
+  | { type: 'EMAIL_NOT_VERIFIED' }
+  | { type: 'RESET_NOTIFICATION' }
+
+const initialState: LoginState = {
+  email: '',
+  password: '',
+  status: 'idle',
+  error: '',
+  emailNotVerified: false,
+}
+
+function reducer(state: LoginState, action: LoginAction): LoginState {
+  switch (action.type) {
+    case 'SET_FIELD':
+      return { ...state, [action.field]: action.value }
+    case 'SUBMIT':
+      return {
+        ...state,
+        status: 'submitting',
+        error: '',
+        emailNotVerified: false,
+      }
+    case 'SUBMIT_ERROR':
+      return { ...state, status: 'idle', error: action.error }
+    case 'EMAIL_NOT_VERIFIED':
+      return { ...state, status: 'idle', error: '', emailNotVerified: true }
+    case 'RESET_NOTIFICATION':
+      return { ...state, error: '', emailNotVerified: false }
+    default:
+      return state
+  }
+}
+
+// ---------- Component ----------
+
 function LoginPage() {
   const navigate = useNavigate()
-  const { redirect: redirectTo } = useSearch({ from: '/_auth/login' })
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [emailNotVerified, setEmailNotVerified] = useState(false)
-  const [resending, setResending] = useState(false)
-  const [resendMsg, setResendMsg] = useState('')
+  const { redirect: redirectTo, authRequestID } = useSearch({
+    from: '/_auth/login',
+  })
+  const [state, dispatch] = useReducer(reducer, initialState)
+  const { resend, resending, message: resendMsg } = useResendVerification(
+    state.email,
+  )
 
-  async function handleResendVerification() {
-    if (!email) return
-    setResending(true)
-    setResendMsg('')
-    try {
-      await iamClients.authn.RequestEmailVerification({ email })
-      setResendMsg('验证邮件已发送，请检查收件箱')
-    } catch {
-      setResendMsg('发送失败，请稍后重试')
-    } finally {
-      setResending(false)
-    }
-  }
+  const isOidcFlow = Boolean(authRequestID)
+  const loading = state.status === 'submitting'
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    setError('')
-    setEmailNotVerified(false)
-    setResendMsg('')
-    setLoading(true)
+    dispatch({ type: 'SUBMIT' })
 
     try {
-      const res = await iamClients.authn.LoginByEmailPassword({ email, password })
+      const res = await iamClients.authn.LoginByEmailPassword({
+        email: state.email,
+        password: state.password,
+      })
+
+      if (isOidcFlow) {
+        // OIDC 流程：调后端 complete，由后端 302 到 callbackURL
+        const completeRes = await fetch('/login/complete', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            authRequestID,
+            accessToken: res.accessToken,
+          }),
+        })
+        if (!completeRes.ok) {
+          const body = (await completeRes.json()) as { message?: string }
+          dispatch({
+            type: 'SUBMIT_ERROR',
+            error: body.message ?? '授权流程失败，请重试',
+          })
+          return
+        }
+        const { callbackURL } = (await completeRes.json()) as {
+          callbackURL: string
+        }
+        window.location.href = callbackURL
+        return
+      }
+
+      // 管理端流程：存 JWT + 校验 admin 角色
       setTokens(res.accessToken ?? '', res.refreshToken ?? '')
 
       let role = ''
@@ -65,22 +140,24 @@ function LoginPage() {
 
       if (role !== 'admin') {
         clearAuth()
-        setError('此账号无权访问 IAM 管理平台，请使用管理员账号登录')
+        dispatch({
+          type: 'SUBMIT_ERROR',
+          error: '此账号无权访问 IAM 管理平台，请使用管理员账号登录',
+        })
         return
       }
 
-      const target = redirectTo || '/dashboard'
-      void navigate({ to: target })
+      void navigate({ to: redirectTo || '/dashboard' })
     } catch (err: unknown) {
-      const apiErr = err as { responseBody?: { message?: string; reason?: string } }
-      if (apiErr.responseBody?.reason === 'EMAIL_NOT_VERIFIED') {
-        setEmailNotVerified(true)
-        setError('')
+      const apiErr = err as ApiError
+      if (isKratosReason(apiErr, 'EMAIL_NOT_VERIFIED')) {
+        dispatch({ type: 'EMAIL_NOT_VERIFIED' })
       } else {
-        setError(apiErr.responseBody?.message ?? '登录失败，请检查邮箱和密码')
+        dispatch({
+          type: 'SUBMIT_ERROR',
+          error: kratosMessage(apiErr, '登录失败，请检查邮箱和密码'),
+        })
       }
-    } finally {
-      setLoading(false)
     }
   }
 
@@ -88,23 +165,29 @@ function LoginPage() {
     <div className="flex flex-col gap-6">
       <div>
         <h1 className="text-3xl font-bold text-foreground">欢迎回来</h1>
-        <p className="mt-2 text-muted-foreground">登录到 Servora IAM 管理平台</p>
+        <p className="mt-2 text-muted-foreground">
+          {isOidcFlow
+            ? '请登录以继续授权'
+            : '登录到 Servora IAM 管理平台'}
+        </p>
       </div>
 
-      {error && (
+      {state.error && (
         <div className="rounded-lg border border-destructive/50 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-          {error}
+          {state.error}
         </div>
       )}
 
-      {emailNotVerified && (
+      {state.emailNotVerified && (
         <div className="rounded-lg border border-amber-500/50 bg-amber-500/10 px-4 py-3 text-sm text-amber-700 dark:text-amber-400">
           <p className="font-medium">邮箱尚未验证</p>
           <p className="mt-1">请先验证邮箱后再登录。</p>
-          {resendMsg && <p className="mt-2 text-muted-foreground">{resendMsg}</p>}
+          {resendMsg && (
+            <p className="mt-2 text-muted-foreground">{resendMsg}</p>
+          )}
           <button
             type="button"
-            onClick={handleResendVerification}
+            onClick={resend}
             disabled={resending}
             className="mt-2 text-primary hover:underline disabled:opacity-50"
           >
@@ -119,8 +202,10 @@ function LoginPage() {
           <Input
             id="email"
             type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            value={state.email}
+            onChange={(e) =>
+              dispatch({ type: 'SET_FIELD', field: 'email', value: e.target.value })
+            }
             placeholder="you@example.com"
             required
             autoFocus
@@ -133,8 +218,14 @@ function LoginPage() {
           <Input
             id="password"
             type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            value={state.password}
+            onChange={(e) =>
+              dispatch({
+                type: 'SET_FIELD',
+                field: 'password',
+                value: e.target.value,
+              })
+            }
             placeholder="••••••••"
             required
             className="h-10"
@@ -146,12 +237,24 @@ function LoginPage() {
         </Button>
       </form>
 
-      <p className="text-center text-sm text-muted-foreground">
-        没有账号？{' '}
-        <Link to="/register" className="font-medium text-primary hover:underline">
-          立即注册
+      <div className="flex items-center justify-between text-sm text-muted-foreground">
+        <span>
+          没有账号？{' '}
+          <Link
+            to="/register"
+            className="font-medium text-primary hover:underline"
+          >
+            立即注册
+          </Link>
+        </span>
+        <Link
+          to="/reset-password"
+          search={{ token: '' }}
+          className="font-medium text-primary hover:underline"
+        >
+          忘记密码？
         </Link>
-      </p>
+      </div>
     </div>
   )
 }

@@ -1,86 +1,135 @@
 import '@cap.js/widget'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useReducer, useRef } from 'react'
 import { Button } from '#/components/ui/button'
 import { Input } from '#/components/ui/input'
 import { Label } from '#/components/ui/label'
 import { iamClients } from '#/api'
+import type { ApiError } from '@servora/web-pkg/request'
+import { isKratosReason, kratosMessage } from '@servora/web-pkg/errors'
 
 export const Route = createFileRoute('/_auth/register')({
   component: RegisterPage,
 })
 
+// ---------- State / Reducer ----------
+
+type Status = 'idle' | 'submitting'
+
+interface RegisterState {
+  name: string
+  email: string
+  password: string
+  passwordConfirm: string
+  status: Status
+  error: string
+  capResetKey: number
+}
+
+type RegisterAction =
+  | {
+      type: 'SET_FIELD'
+      field: 'name' | 'email' | 'password' | 'passwordConfirm'
+      value: string
+    }
+  | { type: 'SUBMIT' }
+  | { type: 'SUBMIT_ERROR'; error: string }
+  | { type: 'RESET_CAP' }
+  | { type: 'CLEAR_ERROR' }
+
+const initialState: RegisterState = {
+  name: '',
+  email: '',
+  password: '',
+  passwordConfirm: '',
+  status: 'idle',
+  error: '',
+  capResetKey: 0,
+}
+
+function reducer(state: RegisterState, action: RegisterAction): RegisterState {
+  switch (action.type) {
+    case 'SET_FIELD':
+      return { ...state, [action.field]: action.value }
+    case 'SUBMIT':
+      return { ...state, status: 'submitting', error: '' }
+    case 'SUBMIT_ERROR':
+      return { ...state, status: 'idle', error: action.error }
+    case 'RESET_CAP':
+      return {
+        ...state,
+        status: 'idle',
+        error: '人机验证已过期，请重新验证',
+        capResetKey: state.capResetKey + 1,
+      }
+    case 'CLEAR_ERROR':
+      return { ...state, error: '' }
+    default:
+      return state
+  }
+}
+
+// ---------- Component ----------
+
 function RegisterPage() {
   const navigate = useNavigate()
-  const [name, setName] = useState('')
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [passwordConfirm, setPasswordConfirm] = useState('')
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [mounted, setMounted] = useState(false)
+  const [state, dispatch] = useReducer(reducer, initialState)
   const capTokenRef = useRef<string>('')
-  const widgetRef = useRef<HTMLElement>(null)
+  const mounted = useRef(false)
 
-  useEffect(() => { setMounted(true) }, [])
+  useEffect(() => {
+    mounted.current = true
+  }, [])
 
-  // Cap widget 派发的是 "solve" 事件，detail 为 { token: string }
-  const handleCapWidget = useCallback((node: HTMLElement | null) => {
+  // Cap widget 派发 "solve" 事件，detail 为 { token: string }
+  const handleCapRef = useCallback((node: HTMLElement | null) => {
     if (!node) return
-    const listener = (e: Event) => {
-      const token = (e as CustomEvent<{ token: string }>).detail?.token
+    node.addEventListener('solve', (e: Event) => {
+      const token = (e as CustomEvent<{ token: string }>).detail.token
       if (token) {
         capTokenRef.current = token
-        setError('') // 完成验证后清除「请先完成人机验证」提示
+        dispatch({ type: 'CLEAR_ERROR' })
       }
-    }
-    node.addEventListener('solve', listener)
+    })
   }, [])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    setError('')
 
-    if (password !== passwordConfirm) {
-      setError('两次输入的密码不一致')
+    if (state.password !== state.passwordConfirm) {
+      dispatch({ type: 'SUBMIT_ERROR', error: '两次输入的密码不一致' })
       return
     }
     if (!capTokenRef.current) {
-      setError('请先完成人机验证')
+      dispatch({ type: 'SUBMIT_ERROR', error: '请先完成人机验证' })
       return
     }
 
-    setLoading(true)
+    dispatch({ type: 'SUBMIT' })
     try {
       await iamClients.authn.SignupByEmail({
-        name,
-        email,
-        password,
-        passwordConfirm,
+        name: state.name,
+        email: state.email,
+        password: state.password,
+        passwordConfirm: state.passwordConfirm,
         capToken: capTokenRef.current,
       })
-      void navigate({ to: '/register-success', search: { email } })
+      void navigate({ to: '/register-success', search: { email: state.email } })
     } catch (err: unknown) {
-      const apiErr = err as { responseBody?: { message?: string; reason?: string } }
-      const reason = apiErr.responseBody?.reason
-      if (reason === 'INVALID_CAPTCHA') {
-        setError('人机验证已过期，请重新验证')
+      const apiErr = err as ApiError
+      if (isKratosReason(apiErr, 'INVALID_CAPTCHA')) {
         capTokenRef.current = ''
-        // Reset widget by re-mounting — trigger a re-render via key
-        if (widgetRef.current) {
-          const parent = widgetRef.current.parentElement
-          if (parent) {
-            const clone = widgetRef.current.cloneNode(true) as HTMLElement
-            parent.replaceChild(clone, widgetRef.current)
-          }
-        }
+        dispatch({ type: 'RESET_CAP' })
       } else {
-        setError(apiErr.responseBody?.message ?? '注册失败，请稍后重试')
+        dispatch({
+          type: 'SUBMIT_ERROR',
+          error: kratosMessage(apiErr, '注册失败，请稍后重试'),
+        })
       }
-    } finally {
-      setLoading(false)
     }
   }
+
+  const loading = state.status === 'submitting'
 
   return (
     <div className="flex flex-col gap-6">
@@ -89,9 +138,9 @@ function RegisterPage() {
         <p className="mt-2 text-muted-foreground">注册 Servora IAM 管理平台</p>
       </div>
 
-      {error && (
+      {state.error && (
         <div className="rounded-lg border border-destructive/50 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-          {error}
+          {state.error}
         </div>
       )}
 
@@ -101,8 +150,10 @@ function RegisterPage() {
           <Input
             id="name"
             type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
+            value={state.name}
+            onChange={(e) =>
+              dispatch({ type: 'SET_FIELD', field: 'name', value: e.target.value })
+            }
             placeholder="至少 5 个字符"
             required
             minLength={5}
@@ -116,8 +167,14 @@ function RegisterPage() {
           <Input
             id="email"
             type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            value={state.email}
+            onChange={(e) =>
+              dispatch({
+                type: 'SET_FIELD',
+                field: 'email',
+                value: e.target.value,
+              })
+            }
             placeholder="you@example.com"
             required
             className="h-10"
@@ -129,8 +186,14 @@ function RegisterPage() {
           <Input
             id="password"
             type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            value={state.password}
+            onChange={(e) =>
+              dispatch({
+                type: 'SET_FIELD',
+                field: 'password',
+                value: e.target.value,
+              })
+            }
             placeholder="6-20 个字符"
             required
             minLength={6}
@@ -144,8 +207,14 @@ function RegisterPage() {
           <Input
             id="passwordConfirm"
             type="password"
-            value={passwordConfirm}
-            onChange={(e) => setPasswordConfirm(e.target.value)}
+            value={state.passwordConfirm}
+            onChange={(e) =>
+              dispatch({
+                type: 'SET_FIELD',
+                field: 'passwordConfirm',
+                value: e.target.value,
+              })
+            }
             placeholder="再次输入密码"
             required
             minLength={6}
@@ -154,17 +223,13 @@ function RegisterPage() {
           />
         </div>
 
-        {/* Cap PoW CAPTCHA — 仅客户端渲染以避免 SSR hydration mismatch */}
+        {/* Cap PoW CAPTCHA — key 变化时强制重新挂载，无需 DOM 操作 */}
         <div className="flex justify-center">
-          {mounted && (
-            <cap-widget
-              ref={(node: HTMLElement | null) => {
-                ;(widgetRef as React.MutableRefObject<HTMLElement | null>).current = node
-                handleCapWidget(node)
-              }}
-              data-cap-api-endpoint="/v1/cap/"
-            />
-          )}
+          <cap-widget
+            key={state.capResetKey}
+            ref={handleCapRef}
+            data-cap-api-endpoint="/v1/cap/"
+          />
         </div>
 
         <Button type="submit" className="mt-2 h-10 w-full" disabled={loading}>
@@ -174,7 +239,11 @@ function RegisterPage() {
 
       <p className="text-center text-sm text-muted-foreground">
         已有账号？{' '}
-        <Link to="/login" search={{ redirect: '' }} className="font-medium text-primary hover:underline">
+        <Link
+          to="/login"
+          search={{ redirect: '', authRequestID: '' }}
+          className="font-medium text-primary hover:underline"
+        >
           立即登录
         </Link>
       </p>

@@ -1,5 +1,6 @@
 import {
   HeadContent,
+  Link,
   Outlet,
   Scripts,
   createRootRouteWithContext,
@@ -48,7 +49,23 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
   }),
   component: RootComponent,
   shellComponent: RootDocument,
+  notFoundComponent: NotFound,
 })
+
+function NotFound() {
+  return (
+    <div className="flex min-h-dvh flex-col items-center justify-center gap-3 p-6 text-center">
+      <p className="text-sm font-medium text-foreground">页面不存在</p>
+      <Link
+        to="/login"
+        search={{ redirect: '', authRequestID: '' }}
+        className="text-sm text-primary underline underline-offset-2 hover:opacity-80"
+      >
+        返回登录
+      </Link>
+    </div>
+  )
+}
 
 function RootDocument({ children }: { children: React.ReactNode }) {
   return (

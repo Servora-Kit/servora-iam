@@ -13,6 +13,7 @@ import { Route as AuthRouteRouteImport } from './routes/_auth/route'
 import { Route as AppRouteRouteImport } from './routes/_app/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthVerifyEmailRouteImport } from './routes/_auth/verify-email'
+import { Route as AuthResetPasswordRouteImport } from './routes/_auth/reset-password'
 import { Route as AuthRegisterSuccessRouteImport } from './routes/_auth/register-success'
 import { Route as AuthRegisterRouteImport } from './routes/_auth/register'
 import { Route as AuthLoginRouteImport } from './routes/_auth/login'
@@ -42,6 +43,11 @@ const IndexRoute = IndexRouteImport.update({
 const AuthVerifyEmailRoute = AuthVerifyEmailRouteImport.update({
   id: '/verify-email',
   path: '/verify-email',
+  getParentRoute: () => AuthRouteRoute,
+} as any)
+const AuthResetPasswordRoute = AuthResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
   getParentRoute: () => AuthRouteRoute,
 } as any)
 const AuthRegisterSuccessRoute = AuthRegisterSuccessRouteImport.update({
@@ -112,6 +118,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof AuthLoginRoute
   '/register': typeof AuthRegisterRoute
   '/register-success': typeof AuthRegisterSuccessRoute
+  '/reset-password': typeof AuthResetPasswordRoute
   '/verify-email': typeof AuthVerifyEmailRoute
   '/applications/$appId': typeof AppApplicationsAppIdRoute
   '/settings/profile': typeof AppSettingsProfileRoute
@@ -128,6 +135,7 @@ export interface FileRoutesByTo {
   '/login': typeof AuthLoginRoute
   '/register': typeof AuthRegisterRoute
   '/register-success': typeof AuthRegisterSuccessRoute
+  '/reset-password': typeof AuthResetPasswordRoute
   '/verify-email': typeof AuthVerifyEmailRoute
   '/applications/$appId': typeof AppApplicationsAppIdRoute
   '/settings/profile': typeof AppSettingsProfileRoute
@@ -147,6 +155,7 @@ export interface FileRoutesById {
   '/_auth/login': typeof AuthLoginRoute
   '/_auth/register': typeof AuthRegisterRoute
   '/_auth/register-success': typeof AuthRegisterSuccessRoute
+  '/_auth/reset-password': typeof AuthResetPasswordRoute
   '/_auth/verify-email': typeof AuthVerifyEmailRoute
   '/_app/applications/$appId': typeof AppApplicationsAppIdRoute
   '/_app/settings/profile': typeof AppSettingsProfileRoute
@@ -165,6 +174,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/register-success'
+    | '/reset-password'
     | '/verify-email'
     | '/applications/$appId'
     | '/settings/profile'
@@ -181,6 +191,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/register-success'
+    | '/reset-password'
     | '/verify-email'
     | '/applications/$appId'
     | '/settings/profile'
@@ -199,6 +210,7 @@ export interface FileRouteTypes {
     | '/_auth/login'
     | '/_auth/register'
     | '/_auth/register-success'
+    | '/_auth/reset-password'
     | '/_auth/verify-email'
     | '/_app/applications/$appId'
     | '/_app/settings/profile'
@@ -243,6 +255,13 @@ declare module '@tanstack/react-router' {
       path: '/verify-email'
       fullPath: '/verify-email'
       preLoaderRoute: typeof AuthVerifyEmailRouteImport
+      parentRoute: typeof AuthRouteRoute
+    }
+    '/_auth/reset-password': {
+      id: '/_auth/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof AuthResetPasswordRouteImport
       parentRoute: typeof AuthRouteRoute
     }
     '/_auth/register-success': {
@@ -363,6 +382,7 @@ interface AuthRouteRouteChildren {
   AuthLoginRoute: typeof AuthLoginRoute
   AuthRegisterRoute: typeof AuthRegisterRoute
   AuthRegisterSuccessRoute: typeof AuthRegisterSuccessRoute
+  AuthResetPasswordRoute: typeof AuthResetPasswordRoute
   AuthVerifyEmailRoute: typeof AuthVerifyEmailRoute
 }
 
@@ -371,6 +391,7 @@ const AuthRouteRouteChildren: AuthRouteRouteChildren = {
   AuthLoginRoute: AuthLoginRoute,
   AuthRegisterRoute: AuthRegisterRoute,
   AuthRegisterSuccessRoute: AuthRegisterSuccessRoute,
+  AuthResetPasswordRoute: AuthResetPasswordRoute,
   AuthVerifyEmailRoute: AuthVerifyEmailRoute,
 }
 

@@ -24,10 +24,11 @@ const config = defineConfig({
   ],
   server: {
     proxy: {
-      '/v1': {
-        target: 'http://127.0.0.1:8080',
-        changeOrigin: true,
-      },
+      '/v1': { target: 'http://127.0.0.1:8080', changeOrigin: true },
+      '/oauth': { target: 'http://127.0.0.1:8080', changeOrigin: true },
+      '/login/complete': { target: 'http://127.0.0.1:8080', changeOrigin: true },
+      '/authorize': { target: 'http://127.0.0.1:8080', changeOrigin: true },
+      '/.well-known': { target: 'http://127.0.0.1:8080', changeOrigin: true },
     },
   },
 })

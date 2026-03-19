@@ -10,6 +10,7 @@
 import { toast as sonner } from 'sonner'
 import type { ExternalToast } from 'sonner'
 import type { ApiError } from '@servora/web-pkg/request'
+import { kratosMessage } from '@servora/web-pkg/errors'
 
 // ---------- 防重复机制 ----------
 // 用 WeakSet 标记已被 toast.promise 处理过的 error，避免全局 onError 再次弹出
@@ -21,23 +22,6 @@ function _mark(err: unknown) {
 
 export function isHandledError(err: unknown): boolean {
   return err instanceof Error && _handled.has(err)
-}
-
-// ---------- 后端错误解析 ----------
-export interface ApiErrorBody {
-  code?: number
-  reason?: string
-  message?: string
-}
-
-function extractMessage(err: ApiError): string {
-  if (err.kind === 'network') return '网络连接失败，请检查网络设置'
-  if (err.kind === 'timeout') return '请求超时，请稍后重试'
-
-  const body = err.responseBody as ApiErrorBody | null | undefined
-  if (body?.message) return body.message
-  if (err.httpStatus) return `请求失败（HTTP ${err.httpStatus}）`
-  return '未知错误'
 }
 
 // ---------- 对外 API ----------
@@ -83,13 +67,8 @@ const toast = {
         ? typeof opts.error === 'string'
           ? opts.error
           : (err: unknown) => (opts.error as (e: unknown) => string)(err)
-        : (err: unknown) => {
-            const body = (err as Partial<ApiError>)?.responseBody as
-              | ApiErrorBody
-              | null
-              | undefined
-            return body?.message ?? '操作失败'
-          },
+        : (err: unknown) =>
+            kratosMessage(err as ApiError, '操作失败'),
     })
 
     // 返回原始 promise（让调用方可以 await）
@@ -104,7 +83,7 @@ const toast = {
   fromApiError(err: ApiError) {
     if (err.httpStatus === 401) return
     if (isHandledError(err)) return
-    sonner.error(extractMessage(err))
+    sonner.error(kratosMessage(err))
   },
 }
 
