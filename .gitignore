@@ -54,6 +54,7 @@ tmp/
 .omc/
 .opencode/
 .cursor/
+.understand-anything/
 
 # Environment files
 .env
