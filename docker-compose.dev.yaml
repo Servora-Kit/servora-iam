@@ -1,63 +1,6 @@
-services:
-  iam:
-    container_name: iam
-    pull_policy: never
-    build:
-      context: .
-      dockerfile: Dockerfile.air
-    working_dir: /workspace/app/iam/service
-    command: ["air", "-c", ".air.toml"]
-    env_file: .env
-    environment:
-      TZ: Asia/Shanghai
-      GOMODCACHE: /go/pkg/mod
-      GOCACHE: /go/cache
-    volumes:
-      - ./:/workspace
-      - ./.cache/go-mod:/go/pkg/mod
-      - ./.cache/go-build:/go/cache
-      - ./app/iam/service/configs/docker/:/app/configs/
-      - ./app/iam/service/configs/keys/:/app/configs/keys/:ro
-      - iam-logs:/app/logs
-    ports:
-      - "8000:8000"
-      - "8001:8001"
-    depends_on:
-      consul:
-        condition: service_healthy
-      db:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      mailpit:
-        condition: service_started
-      otel-collector:
-        condition: service_healthy
-    networks:
-      - servora-network
-
-  sayhello:
-    container_name: sayhello
-    pull_policy: never
-    build:
-      context: .
-      dockerfile: Dockerfile.air
-    working_dir: /workspace/app/sayhello/service
-    command: ["air", "-c", ".air.toml"]
-    environment:
-      TZ: Asia/Shanghai
-      GOMODCACHE: /go/pkg/mod
-      GOCACHE: /go/cache
-    volumes:
-      - ./:/workspace
-      - ./.cache/go-mod:/go/pkg/mod
-      - ./.cache/go-build:/go/cache
-      - ./app/sayhello/service/configs/docker/:/app/configs/:ro
-      - sayhello-logs:/app/logs
-    depends_on:
-      consul:
-        condition: service_healthy
-      otel-collector:
-        condition: service_healthy
-    networks:
-      - servora-network
+# docker-compose.dev.yaml — Dev-mode service overrides.
+#
+# IAM and sayhello are retained as reference code but removed from the toolchain.
+# New microservices (e.g. app/audit/service) will be added here when created.
+# Infrastructure services (kafka, clickhouse, etc.) are defined in docker-compose.yaml.
+services: {}
