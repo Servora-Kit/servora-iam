@@ -13,12 +13,15 @@ import (
 	"github.com/zitadel/oidc/v3/pkg/oidc"
 	"github.com/zitadel/oidc/v3/pkg/op"
 
+	apppb "github.com/Servora-Kit/servora/api/gen/go/application/service/v1"
 	"github.com/Servora-Kit/servora/api/gen/go/conf/v1"
 	"github.com/Servora-Kit/servora/app/iam/service/internal/biz"
+	"github.com/Servora-Kit/servora/app/iam/service/internal/data/ent"
 	"github.com/Servora-Kit/servora/app/iam/service/internal/data/ent/application"
 	"github.com/Servora-Kit/servora/pkg/helpers"
 	"github.com/Servora-Kit/servora/pkg/jwks"
 	"github.com/Servora-Kit/servora/pkg/logger"
+	"github.com/Servora-Kit/servora/pkg/mapper"
 	"github.com/Servora-Kit/servora/pkg/redis"
 )
 
@@ -38,6 +41,7 @@ type oidcStorage struct {
 	data      *Data
 	km        *jwks.KeyManager
 	authnRepo biz.AuthnRepo
+	appMapper *mapper.CopierMapper[apppb.Application, ent.Application]
 	env       string
 	log       *logger.Helper
 	redis     *redis.Client
@@ -55,6 +59,7 @@ func NewOIDCStorage(
 		data:      data,
 		km:        km,
 		authnRepo: authnRepo,
+		appMapper: newApplicationMapper(),
 		env:       appCfg.GetEnv(),
 		log:       logger.For(l, "oidc-storage/data/iam"),
 		redis:     rdb,
@@ -325,7 +330,7 @@ func (s *oidcStorage) GetClientByClientID(ctx context.Context, clientID string) 
 	if err != nil {
 		return nil, fmt.Errorf("client not found: %w", err)
 	}
-	app := applicationMapper.MustToProto(entApp)
+	app := s.appMapper.MustToProto(entApp)
 	return newOIDCClient(app, strings.EqualFold(s.env, "dev")), nil
 }
 

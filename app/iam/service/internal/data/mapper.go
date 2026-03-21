@@ -1,38 +1,46 @@
 package data
 
 import (
-	"github.com/google/uuid"
-
 	apppb "github.com/Servora-Kit/servora/api/gen/go/application/service/v1"
 	userpb "github.com/Servora-Kit/servora/api/gen/go/user/service/v1"
 	"github.com/Servora-Kit/servora/app/iam/service/internal/data/ent"
 	"github.com/Servora-Kit/servora/pkg/mapper"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-var userMapper = mapper.NewForwardMapper(func(u *ent.User) *userpb.User {
-	pbUser := &userpb.User{
-		Id:            u.ID.String(),
-		Username:      u.Username,
-		Email:         u.Email,
-		Role:          u.Role,
-		Status:        u.Status,
-		EmailVerified: u.EmailVerified,
-		Phone:         u.Phone,
-		PhoneVerified: u.PhoneVerified,
-		CreatedAt:     timestamppb.New(u.CreatedAt),
-		UpdatedAt:     timestamppb.New(u.UpdatedAt),
-	}
-	if u.EmailVerifiedAt != nil {
-		pbUser.EmailVerifiedAt = timestamppb.New(*u.EmailVerifiedAt)
-	}
-	if u.Profile != nil {
-		pbUser.Profile = profileFromJSON(u.Profile)
-	}
-	return pbUser
-})
+func newUserMapper() *mapper.CopierMapper[userpb.User, ent.User] {
+	m := mapper.NewCopierMapper[userpb.User, ent.User]()
 
-func profileFromJSON(m map[string]interface{}) *userpb.UserProfile {
+	hooks := mapper.NewHookRegistry()
+	hooks.Register("user_profile")
+
+	if err := mapper.ApplyPlan(userpb.UserMapperPlan(), m, mapper.DefaultPresets(), hooks); err != nil {
+		panic("mapper: apply user plan: " + err.Error())
+	}
+	return m
+}
+
+// mapUser converts ent.User to proto User with profile post-processing.
+// Profile uses map[string]any in ent but structured *UserProfile in proto,
+// which copier cannot handle -- so we apply it after the copier pass.
+func mapUser(m *mapper.CopierMapper[userpb.User, ent.User], u *ent.User) *userpb.User {
+	pb := m.MustToProto(u)
+	if pb != nil && u.Profile != nil {
+		pb.Profile = profileFromJSON(u.Profile)
+	}
+	return pb
+}
+
+func mapUsers(m *mapper.CopierMapper[userpb.User, ent.User], users []*ent.User) []*userpb.User {
+	result := make([]*userpb.User, 0, len(users))
+	for _, u := range users {
+		if u != nil {
+			result = append(result, mapUser(m, u))
+		}
+	}
+	return result
+}
+
+func profileFromJSON(m map[string]any) *userpb.UserProfile {
 	if m == nil {
 		return nil
 	}
@@ -67,21 +75,12 @@ func profileFromJSON(m map[string]interface{}) *userpb.UserProfile {
 	return p
 }
 
-var applicationMapper = func() *mapper.CopierMapper[apppb.Application, ent.Application] {
+func newApplicationMapper() *mapper.CopierMapper[apppb.Application, ent.Application] {
 	m := mapper.NewCopierMapper[apppb.Application, ent.Application]()
-	m.AppendConverters(mapper.AllBuiltinConverters())
-	m.AppendConverters(mapper.NewGenericConverterPair[uuid.UUID, string](
-		func(id uuid.UUID) (string, error) { return id.String(), nil },
-		func(s string) (uuid.UUID, error) { return uuid.Parse(s) },
-	))
-	m.AppendConverters(mapper.NewGenericConverterPair[int, int32](
-		func(i int) (int32, error) { return int32(i), nil },
-		func(i int32) (int, error) { return int(i), nil },
-	))
-	m.WithFieldMapping(map[string]string{
-		"ID":               "Id",
-		"ClientID":         "ClientId",
-		"IDTokenLifetime":  "IdTokenLifetime",
-	})
+
+	hooks := mapper.NewHookRegistry()
+	if err := mapper.ApplyPlan(apppb.ApplicationMapperPlan(), m, mapper.DefaultPresets(), hooks); err != nil {
+		panic("mapper: apply application plan: " + err.Error())
+	}
 	return m
-}()
+}

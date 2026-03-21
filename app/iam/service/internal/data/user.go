@@ -11,19 +11,23 @@ import (
 
 	userpb "github.com/Servora-Kit/servora/api/gen/go/user/service/v1"
 	"github.com/Servora-Kit/servora/app/iam/service/internal/biz"
+	"github.com/Servora-Kit/servora/app/iam/service/internal/data/ent"
 	"github.com/Servora-Kit/servora/app/iam/service/internal/data/ent/user"
 	"github.com/Servora-Kit/servora/pkg/logger"
+	"github.com/Servora-Kit/servora/pkg/mapper"
 )
 
 type userRepo struct {
-	data *Data
-	log  *logger.Helper
+	data   *Data
+	log    *logger.Helper
+	mapper *mapper.CopierMapper[userpb.User, ent.User]
 }
 
 func NewUserRepo(data *Data, l logger.Logger) biz.UserRepo {
 	return &userRepo{
-		data: data,
-		log:  logger.For(l, "user/data/iam"),
+		data:   data,
+		log:    logger.For(l, "user/data/iam"),
+		mapper: newUserMapper(),
 	}
 }
 
@@ -58,7 +62,7 @@ func (r *userRepo) SaveUser(ctx context.Context, u *userpb.User, hashedPassword 
 		r.log.Errorf("SaveUser failed: %v", err)
 		return nil, err
 	}
-	return userMapper.Map(created), nil
+	return mapUser(r.mapper, created), nil
 }
 
 func (r *userRepo) GetUserById(ctx context.Context, id string) (*userpb.User, error) {
@@ -70,7 +74,7 @@ func (r *userRepo) GetUserById(ctx context.Context, id string) (*userpb.User, er
 	if err != nil {
 		return nil, wrapNotFound(err)
 	}
-	return userMapper.Map(entUser), nil
+	return mapUser(r.mapper, entUser), nil
 }
 
 func (r *userRepo) DeleteUser(ctx context.Context, id string) error {
@@ -106,7 +110,7 @@ func (r *userRepo) RestoreUser(ctx context.Context, id string) (*userpb.User, er
 	if err != nil {
 		return nil, err
 	}
-	return userMapper.Map(u), nil
+	return mapUser(r.mapper, u), nil
 }
 
 func (r *userRepo) GetUserByIdIncludingDeleted(ctx context.Context, id string) (*userpb.User, error) {
@@ -118,7 +122,7 @@ func (r *userRepo) GetUserByIdIncludingDeleted(ctx context.Context, id string) (
 	if err != nil {
 		return nil, wrapNotFound(err)
 	}
-	return userMapper.Map(entUser), nil
+	return mapUser(r.mapper, entUser), nil
 }
 
 func (r *userRepo) UpdateUser(ctx context.Context, u *userpb.User) (*userpb.User, error) {
@@ -151,7 +155,7 @@ func (r *userRepo) UpdateUser(ctx context.Context, u *userpb.User) (*userpb.User
 	if err != nil {
 		return nil, err
 	}
-	return userMapper.Map(updated), nil
+	return mapUser(r.mapper, updated), nil
 }
 
 func (r *userRepo) ListUsers(ctx context.Context, page int32, pageSize int32) ([]*userpb.User, int64, error) {
@@ -169,7 +173,7 @@ func (r *userRepo) ListUsers(ctx context.Context, page int32, pageSize int32) ([
 		return nil, 0, err
 	}
 
-	return userMapper.MapSlice(entUsers), int64(total), nil
+	return mapUsers(r.mapper, entUsers), int64(total), nil
 }
 
 func profileToJSON(p *userpb.UserProfile) map[string]interface{} {

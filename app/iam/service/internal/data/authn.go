@@ -9,19 +9,23 @@ import (
 
 	userpb "github.com/Servora-Kit/servora/api/gen/go/user/service/v1"
 	"github.com/Servora-Kit/servora/app/iam/service/internal/biz"
+	"github.com/Servora-Kit/servora/app/iam/service/internal/data/ent"
 	"github.com/Servora-Kit/servora/app/iam/service/internal/data/ent/user"
 	"github.com/Servora-Kit/servora/pkg/logger"
+	"github.com/Servora-Kit/servora/pkg/mapper"
 )
 
 type authnRepo struct {
-	data *Data
-	log  *logger.Helper
+	data   *Data
+	log    *logger.Helper
+	mapper *mapper.CopierMapper[userpb.User, ent.User]
 }
 
 func NewAuthnRepo(data *Data, l logger.Logger) biz.AuthnRepo {
 	return &authnRepo{
-		data: data,
-		log:  logger.For(l, "authn/data/iam"),
+		data:   data,
+		log:    logger.For(l, "authn/data/iam"),
+		mapper: newUserMapper(),
 	}
 }
 
@@ -38,7 +42,7 @@ func (r *authnRepo) SaveUser(ctx context.Context, u *userpb.User, hashedPassword
 		r.log.Errorf("SaveUser failed: %v", err)
 		return nil, err
 	}
-	return userMapper.Map(created), nil
+	return mapUser(r.mapper, created), nil
 }
 
 func (r *authnRepo) GetUserByUserName(ctx context.Context, name string) (*userpb.User, error) {
@@ -46,7 +50,7 @@ func (r *authnRepo) GetUserByUserName(ctx context.Context, name string) (*userpb
 	if err != nil {
 		return nil, wrapNotFound(err)
 	}
-	return userMapper.Map(entUser), nil
+	return mapUser(r.mapper, entUser), nil
 }
 
 func (r *authnRepo) GetUserByEmail(ctx context.Context, email string) (*userpb.User, error) {
@@ -54,7 +58,7 @@ func (r *authnRepo) GetUserByEmail(ctx context.Context, email string) (*userpb.U
 	if err != nil {
 		return nil, wrapNotFound(err)
 	}
-	return userMapper.Map(entUser), nil
+	return mapUser(r.mapper, entUser), nil
 }
 
 func (r *authnRepo) GetUserByID(ctx context.Context, id string) (*userpb.User, error) {
@@ -66,7 +70,7 @@ func (r *authnRepo) GetUserByID(ctx context.Context, id string) (*userpb.User, e
 	if err != nil {
 		return nil, wrapNotFound(err)
 	}
-	return userMapper.Map(entUser), nil
+	return mapUser(r.mapper, entUser), nil
 }
 
 func (r *authnRepo) GetPasswordHash(ctx context.Context, userID string) (string, error) {

@@ -10,19 +10,23 @@ import (
 
 	apppb "github.com/Servora-Kit/servora/api/gen/go/application/service/v1"
 	"github.com/Servora-Kit/servora/app/iam/service/internal/biz"
+	"github.com/Servora-Kit/servora/app/iam/service/internal/data/ent"
 	"github.com/Servora-Kit/servora/app/iam/service/internal/data/ent/application"
 	"github.com/Servora-Kit/servora/pkg/logger"
+	"github.com/Servora-Kit/servora/pkg/mapper"
 )
 
 type applicationRepo struct {
-	data *Data
-	log  *logger.Helper
+	data   *Data
+	log    *logger.Helper
+	mapper *mapper.CopierMapper[apppb.Application, ent.Application]
 }
 
 func NewApplicationRepo(data *Data, l logger.Logger) biz.ApplicationRepo {
 	return &applicationRepo{
-		data: data,
-		log:  logger.For(l, "application/data/iam"),
+		data:   data,
+		log:    logger.For(l, "application/data/iam"),
+		mapper: newApplicationMapper(),
 	}
 }
 
@@ -42,7 +46,7 @@ func (r *applicationRepo) Create(ctx context.Context, app *apppb.Application, cl
 	if err != nil {
 		return nil, err
 	}
-	return applicationMapper.MustToProto(created), nil
+	return r.mapper.MustToProto(created), nil
 }
 
 func (r *applicationRepo) GetByID(ctx context.Context, id string) (*apppb.Application, error) {
@@ -56,7 +60,7 @@ func (r *applicationRepo) GetByID(ctx context.Context, id string) (*apppb.Applic
 	if err != nil {
 		return nil, wrapNotFound(err)
 	}
-	return applicationMapper.MustToProto(a), nil
+	return r.mapper.MustToProto(a), nil
 }
 
 func (r *applicationRepo) GetByClientID(ctx context.Context, clientID string) (*apppb.Application, error) {
@@ -66,7 +70,7 @@ func (r *applicationRepo) GetByClientID(ctx context.Context, clientID string) (*
 	if err != nil {
 		return nil, wrapNotFound(err)
 	}
-	return applicationMapper.MustToProto(a), nil
+	return r.mapper.MustToProto(a), nil
 }
 
 func (r *applicationRepo) List(ctx context.Context, page, pageSize int32) ([]*apppb.Application, int64, error) {
@@ -86,7 +90,7 @@ func (r *applicationRepo) List(ctx context.Context, page, pageSize int32) ([]*ap
 	if err != nil {
 		return nil, 0, err
 	}
-	result, err := applicationMapper.ToProtoList(apps)
+	result, err := r.mapper.ToProtoList(apps)
 	if err != nil {
 		return nil, 0, err
 	}
