@@ -1,0 +1,755 @@
+# 设计文档：Servora proto-first mapper 与 protoc 代码生成体系
+
+**日期：** 2026-03-21
+**最后更新：** 2026-03-21
+**状态：** 设计完成 · 待实施
+
+---
+
+## 1. 背景
+
+Servora 当前已经明确走向：
+
+- 以 **proto-first** 作为长期演进方向；
+- `pkg/` 中沉淀框架能力，而不是把框架价值埋进某个业务服务；
+- `authz` 与 `audit` 已经收敛到“**pkg 实现功能 + proto 注解声明规则 + codegen 生成薄胶水**”这一路线；
+- 未来不仅要解决单个服务的 mapper 丑陋问题，还要解决整个脚手架层面的模型重复、映射重复、接线重复问题。
+
+当前痛点主要有三类：
+
+1. **模型重复**：`ent/gorm`、biz model、proto message 常常三份高度相似；
+2. **映射重复**：data 层 repo 初始化时不断重复注册 converter、写字段 rename、补 enum/time/json 等规则；
+3. **透传边界不清**：到底哪些 proto 可以直接进入 biz，哪些不能，当前没有统一规范。
+
+Servora 需要一套比 go-wind-admin 更完整、比 go-utils/mapper 更工程化的方案：
+
+- 保留 `pkg` 作为功能实现中心；
+- 通过 proto 注解与 protoc 插件把映射规则声明化；
+- 生成代码保持轻量，不生成大量业务逻辑；
+- 支持 repo 内部持有 mapper，并允许少量 custom hook 处理复杂字段。
+
+---
+
+## 2. 目标与非目标
+
+### 2.1 目标
+
+本设计目标是建立一套完整的 Servora mapper/codegen 体系，包括：
+
+1. `pkg/mapper` 运行时能力重构与增强；
+2. proto 注解体系；
+3. `protoc-gen-servora-mapper` 插件；
+4. generated wiring / validator / helper 代码布局；
+5. data 层 repo 接入约定；
+6. proto 透传边界规范；
+7. 为后续 repo skeleton / patch helper / query helper 生成打基础。
+
+### 2.2 非目标
+
+本轮设计**不追求**：
+
+1. 自动生成完整 service/biz/data 三层实现；
+2. 自动生成复杂业务逻辑；
+3. 在 proto 中表达复杂业务计算、跨字段业务规则；
+4. 将 proto 与具体 Go/Ent 包路径深度耦合；
+5. 通过 codegen 消灭所有手写代码。
+
+---
+
+## 3. 参考实现与参照路径
+
+本设计明确参考以下已有实现，实施阶段可直接对照：
+
+### 3.1 `go-utils` mapper 基线
+
+- `/Users/horonlee/projects/go/tx7do/go-utils/mapper/mapper.go`
+
+该文件提供了极简的 `CopierMapper[DTO, ENTITY]`：
+
+- `NewCopierMapper`
+- `AppendConverter`
+- `AppendConverters`
+- `ToEntity`
+- `ToDTO`
+
+它适合作为 Servora mapper 的**底层心智模型基线**：简单、泛型化、围绕 `copier.TypeConverter` 扩展。
+
+### 3.2 `go-wind-admin` 的 repo 内 mapper 初始化模式
+
+- `/Users/horonlee/projects/go/tx7do/go-wind-admin/backend/app/admin/service/internal/data/menu_repo.go`
+- `/Users/horonlee/projects/go/tx7do/go-wind-admin/backend/app/admin/service/internal/data/operation_audit_log_repo.go`
+
+这两个 repo 展示了当前最值得借鉴的模式：
+
+- mapper 在 repo 内 `new`；
+- enum converter 在 repo 初始化时注册；
+- time/timestamppb converter 在 repo 初始化时注册；
+- repo 是 mapper 的拥有者，service/biz 不感知 mapper。
+
+### 3.3 Servora 当前 mapper 能力与问题来源
+
+- `/Users/horonlee/projects/go/servora/pkg/mapper/converter.go`
+- `/Users/horonlee/projects/go/servora/pkg/mapper/copier_proto.go`
+- `/Users/horonlee/projects/go/servora/pkg/mapper/copier_db.go`
+- `/Users/horonlee/projects/go/servora/app/iam/service/internal/data/mapper.go`
+- `/Users/horonlee/projects/go/servora/app/iam/service/internal/service/mapper.go`
+
+现状说明：
+
+- `pkg/mapper` 已经有 converter 基础，但还未形成完整的“runtime + codegen + registry + validator”体系；
+- IAM 中 `Profile` 等字段暴露出复杂 JSON/动态字段映射问题；
+- service 层 mapper 相对简单，data 层 mapper 更容易成为复杂度集中点。
+
+---
+
+## 4. 核心结论
+
+### 4.1 总体路线
+
+Servora 采用：
+
+> **pkg 实现功能 + proto 注解声明规则 + protoc 插件生成薄胶水 + repo 持有 mapper**
+
+而不是：
+
+- 只学 go-wind-admin 手工写 repo mapper；
+- 或者走大而全的三层代码生成器。
+
+### 4.2 codegen 的职责边界
+
+`protoc-gen-servora-mapper` 的职责不是“替开发者写业务代码”，而是：
+
+1. 读取 proto 注解；
+2. 生成 mapper wiring / registration / validation 代码；
+3. 将内置 converter 选择、字段 rename、custom hook key 等规则前置化；
+4. 在编译期或初始化阶段尽量发现配置不完整问题。
+
+### 4.3 `pkg/mapper` 的职责边界
+
+所有实际功能保留在 `pkg/mapper`：
+
+- copier mapper；
+- builtin converter；
+- preset；
+- custom registry；
+- generated plan apply；
+- hook 校验；
+- future patch/query helper runtime。
+
+### 4.4 data 层 repo 的职责边界
+
+repo 继续作为 mapper 持有者：
+
+- repo 内创建 mapper；
+- repo 内应用 generated wiring；
+- repo 内注册 custom hook；
+- repo 内处理 ent/ORM 相关特殊逻辑。
+
+service/biz 层不直接关心 mapper 的实现细节。
+
+---
+
+## 5. Proto 透传边界
+
+这是实施前必须先定清楚的前置规则。
+
+### 5.1 允许透传的对象
+
+默认允许透传到 biz 的，是**资源型 proto / DTO 型 proto**，例如：
+
+- `User`
+- `Menu`
+- `OperationAuditLog`
+- `AuditEvent`
+
+它们代表资源本身，而不是 RPC 包装壳。
+
+### 5.2 不建议直接透传的对象
+
+以下对象不应直接作为 biz 核心模型：
+
+- `CreateXxxRequest`
+- `UpdateXxxRequest`
+- `DeleteXxxRequest`
+- `ListXxxRequest`
+- `GetXxxRequest`
+- 带 paging / filtering / view mask 的 RPC wrapper
+
+原因：
+
+1. 它们携带明显的 transport 语义；
+2. 它们包含 patch / update_mask / query_by 等 RPC 交互细节；
+3. 若直接打穿到 biz，会把 transport 约束污染到内部处理逻辑。
+
+### 5.3 默认映射关系
+
+proto-first 默认映射关系为：
+
+```text
+resource proto <-> ent entity
+```
+
+而不是强制：
+
+```text
+resource proto <-> biz model <-> ent entity
+```
+
+如无必要，不再强制为所有资源建一层独立 biz model。
+
+### 5.4 复杂字段的处理原则
+
+复杂字段不依赖“透传”硬吃，而是统一走：
+
+- builtin converter（能覆盖则优先）
+- custom hook（覆盖不了则扩展）
+- repo 内手写特殊逻辑（再复杂时最后兜底）
+
+典型场景：
+
+- typed JSON / profile
+- 多字段拼装
+- ORM 特定结构
+- patch 特殊更新
+
+---
+
+## 6. 整体架构
+
+### 6.1 设计总览
+
+```text
+proto message + servora.mapper annotations
+        ↓
+protoc-gen-servora-mapper
+        ↓
+generated mapper plan / wiring / validators / helper stubs
+        ↓
+pkg/mapper runtime（preset / builtin converters / custom registry / apply / validate）
+        ↓
+repo new mapper + apply generated wiring + register custom hooks
+        ↓
+repo 使用 mapper 进行 proto resource <-> ent entity 转换
+```
+
+### 6.2 分层职责
+
+| 层 | 职责 |
+|---|---|
+| proto | 声明资源模型与 mapper 规则 |
+| protoc 插件 | 生成 wiring、validator、helper glue |
+| `pkg/mapper` | 提供运行时功能与扩展机制 |
+| data repo | 持有 mapper、注册 custom hook、处理 ent 特殊逻辑 |
+| biz/service | 使用资源型 proto，不感知 mapper 细节 |
+
+---
+
+## 7. `pkg/mapper` 运行时设计
+
+Servora 的运行时设计应直接参考 `go-utils/mapper` 的简洁风格，但需要补齐工程化能力。
+
+### 7.1 核心类型：`CopierMapper[P, E]`
+
+保留与 `go-utils/mapper` 接近的核心对象：
+
+- `NewCopierMapper[P, E]()`
+- `AppendConverter(converter copier.TypeConverter)`
+- `AppendConverters(converters []copier.TypeConverter)`
+- `ToEntity(proto *P) (*E, error)`
+- `ToProto(entity *E) (*P, error)`
+- `MustToEntity(proto *P) *E`
+- `MustToProto(entity *E) *P`
+
+与 `go-utils/mapper` 不同之处：
+
+1. 默认提供 error-return 版本；
+2. `Must*` 只作为便捷层；
+3. 为 generated wiring 留出 plan/apply 能力。
+
+### 7.2 Builtin converter 体系
+
+在现有 `pkg/mapper/converter.go` 基础上，统一收敛成可被 codegen 引用的 builtin 集合。
+
+首批 builtin 应覆盖：
+
+1. `time.Time <-> *time.Time`
+2. `time.Time <-> *timestamppb.Timestamp`
+3. `string <-> *string`
+4. `int64 <-> *int64`
+5. `pb enum <-> entity string enum`
+6. future-ready: `duration`, `wrapperspb`, typed JSON
+
+### 7.3 Preset 体系
+
+Preset 是“能力组”，不是具体字段实现。
+
+建议预置：
+
+- `proto_time`
+- `time_ptr`
+- `pointer`
+- `proto_enum`
+- `well_known_types`（后续可扩）
+- `common_proto_entity`（组合 preset，后续可扩）
+
+Preset 的作用：
+
+- 让 proto 注解不必为每个普通字段重复声明；
+- 让 generator 只负责选 preset；
+- 让 runtime 控制真实 converter 组合。
+
+### 7.4 Custom hook registry
+
+这是比 go-wind-admin 更强的关键能力。
+
+需要提供统一的 hook registry，例如：
+
+- `Register(name string, converters ...copier.TypeConverter)`
+- `Get(name string) ([]copier.TypeConverter, bool)`
+- `MustGet(name string) []copier.TypeConverter`
+
+作用：
+
+1. proto 注解可以声明 `custom = "user_profile"`；
+2. generator 只生成对 `user_profile` 的引用；
+3. repo 初始化时再注册真实 custom converter；
+4. runtime/validator 可检查 custom hook 是否缺失。
+
+### 7.5 Mapper plan
+
+为了让 generator 与 runtime 解耦，需要定义 `MapperPlan` 一类中间结构，至少包含：
+
+- `Presets`
+- `FieldMappings`
+- `FieldConverters`
+- `CustomHooks`
+- optional future sections（patch/query）
+
+这样 generated code 输出的是“plan + apply 调用”，不是把实现细节硬编码在生成文件里。
+
+### 7.6 Validation
+
+runtime 需要统一提供：
+
+- 校验 plan 中声明的 preset 是否存在；
+- 校验 field converter 配置是否合法；
+- 校验 custom hook 是否已注册；
+- 启动期给出清晰错误，而不是 silent fallback。
+
+---
+
+## 8. Proto annotation 设计
+
+### 8.1 设计原则
+
+1. proto 负责声明**稳定、通用、框架级规则**；
+2. 不把 proto 做成复杂 DSL；
+3. 复杂映射问题统一降级到 custom hook；
+4. 尽量避免 proto 直接写 Go 包路径或 ent 内部实现细节。
+
+### 8.2 Message 级注解
+
+Message 级至少需要：
+
+1. `enabled`
+   - 是否参与 mapper codegen
+2. `presets`
+   - 启用哪些 builtin 能力组
+3. future-ready:
+   - `patch_helper`
+   - `query_helper`
+   - `repo_binding_key`（若后续需要）
+
+### 8.3 Field 级注解
+
+Field 级至少需要：
+
+1. `rename`
+   - 目标字段名
+2. `converter`
+   - 选择 builtin converter kind
+3. `custom`
+   - 声明 custom hook key
+4. future-ready:
+   - `ignore`
+   - `readonly`
+   - `writeonly`
+   - `patch_strategy`
+
+### 8.4 Builtin converter kind 首批建议
+
+首批枚举建议覆盖：
+
+- `CONVERTER_UNSPECIFIED`
+- `TIMESTAMP_TIME`
+- `TIME_PTR`
+- `STRING_PTR`
+- `INT64_PTR`
+- `ENUM_STRING`
+- future-ready:
+  - `DURATION_DURATIONPB`
+  - `JSON_TYPED`
+  - `WRAPPER_VALUE`
+
+### 8.5 明确不放进 proto 的内容
+
+首版不建议放入：
+
+1. 多字段表达式拼装；
+2. 复杂 JSON path 操作；
+3. 具体 ent 包路径；
+4. 复杂 ORM 更新逻辑；
+5. 业务领域规则。
+
+这些都不应由 mapper annotation 承担。
+
+---
+
+## 9. `protoc-gen-servora-mapper` 插件设计
+
+### 9.1 插件目标
+
+插件负责把 proto annotation 转换为：
+
+1. mapper plan 常量/构造代码；
+2. generated wiring helper；
+3. generated validator；
+4. future helper scaffold（patch/query）。
+
+### 9.2 插件不负责
+
+插件不负责：
+
+1. 生成完整 repo 实现；
+2. 生成完整 biz/service 逻辑；
+3. 生成复杂 ent query；
+4. 实现 runtime converter 本体；
+5. 接管 repo 的最终组织方式。
+
+### 9.3 插件输入
+
+插件输入包括：
+
+- proto message 本身；
+- `servora.mapper` message/field 注解；
+- buf / protoc 上下文；
+- optional 外部配置（用于补充复杂例外）。
+
+### 9.4 插件输出
+
+建议插件输出到 generated Go 文件，包含：
+
+1. `BuildXxxMapperPlan()`
+2. `RegisterGeneratedXxxMapper(...)`
+3. `ValidateXxxMapperHooks(...)`
+4. future-ready helper stubs
+
+### 9.5 插件与外部配置的关系
+
+完整方案采用：
+
+> **proto 为主，外部配置补充复杂例外**
+
+原因：
+
+1. 维持 proto-first；
+2. 避免 proto annotation 过重；
+3. 复杂 JSON / 多字段映射 / repo 定制覆盖仍有容身之处；
+4. 便于后续逐步增强，而不是一次性把 DSL 做爆炸。
+
+外部配置只用于补充，不应成为主要 source of truth。
+
+---
+
+## 10. 生成代码布局
+
+### 10.1 建议原则
+
+生成代码应保持：
+
+- 薄；
+- 稳定；
+- 只做装配；
+- 可预测；
+- 不与手写 repo 实现混杂。
+
+### 10.2 建议内容
+
+每个资源 message 可生成：
+
+1. mapper plan
+2. register helper
+3. validator
+4. helper stub（未来）
+
+概念上可类似：
+
+```text
+api/gen/go/.../xxx_mapper.gen.go
+```
+
+文件内包含：
+
+- `BuildUserMapperPlan()`
+- `ApplyUserMapperPlan(...)`
+- `ValidateUserMapperHooks(...)`
+
+### 10.3 与手写代码的边界
+
+generated code 不拥有 mapper 实例；
+repo 才拥有 mapper 实例。
+
+generated code 只被 repo 调用，例如：
+
+1. repo `new` mapper
+2. repo 调用 `ApplyGeneratedXxxMapper(...)`
+3. repo 注册 custom hook
+4. repo 执行 validate
+
+---
+
+## 11. Data 层接入设计
+
+### 11.1 统一模式
+
+延续 go-wind-admin 的经验，Servora 明确采用：
+
+> **repo 内部 new mapper，并在 repo 初始化时完成 generated wiring + custom hook 注册**
+
+### 11.2 典型初始化流程
+
+```text
+NewXxxRepo()
+  -> new CopierMapper[P, E]
+  -> apply generated plan / presets / builtin converters
+  -> register service-specific custom hooks
+  -> validate hook completeness
+  -> repo ready
+```
+
+### 11.3 为什么不让 service/biz 持有 mapper
+
+原因：
+
+1. mapper 的主要复杂度来自存储模型；
+2. custom hook 往往与 data/ORM 强相关；
+3. 让 service/biz 感知 mapper 只会扩大泄漏面；
+4. 与 go-wind-admin 的好经验一致。
+
+### 11.4 与当前 Servora 的关系
+
+当前 `app/iam/service/internal/data/mapper.go` 的问题不在于“data 层有 mapper”，而在于：
+
+- 没有统一 registry；
+- 没有 builtin/preset/codegen 协同；
+- 复杂 JSON 字段缺少规范扩展点；
+- 手写逻辑过多。
+
+新体系应保留 data 层 mapper 的位置，但替换其组织方式。
+
+---
+
+## 12. Custom hook 设计
+
+### 12.1 适用场景
+
+以下场景统一走 custom hook：
+
+1. typed JSON / profile
+2. 多字段组合或拆分
+3. entity edge 特殊处理
+4. repo 特定 patch 行为
+5. 存储实现细节很强的转换
+
+### 12.2 Hook 设计原则
+
+1. hook 必须命名；
+2. hook 应尽量绑定“语义键”，而不是具体 repo 名字；
+3. hook 是例外机制，不是默认机制；
+4. 只在 builtin converter/preset 无法覆盖时使用。
+
+### 12.3 例子
+
+对于 `Profile` 这类复杂 JSON 字段，可声明：
+
+- `custom = "user_profile"`
+
+然后在 repo 初始化时注册 `user_profile` 对应 converter。
+
+### 12.4 比 go-wind-admin 更好的地方
+
+go-wind-admin 中这类逻辑更多是“repo 作者自己知道怎么 append”。
+
+Servora 要求：
+
+- proto 明确声明 custom key；
+- generator 显式生成依赖；
+- runtime 校验未注册错误；
+- repo 只负责补实现，不负责记忆隐式约定。
+
+---
+
+## 13. 错误处理与校验
+
+### 13.1 设计目标
+
+尽量把错误前移到：
+
+- 编译期（annotation 非法）
+- 初始化期（hook 未注册、preset 不存在）
+
+而不是运行时 silent failure。
+
+### 13.2 需要覆盖的错误
+
+1. message 启用了 mapper，但字段注解非法；
+2. 使用了不存在的 preset；
+3. 使用了不存在的 builtin converter；
+4. 声明了 custom hook 但 repo 未注册；
+5. field rename 冲突；
+6. 外部配置与 proto 注解冲突；
+7. generated plan 与 runtime 版本不兼容。
+
+### 13.3 报错原则
+
+错误必须：
+
+- 带 message/field 名称；
+- 指出哪个注解或 hook key 出问题；
+- 能指导实施者快速修复。
+
+---
+
+## 14. 为什么这套方案比 go-wind-admin 更好
+
+### 14.1 不只是“repo 写法更优雅”
+
+go-wind-admin 的优势主要在于项目级实践：
+
+- repo 持有 mapper
+- enum/time converter 注册清晰
+- pb 更靠近 data 层
+
+但它仍主要依赖手工接线。
+
+Servora 的提升点是：
+
+- 将规则声明化；
+- 将 wiring 生成化；
+- 将 custom 依赖显式化；
+- 将遗漏校验系统化。
+
+### 14.2 不只是复制 `go-utils/mapper`
+
+`go-utils/mapper` 是很好的简洁内核，但太薄：
+
+- 无 registry
+- 无 preset
+- 无 generated plan
+- 无 validator
+- 默认 panic
+
+Servora 保留它的核心风格，但补上框架化必须的部分。
+
+### 14.3 更贴合 Servora 长期路线
+
+Servora 已经在 authz/audit 上收敛为：
+
+```text
+pkg runtime + proto annotation + codegen glue
+```
+
+mapper 如果也进入这条路线，整个框架方法论会更一致。
+
+---
+
+## 15. 与未来能力的衔接
+
+本设计不是只为 mapper 服务，而是为更广义的 resource modeling / codegen 体系铺路。
+
+### 15.1 可自然演进的能力
+
+后续可在本设计上继续扩展：
+
+1. patch/apply helper codegen
+2. query/filter helper codegen
+3. repo skeleton 辅助生成
+4. create/update field set 规则
+5. typed JSON 标准能力
+6. 资源治理级 annotation 体系
+
+### 15.2 不建议立即扩展的能力
+
+当前不建议同时做：
+
+1. 自动生成完整 repo 实现
+2. 自动生成 biz/service
+3. 自动生成复杂 query DSL
+4. 大而全的 ORM 适配器矩阵
+
+先把 mapper/runtime/plugin 跑顺，再向外扩。
+
+---
+
+## 16. 实施建议（简版）
+
+> 本节只给实施骨架，不展开为详细任务拆解；后续可交由其他 LLM 或实施计划文档继续细化。
+
+### 16.1 Phase 0：透传边界与设计冻结
+
+1. 冻结“资源型 proto 可透传，RPC wrapper 不可透传”的规范；
+2. 冻结 `resource proto <-> ent entity` 为默认映射关系；
+3. 明确 custom hook 的责任边界。
+
+### 16.2 Phase 1：重构 `pkg/mapper`
+
+1. 引入增强版 `CopierMapper`；
+2. 整理 builtin converter；
+3. 建立 preset；
+4. 建立 custom hook registry；
+5. 建立 plan/apply/validate 机制。
+
+### 16.3 Phase 2：定义 proto annotation
+
+1. 新增 `servora.mapper` annotation proto；
+2. 支持 message 级与 field 级最小集合；
+3. 预留 future-ready 字段但不一次性实现全部行为。
+
+### 16.4 Phase 3：实现 `protoc-gen-servora-mapper`
+
+1. 读取 annotation；
+2. 生成 mapper plan；
+3. 生成 apply/register helper；
+4. 生成 validator；
+5. 打通 `make api`/Buf 生成链路。
+
+### 16.5 Phase 4：在一个代表性资源上落地
+
+优先选择：
+
+- 结构中等复杂；
+- 有 enum/time/custom 字段；
+- 能验证 repo 内 new mapper + generated wiring + custom hook 的完整闭环。
+
+### 16.6 Phase 5：迁移现有手写 mapper
+
+1. 优先迁移框架级共享模式；
+2. 再迁移服务内重复 repo；
+3. 对复杂 JSON 字段保留 custom hook；
+4. 避免一次性“全仓重写”。
+
+---
+
+## 17. 最终结论
+
+Servora 的 mapper/codegen 路线不应停留在 go-wind-admin 式的“项目级 repo mapper 组织”，也不应走向大而全的自动生成器。
+
+正确路线是：
+
+- 以 `go-utils/mapper` 为极简内核参照；
+- 以 go-wind-admin 的 repo 内初始化模式为组织参照；
+- 在 Servora 中补齐 `runtime + annotation + protoc plugin + generated wiring + validator + custom hook registry`；
+- 保持 codegen 薄、功能在 `pkg`、repo 持有 mapper、复杂逻辑走 custom hook；
+- 明确资源型 proto 的透传边界，默认采用 `resource proto <-> ent entity`。
+
+这样才能让 Servora 在 mapper 这一层真正形成与 authz/audit 一致的框架方法论，并为后续更广义的资源建模与代码生成体系打下稳定基础。

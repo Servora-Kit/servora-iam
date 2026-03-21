@@ -1,7 +1,24 @@
 # 设计文档：Servora 接入 Keycloak 后的认证、授权、审计与框架演进
 
 **日期：** 2026-03-20
-**状态：** 草案
+**最后更新：** 2026-03-20
+**状态：** Phase 1 已完成 · Phase 2 规划中
+
+---
+
+## 进度总览
+
+| 阶段 | 名称 | 状态 | OpenSpec |
+|------|------|------|---------|
+| Phase 1 | 框架骨架 (framework-audit-skeleton) | ✅ 已完成 | `openspec/changes/archive/2026-03-20-framework-audit-skeleton/` |
+| Phase 2 | 审计主链 + authz 集成 | 🔜 待启动 | — |
+| Phase 3 | Keycloak 接入 | 📋 规划中 | — |
+| Phase 4 | all-in-proto 代码生成 | 📋 规划中 | — |
+| Phase 5 | Servora 生态扩展 | 📋 规划中 | — |
+
+**已沉淀的框架级 specs（8 个）：** `openspec/specs/` 下的 actor-v2、audit-proto、audit-runtime、broker-abstraction、config-proto-extension、identity-header-enhancement、infra-kafka-clickhouse、logger-refactor。
+
+---
 
 ## 1. 背景与目标
 
@@ -9,75 +26,12 @@ Servora 当前仓库同时承载了框架能力（`pkg/`、`cmd/`、`api/`）与
 
 - 未来希望将 **Servora 打造成面向微服务快速开发的脚手架与框架生态**；
 - `pkg/` 中的能力会逐步框架化、通用化，并最终作为 **Servora 生态 Go 包** 对外发布；
-- 当前 IAM 中的 `user / org / project / application` 等对象，大量属于早期验证 IAM 能力的测试性产物，并不是已落地业务领域模型；
-- 后续不仅审计会用到消息队列，框架层还会逐步支持更通用的 broker / transport / queue 能力；
-- 认证希望引入 **Keycloak**，授权继续采用 **OpenFGA**，并为后续 **Audit Service + Kafka** 做统一设计。
-
-本文目标是给出一份以**设计决策**为主、兼顾 **Servora 框架演进方向**的文档，明确：
-
-1. 接入 Keycloak 后，网关、业务服务、OpenFGA、Audit Service 各自负责什么；
-2. 是否还需要保留“中央 IAM/AuthZ 在线代理服务”；
-3. 审计体系如何落地，以及如何与 proto / codegen / middleware 深度结合；
-4. 当前 Servora 中什么该删、什么该保留、什么该替换；
-5. Servora 未来的 broker / transport / audit / codegen 生态应该朝什么方向演进。
+- 认证引入 **Keycloak**，授权继续采用 **OpenFGA**，审计采用 **Kafka + ClickHouse**；
+- 当前 IAM 和 sayhello 服务已从工具链（Makefile、docker-compose.dev）中移除，保留代码作为未来新服务的参考模板。
 
 ---
 
-## 2. 当前架构与现状判断
-
-### 2.1 当前认证链路
-
-当前 Servora 的 IAM 服务本身兼任了一部分 issuer 能力：
-
-- 暴露 `/.well-known/jwks.json`
-- 暴露 `/.well-known/openid-configuration`
-- 提供登录、注册、刷新 token、邮箱验证、密码重置等认证流程
-- 通过 `GET /v1/auth/verify` 供 Traefik ForwardAuth 调用
-
-现有主链路并不是“所有业务服务自己拉 JWKS 验 token”，而是：
-
-```text
-Client -> Traefik -> IAM /v1/auth/verify -> 注入 X-User-ID -> 上游服务
-```
-
-其中：
-
-- Traefik 负责统一入口与 ForwardAuth 调用；
-- IAM 负责校验 `Authorization`；
-- 上游服务通过网关注入的 `X-User-ID` 构建 actor；
-- `pkg/transport/server/middleware/identity.go` 已经体现了“信任网关身份头”的模式雏形。
-
-### 2.2 当前授权链路
-
-当前 `pkg/authz` 已经具备比较理想的通用授权执行能力：
-
-- 基于 operation 查找规则；
-- 从 context 中读取 actor；
-- 从 proto request 中提取 object id；
-- 调用 OpenFGA `Check` / `CachedCheck`；
-- 在授权失败时统一返回错误。
-
-这意味着，**Servora 已经拥有“各业务服务本地接入统一 authz middleware”的核心基础**。
-
-### 2.3 当前问题
-
-当前实现虽然可运行，但与未来目标存在明显偏差：
-
-1. **认证中心与框架能力耦合过深**
-   自建 IAM 同时承担登录、签发 JWT、暴露 JWKS、ForwardAuth verify、OpenFGA 运维等多重职责，边界不清。
-
-2. **中央 IAM 容易继续膨胀成在线认证/授权代理**
-   若继续强化 IAM，对下游服务会形成新的中心依赖。
-
-3. **审计体系尚未形成统一骨架**
-   还没有基于统一 event schema、统一 middleware、统一消息总线的审计架构。
-
-4. **broker / transport / audit 还未进入框架级设计**
-   现在更多是服务内实现，尚未形成 Servora `pkg/` 生态。
-
----
-
-## 3. 核心决策
+## 2. 核心决策（不变）
 
 | 决策点 | 结论 |
 |---|---|
@@ -86,655 +40,305 @@ Client -> Traefik -> IAM /v1/auth/verify -> 注入 X-User-ID -> 上游服务
 | 业务服务是否重复验 JWT | 默认 **不重复验**，优先信任网关注入的 principal header |
 | 授权底座 | 继续使用 **OpenFGA** |
 | 授权执行位置 | **各业务服务本地** 接入 `pkg/authz` |
-| 是否保留中央 IAM/AuthZ 在线代理 | **不保留** 为主；最多保留薄的管理/后台能力 |
+| 是否保留中央 IAM/AuthZ 在线代理 | **不保留**；最多保留薄的管理/后台能力 |
 | 审计架构 | **中心化 Audit Service + 非中心化 authz/audit emit** |
-| 审计总线 | 先支持 **Kafka**，后续框架化支持更多 broker |
-| actor 模型 | 设计为 **通用 principal 模型**，而不是直接镜像 Keycloak claims |
+| 审计总线 | 先支持 **Kafka**（franz-go），后续框架化支持更多 broker |
+| actor 模型 | **通用 principal 模型**，不直接镜像 Keycloak claims |
 | 审计规则配置方式 | 采用 **all-in-proto + 注解 + 代码生成 + middleware** |
 | broker / transport 演进方向 | 在 Servora 内部建设自有 `pkg` 生态，参考外部项目但不以其为核心依赖 |
 
 ---
 
-## 4. 接入 Keycloak 后的职责分工
+## 3. 职责分工（不变）
 
-### 4.1 Keycloak
+### 3.1 Keycloak
+负责用户认证、OIDC/OAuth2 标准流程、token 签发、JWKS/discovery、client/realm/role 管理。
+不负责业务资源级授权、OpenFGA 关系建模、审计存储。
 
-Keycloak 负责：
+### 3.2 网关（Traefik）
+负责统一入口、对接 Keycloak、验证 token、将 principal 注入上游请求头、粗粒度入口控制。
+不负责细粒度授权判断、业务资源审计。
 
-- 用户认证；
-- OIDC / OAuth2 标准流程；
-- token 签发；
-- JWKS / discovery；
-- client / realm / role 等身份提供方维度的管理能力。
+### 3.3 各业务服务
+从 gateway header 构建 actor → 本地 `pkg/authz` → 直接调用 OpenFGA → 产出审计事件。
 
-Keycloak 不负责：
+### 3.4 OpenFGA
+关系模型存储、Check/ListObjects/tuple write/delete。
 
-- 业务资源级授权；
-- OpenFGA 关系建模；
-- 业务审计中心存储；
-- 作为所有服务的在线授权代理。
-
-### 4.2 网关（Traefik）
-
-网关负责：
-
-- 统一入口；
-- 对接 Keycloak 认证链路；
-- 验证 token；
-- 将 principal 信息注入上游请求头；
-- 做粗粒度入口控制；
-- 记录认证边界层审计（如认证成功/失败、路由到哪个上游）。
-
-网关不负责：
-
-- 细粒度授权判断；
-- 解析业务资源 ID；
-- 记录业务资源变更审计；
-- 调用 OpenFGA 做通用 check。
-
-### 4.3 各业务服务
-
-各业务服务负责：
-
-- 从 gateway 注入的 identity header 构建 actor / principal；
-- 本地执行 `pkg/authz`；
-- 直接调用 OpenFGA；
-- 产出授权决策审计、关系变更审计、资源变更审计；
-- 执行业务逻辑。
-
-各业务服务不负责：
-
-- 自建认证中心；
-- 自己实现完整登录 / refresh / discovery / JWKS 主链；
-- 搭建中央 authz proxy。
-
-### 4.4 OpenFGA
-
-OpenFGA 负责：
-
-- 关系模型存储；
-- `Check` / `ListObjects` / tuple write / tuple delete；
-- 为业务服务提供统一授权基础设施。
-
-OpenFGA 不负责：
-
-- token 验证；
-- 网关鉴权；
-- 审计查询服务；
-- 业务 API 代理。
-
-### 4.5 Audit Service
-
-Audit Service 负责：
-
-- 消费审计 topic；
-- 校验与反序列化审计事件；
-- 落库（推荐 ClickHouse）；
-- 提供查询、统计、筛选能力。
-
-Audit Service 不负责：
-
-- 在线鉴权代理；
-- 在线认证；
-- 直接参与业务请求主链路。
+### 3.5 Audit Service（待建）
+消费审计 topic → 校验反序列化 → 落库（ClickHouse） → 提供查询统计能力。
 
 ---
 
-## 5. 为什么不保留中央 IAM/AuthZ 在线代理
+## 4. Phase 1 已完成：框架骨架
 
-### 5.1 原则
+> 详细设计与 spec 见 `openspec/changes/archive/2026-03-20-framework-audit-skeleton/`。
+> 以下仅记录关键决策和实现索引。
 
-本次设计推荐：
+### 4.1 pkg/logger 重构 ⚡ 破坏性变更
 
-- **中心化审计**；
-- **非中心化授权执行**；
-- **认证中心交给 Keycloak**；
-- **授权执行内嵌到业务服务**。
+**决策：** 原 API 过于繁琐（Config struct + NewLogger + Sync 字段 + 冗长 helper 创建），全面重构为调用方友好的简洁 API。
 
-### 5.2 不保留中央在线 authz 代理的原因
+**新 API：**
+- `New(app *conf.App)` → nil-safe 构造函数，直接读 proto config
+- `For(l, "module")` → 一行创建带 module 的 Helper
+- `With(l, "module")` → 字符串简写，兼容 Option 风格
+- `Zap()` getter → 暴露 `*zap.Logger`（供 kzap、GORM bridge 等使用）
+- `Sync()` → 从字段改为方法
 
-1. **现有 `pkg/authz` 已具备通用执行能力**
-   没有必要再对 OpenFGA 套一层 HTTP / gRPC 代理服务。
+**迁移范围：** bootstrap、app/iam、app/sayhello、pkg/redis、pkg/openfga、pkg/transport、pkg/jwks、pkg/governance。Module 命名去掉 `-service` 后缀。
 
-2. **OpenFGA 自身已经是独立基础设施**
-   它本身具备服务化与 HA 能力，不需要人为再加一层中心代理。
+### 4.2 Actor v2 ⚡ 破坏性变更
 
-3. **减少网络跳数与故障面**
-   业务服务直接调用 OpenFGA，比“业务服务 -> IAM/AuthZ Service -> OpenFGA”更简单、更可控。
+**决策：** Actor 从纯 ID/Type/DisplayName 扩展为完整身份模型，支持多种 principal 来源。
 
-4. **更符合微服务边界**
-   授权决策发生在业务服务的 operation 上，本地执行更容易获得业务上下文、资源 ID、actor、trace 信息，也更适合记录审计事件。
+**新增：** Subject、ClientID、Realm、Email、Roles、Scopes、Attrs 方法；`TypeService` 常量；`ServiceActor` struct；`UserActorParams` 构造模式。
 
-### 5.3 保留什么样的“薄中心能力”是可以接受的
+### 4.3 IdentityFromHeader v2
 
-不保留在线 authz proxy，不代表所有中心能力都必须删除。可接受的薄能力包括：
+**决策：** 支持从网关注入的多个 header 构建 Actor v2。
 
-- OpenFGA model / store 的管理工具；
-- 后台 tuple 管理接口；
-- 审计查询服务；
-- 与 Keycloak、OpenFGA 相关的运维与管理控制台。
+**支持的 header：** X-User-ID、X-Subject、X-Client-ID、X-Realm、X-Email、X-Roles、X-Scopes、X-Principal-Type。X-Principal-Type=service 构造 ServiceActor。WithHeaderMapping option 支持自定义映射。
 
-也就是说，**允许保留管理中心，不保留在线授权代理中心**。
+### 4.4 Proto 定义
+
+- `api/protos/audit/v1/audit.proto`：AuditEvent、4 种 typed detail（Authn/Authz/TupleMutation/ResourceMutation）
+- `api/protos/audit/v1/annotations.proto`：AuditRule message + audit_rule method option
+- `api/protos/conf/v1/conf.proto`：Data 新增 Kafka（含 SASL）、ClickHouse 配置；App 新增 Audit 配置
+
+### 4.5 pkg/broker — 消息代理抽象
+
+**选型决策：** Kafka 实现使用 **franz-go**（而非 sarama）。原因：更现代的 API、原生支持 KRaft、内置 kzap/kotel 插件、更好的性能。
+
+> 参考源：`/Users/horonlee/projects/go/kratos-transport`（broker 接口设计）、`/Users/horonlee/projects/go/Kemate`（docker-compose 配置模式）。
+> **注意：** Kemate 实际使用 sarama，仅参考其基础设施配置和 optional-init 模式，不参考其 Go Kafka 库选择。
+
+**接口设计（参考 kratos-transport 并增强）：**
+- `Broker` interface：Connect / Disconnect / Publish / Subscribe
+- `Event` interface：Message + **RawMessage**（底层原始消息）+ **Error**（fetch 级错误）+ Ack / Nack
+- `MiddlewareFunc` + `Chain()`：handler 中间件链
+- `Subscriber`：Topic + **Options**() + Unsubscribe(**removeFromManager**)
+
+**初始化模式：** `NewBrokerOptional(ctx, cfg, logger)` — nil-safe，未配置时返回 nil + Info 日志，创建/连接失败时 warn + nil（不 panic）。遵循 `openfga.NewClientOptional` 模式。
+
+### 4.6 pkg/audit — 审计运行时骨架
+
+**架构：** Emitter interface（Emit/Close）→ 3 种实现（NoopEmitter、LogEmitter、BrokerEmitter）→ Recorder（自动填充 EventID/OccurredAt/TraceID）→ Kratos Middleware 骨架。
+
+**初始化模式：** `NewRecorderOptional(cfg, broker, logger)` 根据 `App.Audit.EmitterType` 选择 emitter。
+
+### 4.7 基础设施
+
+- **Kafka：** apache/kafka KRaft 模式（无 ZooKeeper），固定 KAFKA_CLUSTER_ID，CONTROLLER_QUORUM_VOTERS=1@localhost:9093，health check retries=20/start_period=20s
+- **ClickHouse：** clickhouse-server:25.1-alpine，端口 18123(HTTP)/19000(Native)
+- **IAM/sayhello：** 从 docker-compose.dev.yaml 和 Makefile（MICROSERVICES、GO_WORKSPACE_MODULES）中移除，代码保留作为参考
+
+### 4.8 实现约束收敛
+
+以下约束在 Phase 1 实现过程中确立，后续阶段必须遵循：
+
+1. **Optional-init 模式统一**：所有可选基础设施组件（Kafka、ClickHouse、OpenFGA）使用 `NewXxxOptional` 函数，nil 配置返回 nil 而非 panic，调用方 nil-check 后使用
+2. **Proto 集中配置**：所有框架级配置（Kafka/ClickHouse/Audit）通过 `api/protos/conf/v1/conf.proto` 统一管理，不做分散的 Go config struct
+3. **Logger 桥接模式**：第三方库（franz-go kzap、GORM、Ent）通过 `logger.Zap()` 获取底层 `*zap.Logger`，不直接传递 Kratos `log.Logger`
+4. **Module 命名规范**：`logger.For(l, "module")` 中 module 使用 `domain/layer/service` 格式（如 `"user/biz/iam"`），不带 `-service` 后缀
+5. **broker 接口扩展点**：新增 broker 实现（NATS、RabbitMQ 等）只需实现 `broker.Broker` interface，不需修改 `pkg/broker` 核心
+6. **OpenSpec 主 spec 格式**：必须包含 `## Purpose` section、`## Requirements`（非 `ADDED Requirements`）、每条 requirement 第一行含 SHALL/MUST、至少一个 `#### Scenario`
 
 ---
 
-## 6. 审计架构设计
+## 5. 不保留中央 IAM/AuthZ 在线代理（不变）
 
-### 6.1 总体原则
+核心理由保持不变：
+1. `pkg/authz` 已具备通用执行能力，无需再套代理
+2. OpenFGA 自身已是独立基础设施
+3. 减少网络跳数与故障面
+4. 授权决策本地执行更容易获取业务上下文
 
-审计体系采用：
+允许保留薄中心能力：OpenFGA model/store 管理、后台 tuple 管理、审计查询、运维控制台。
+
+---
+
+## 6. actor 模型（Phase 1 已实现）
+
+actor 不直接等于 Keycloak claims。采用：
 
 ```text
-业务服务本地产生审计事件 -> Kafka -> Audit Service -> ClickHouse / 查询 API
+Keycloak claims / gateway headers → adapter → actor.Actor
 ```
 
-即：
+actor 字段：Type（user|service|anonymous|system）、ID、Subject、ClientID、Realm、DisplayName、Email、Roles、Scopes、Attrs。
 
-- 审计事件的**产生是分布式的**；
-- 审计事件的**消费、存储、查询是中心化的**。
+`pkg/authz`、`pkg/audit`、业务服务只依赖 actor，不依赖 Keycloak 原始 claims 结构。
 
-### 6.2 为什么审计不要求中央 authz 服务
-
-审计需要的是“统一汇聚”，不是“统一在线代理”。
-
-对于授权场景，最有价值的审计数据往往只存在于业务服务本地，例如：
-
-- operation 是什么；
-- relation 是什么；
-- object_type / object_id 是什么；
-- actor 是谁；
-- 为什么 allow / deny；
-- 当前 request_id / trace_id 是什么。
-
-这些信息让 **`pkg/authz` 成为最自然的审计锚点**。
-
-### 6.3 审计事件的核心来源
-
-第一阶段优先覆盖四类事件：
-
-1. `authn.result`
-   认证成功/失败、token 验证结果、principal 构建结果。
-
-2. `authz.decision`
-   OpenFGA check 的 allow / deny / no_rule / check_error 等决策结果。
-
-3. `authz.tuple.changed`
-   tuple 写入、删除、批量变更等授权关系变更。
-
-4. `resource.mutation`
-   关键业务资源的 create / update / delete 等变更行为。
-
-### 6.4 审计锚点建议
-
-#### P0：`pkg/authz.Authz`
-
-这是最重要的统一锚点，应记录：
-
-- actor；
-- relation；
-- object_type；
-- object_id；
-- operation；
-- decision；
-- error_code / reason；
-- request_id / trace_id；
-- cache_hit（若有）；
-- service 名称。
-
-#### P1：tuple 写删层
-
-无论最终挂在：
-
-- `pkg/openfga`，还是
-- 某个上层 repo
-
-都应统一记录 tuple 变更事件：
-
-- write / delete；
-- tuples 列表；
-- operator principal；
-- source service；
-- request_id / trace_id。
-
-#### P2：认证边界层
-
-可在以下位置记录认证边界事件：
-
-- 网关；
-- `pkg/authn` / identity adapter；
-- 特殊的 token verify 边界。
-
-其目标不是替代业务审计，而是补足安全链路。
-
-### 6.5 审计模型是否可扩展
-
-结论：**必须可扩展，但不能失控。**
-
-推荐模式：
-
-- 固定骨架；
-- typed detail；
-- version；
-- 少量 labels。
-
-推荐的稳定骨架字段包括：
-
-- `event_id`
-- `event_type`
-- `event_version`
-- `occurred_at`
-- `service`
-- `operation`
-- `actor`
-- `target`
-- `result`
-- `error`
-- `trace_id`
-- `request_id`
-
-detail 建议按类型扩展，例如：
-
-- `AuthnDetail`
-- `AuthzDetail`
-- `TupleMutationDetail`
-- `ResourceMutationDetail`
-
-不建议一开始就把可扩展性完全做成任意 JSON / map。
+Keycloak 主集成方式：OIDC discovery、JWKS、token/introspection/userinfo、Admin REST（非 gRPC）。
 
 ---
 
-## 7. actor 模型设计原则
+## 7. 审计架构（骨架已实现，主链待接入）
 
-### 7.1 actor 不直接等于 Keycloak claims
-
-接入 Keycloak 后，Servora 内部仍不应让 actor 直接镜像 Keycloak token 结构。
-
-原因：
-
-1. Keycloak 是身份提供方，不是 Servora 的内部 canonical principal model；
-2. 未来 actor 还可能来自 service account、内部 job、system actor、gateway header、甚至其他 IdP；
-3. 如果 actor 直接与 Keycloak 字段绑定，内部模型会被外部协议反向约束。
-
-### 7.2 actor 应作为通用 principal 模型
-
-建议 actor 至少具备：
-
-- `Type`：`user | service | anonymous | system`
-- `ID`：内部稳定 principal id
-- `Subject`：外部 subject（如 Keycloak `sub`）
-- `ClientID`
-- `Realm`
-- `DisplayName`
-- `Email`
-- `Roles`
-- `Scopes`
-- `Attrs`
-
-### 7.3 Keycloak 与 actor 的关系
-
-应采用：
+### 7.1 总体架构
 
 ```text
-Keycloak claims / gateway headers -> adapter -> actor.Actor
+业务服务本地产生审计事件 → pkg/broker (Kafka) → Audit Service → ClickHouse → 查询 API
 ```
 
-即：
+### 7.2 四类事件来源
 
-- Keycloak claims 是输入协议；
-- actor 是内部标准形态；
-- gateway header 也是另一个输入源；
-- `pkg/authz`、`pkg/audit`、业务服务只依赖 actor，不依赖 Keycloak 原始 claims 结构。
+| 事件类型 | 锚点 | Phase 1 状态 | Phase 2 计划 |
+|----------|------|-------------|-------------|
+| `authn.result` | `pkg/authn` / identity adapter | proto 已定义 | 接入 emit |
+| `authz.decision` | `pkg/authz.Authz` middleware | proto 已定义 | **P0 优先接入** |
+| `authz.tuple.changed` | `pkg/openfga` tuple write/delete | proto 已定义 | P1 接入 |
+| `resource.mutation` | 业务服务 handler | proto 已定义 + middleware 骨架 | 通过 annotation 自动化 |
 
-### 7.4 Keycloak 接口形态
-
-Keycloak 的主集成方式是：
-
-- OIDC / OAuth2 HTTP 端点；
-- Admin REST API；
-- SPI 扩展能力。
-
-它不是一个 gRPC-first 的系统，因此 Servora 的适配设计应围绕：
-
-- OIDC discovery
-- JWKS
-- token / introspection / userinfo
-- Admin REST
-
-来考虑，而不是围绕 gRPC 设计核心集成方式。
-
----
-
-## 8. Servora 的框架化演进方向
-
-### 8.1 总体方向
-
-Servora 的目标不是单点实现 audit，而是构建一套可复用的微服务框架能力：
-
-- `pkg/authz`
-- `pkg/authn`
-- `pkg/actor`
-- `pkg/audit`
-- `pkg/broker`
-- `pkg/transport`
-- 相关 proto / annotation / codegen
-
-### 8.2 关于 `kratos-transport`
-
-`/Users/horonlee/projects/go/kratos-transport` 对 Servora 有较高参考价值，但不应成为核心边界定义者。
-
-推荐态度：
-
-- **借鉴设计与实现思路**；
-- **不直接作为 Servora 核心依赖接入**；
-- 在 Servora 内部形成自己的 broker / transport / pkg 生态。
-
-适合借鉴的内容包括：
-
-- broker 抽象风格；
-- producer / consumer option 组织方式；
-- tracing / message / header / context 透传方式；
-- 生命周期管理思路。
-
-不建议直接继承的部分包括：
-
-- 整套外部抽象边界；
-- 将 Servora 自己的领域事件模型直接绑定在其 message 结构上；
-- 为了支持 Kafka 先引入整套与当前需求不匹配的大抽象。
-
-### 8.3 目录边界建议
-
-建议长期拆分为：
-
-#### `pkg/transport`
-
-放请求/响应型或协议接入型能力：
-
-- HTTP / gRPC / WebSocket / SSE / TCP 等；
-- server/client middleware；
-- metadata / header / context 透传；
-- 服务接入协议封装。
-
-#### `pkg/broker`
-
-放消息型、事件型能力：
-
-- broker interface；
-- message / headers / publication；
-- subscriber / producer / consumer lifecycle；
-- topic / retry / ordering / tracing 等。
-
-#### `pkg/task` 或 `pkg/queue`
-
-若未来支持 Asynq 等任务队列，建议不要强塞进 `pkg/broker`。
-原因是 job queue 与 event broker 在语义上不同：
-
-- broker 偏事件总线；
-- task / queue 偏延迟任务、重试任务、调度任务。
-
-### 8.4 消息队列抽象策略
-
-虽然 Kafka 是第一阶段实现，但框架层应预留多实现空间。
-
-推荐节奏：
-
-1. 先定义稳定的最小 broker 抽象；
-2. 第一实现做 `pkg/broker/kafka`；
-3. 后续再按语义补 NATS / RabbitMQ / Redis Streams 等；
-4. 任务队列单独设计，不强并入 broker。
-
----
-
-## 9. 审计的 all-in-proto 路线
-
-### 9.1 总体判断
-
-审计应像 authz 一样走：
+### 7.3 all-in-proto 路线
 
 ```text
-proto 注解 -> 代码生成 -> middleware 自动执行
+proto 注解 → protoc-gen-servora-audit → middleware 自动执行
 ```
 
-这条路线非常适合 Servora，因为它符合当前框架已经具备的模式：
-
-- 通用 proto 注解；
-- 统一代码生成；
-- 通用 middleware；
-- 由 `make api` 驱动全链路更新。
-
-### 9.2 推荐结构
-
-#### 公共模型
-
-放在根目录 `api/` 下，例如：
-
-- `api/protos/audit/v1/audit.proto`
-- `api/protos/audit/v1/annotations.proto`
-
-其中：
-
-- `audit.proto` 定义公共 `AuditEvent`、actor/target/detail 等模型；
-- `annotations.proto` 定义 service / RPC 的 audit 注解规则。
-
-#### 生成器
-
-新增例如：
-
-- `cmd/protoc-gen-servora-audit`
-
-生成内容可包括：
-
-- `operation -> audit rule map`
-- 字段提取 helper
-- detail builder helper
-- middleware 可直接消费的 runtime rule 结构
-
-#### 运行时
-
-新增：
-
-- `pkg/audit`
-
-其职责包括：
-
-- event builder；
-- middleware；
-- recorder / emitter；
-- 与 `pkg/broker` 对接的 event publish runtime。
-
-### 9.3 价值
-
-这条路线的核心价值在于：
-
-- 降低业务服务重复埋点成本；
-- 将审计纳入 proto 驱动与代码生成体系；
-- 让审计成为 Servora 的“框架能力”，而不是某个服务的附加实现。
+结构：
+- `api/protos/audit/v1/audit.proto` — ✅ 已定义
+- `api/protos/audit/v1/annotations.proto` — ✅ 已定义（AuditRule + audit_rule method option）
+- `cmd/protoc-gen-servora-audit` — Phase 4 实现
+- `pkg/audit` runtime — ✅ 骨架已实现
 
 ---
 
-## 10. 第五部分：Servora 现在该删什么、留什么、换什么
+## 8. 框架化演进方向
 
-### 10.1 未来应逐步下线的部分
+### 8.1 pkg 生态当前状态
 
-#### A. IAM 自己充当 issuer 的整套能力
+| 包 | 状态 | 说明 |
+|----|------|------|
+| `pkg/actor` | ✅ v2 | 通用 principal 模型，4 种 actor type |
+| `pkg/authn` | 🔄 待降级 | Phase 3 改造为身份适配层 |
+| `pkg/authz` | ✅ 可用 | Phase 2 接入审计 emit |
+| `pkg/audit` | ✅ 骨架 | Phase 2 接入 authz 主链 |
+| `pkg/broker` | ✅ 接口 + kafka 实现 | franz-go，kzap + kotel |
+| `pkg/logger` | ✅ v2 | 暴力重构后的简洁 API |
+| `pkg/openfga` | ✅ 可用 | Phase 2 tuple 审计接入 |
+| `pkg/transport` | ✅ 可用 | IdentityFromHeader v2 已升级 |
 
-包括：
+### 8.2 关于参考项目
 
-- 自己暴露 JWKS；
-- 自己暴露 OIDC discovery；
-- 自己签发 / 刷新 access token；
-- 自己实现登录、注册、密码重置、邮箱验证等完整认证闭环。
+| 项目 | 本地路径 | 参考内容 | 不参考内容 |
+|------|---------|---------|-----------|
+| kratos-transport | `/Users/horonlee/projects/go/kratos-transport` | broker 接口设计、Event/Subscriber/Handler 类型签名、option 组织、middleware 模式 | 整套外部抽象边界、直接作为依赖 |
+| Kemate | `/Users/horonlee/projects/go/Kemate` | docker-compose 配置（Kafka KRaft）、optional-init 模式 | sarama 选型、Kafka Go 库代码 |
 
-接入 Keycloak 后，这一层继续保留会造成“双认证中心”。
+### 8.3 目录边界
 
-#### B. `Traefik -> IAM /v1/auth/verify -> 上游服务` 这条链
-
-这条链在当前阶段是合理的过渡方案，但未来推荐改为：
-
-- 网关直接对接 Keycloak 认证链路；
-- 网关完成 token 验证；
-- 网关把 principal 信息注入上游请求头；
-- 业务服务不再依赖 IAM `/v1/auth/verify`。
-
-#### C. 纯为早期 IAM 验证存在的本地身份域
-
-由于当前 `user / org / project / application` 很大一部分不是正式业务模型，因此凡是主要服务于“自建认证中心”的测试性本地域模型，都不应成为未来架构包袱。
-
-### 10.2 应保留并重构的部分
-
-#### A. `pkg/authz`
-
-必须保留，并升级为：
-
-- 统一授权执行层；
-- 统一授权审计采集点。
-
-未来角色：
-
-- 不负责认证；
-- 只负责授权判定；
-- 在授权决策处统一产出审计事件。
-
-#### B. `pkg/openfga`
-
-必须保留，作为所有业务服务访问 OpenFGA 的统一适配层。
-
-未来统一承载：
-
-- Check / CachedCheck；
-- WriteTuples / DeleteTuples；
-- cache / tracing / metrics / hooks；
-- tuple 变更审计锚点。
-
-#### C. `pkg/actor`
-
-必须保留，并通用化为 canonical principal 模型。
-
-#### D. `pkg/authn`
-
-不要简单删除，但必须降级重构为**身份适配层**，而不是“认证中心能力”。
-
-未来主要模式：
-
-1. Gateway identity mode：从 header 构造 actor；
-2. Direct JWT verification mode：只给极少数绕过网关的场景使用。
-
-#### E. `pkg/transport/server/middleware/identity.go`
-
-值得保留并增强，未来应支持更多 principal header，例如：
-
-- `X-User-ID`
-- `X-Client-ID`
-- `X-Principal-Type`
-- `X-Realm`
-- `X-Roles`
-- `X-Scopes`
-- `X-Email`
-- `X-Subject`
-
-### 10.3 应新增的部分
-
-#### A. `pkg/audit`
-
-职责：
-
-- 定义统一审计事件 runtime；
-- event builder；
-- recorder / emitter；
-- middleware；
-- 与 broker 对接。
-
-#### B. `pkg/broker`
-
-职责：
-
-- 抽象发布订阅接口；
-- message / headers / key / metadata；
-- producer / consumer 运行时。
-
-#### C. `pkg/broker/kafka`
-
-作为第一实现，服务于 audit 与后续事件总线。
-
-#### D. `app/audit/service`
-
-作为中心化审计消费、存储、查询服务。
-
-#### E. `cmd/protoc-gen-servora-audit`
-
-作为审计注解的代码生成器，与 `protoc-gen-servora-authz` 并列。
+- `pkg/transport`：请求/响应型能力（HTTP/gRPC/SSE/WebSocket），middleware，metadata 透传
+- `pkg/broker`：消息型、事件型能力，broker interface，producer/consumer lifecycle
+- `pkg/task` 或 `pkg/queue`（未来）：任务队列（Asynq 等），不强塞进 broker
 
 ---
 
-## 11. 分阶段演进建议
+## 9. 该删什么、留什么、换什么
 
-### 第一阶段：定骨架
+### 9.1 已执行的变更
 
-目标：不急着替换全部认证链路，先把框架骨架立起来。
+| 组件 | 操作 | 状态 |
+|------|------|------|
+| IAM/sayhello 工具链入口 | 从 Makefile MICROSERVICES/GO_WORKSPACE_MODULES、docker-compose.dev.yaml 移除 | ✅ 已完成 |
+| IAM/sayhello 源代码 | 保留作为新服务参考模板，可独立编译 | ✅ 保留 |
+| `pkg/actor` | v2 破坏性升级 | ✅ 已完成 |
+| `pkg/logger` | 暴力重构 | ✅ 已完成 |
+| `pkg/transport/.../identity` | v2 多 header 支持 | ✅ 已完成 |
 
-建议：
+### 9.2 待执行（Phase 2+）
 
-1. 固化 Keycloak + Traefik + OpenFGA + Audit Service 的目标架构；
-2. 设计 `actor` v2；
-3. 设计 `audit.proto` / `annotations.proto`；
-4. 设计 `pkg/broker` 最小抽象；
-5. 新增 `pkg/audit` runtime 骨架。
-
-### 第二阶段：先做审计主链
-
-建议：
-
-1. 落 `pkg/broker/kafka`；
-2. 落 `pkg/audit`；
-3. 在 `pkg/authz` 接入 `authz.decision` 事件；
-4. 在 tuple 写删链路接入 `authz.tuple.changed` 事件；
-5. 新建 `app/audit/service` 消费并落库。
-
-### 第三阶段：完成 Keycloak 接入
-
-建议：
-
-1. 让网关改为对接 Keycloak；
-2. 业务服务默认使用 identity header adapter；
-3. 将 `pkg/authn` 改造成标准化身份适配层；
-4. 清理 IAM 自建 issuer / verify 主链中的旧能力。
-
-### 第四阶段：推进 all-in-proto
-
-建议：
-
-1. 新增 audit annotations；
-2. 实现 `protoc-gen-servora-audit`；
-3. 让 middleware 自动按 proto 规则生成审计事件；
-4. 逐步减少手写 emit 逻辑。
-
-### 第五阶段：扩展 Servora 生态
-
-建议：
-
-1. 补 `pkg/broker` 的更多实现；
-2. 设计 `pkg/task` / `pkg/queue`；
-3. 统一框架级 observability、eventbus、identity、audit、authz 能力；
-4. 将 Servora 逐步沉淀为对外发布的微服务框架生态。
+| 组件 | 操作 | 阶段 |
+|------|------|------|
+| IAM issuer 能力（JWKS/OIDC/登录/注册） | 下线，认证交给 Keycloak | Phase 3 |
+| Traefik → IAM /v1/auth/verify 链路 | 改为网关直接对接 Keycloak | Phase 3 |
+| `pkg/authn` | 降级为身份适配层（gateway header mode + direct JWT mode） | Phase 3 |
+| `pkg/authz` | 接入审计 emit（authz.decision 事件） | Phase 2 |
+| `pkg/openfga` | tuple 变更审计接入 | Phase 2 |
+| `app/audit/service` | 新建：消费 Kafka → ClickHouse 落库 → 查询 API | Phase 2 |
+| `cmd/protoc-gen-servora-audit` | 新建：审计注解代码生成器 | Phase 4 |
 
 ---
 
-## 12. 最终结论
+## 10. 分阶段演进计划
 
-本次设计的核心不是“替换一个认证服务”，而是为 Servora 确立一套长期有效的边界：
+### Phase 1：框架骨架 ✅ 已完成
 
-- 认证交给 **Keycloak**；
-- 网关负责 **统一认证与 principal 注入**；
-- 授权由 **各业务服务本地执行 `pkg/authz` + OpenFGA**；
-- 审计采用 **本地 emit + Kafka + 中心 Audit Service**；
-- actor 设计为 **通用 principal 模型**；
-- 审计与授权一样，逐步走向 **all-in-proto + 注解 + 代码生成 + middleware**；
-- broker / transport / audit / authz / actor 将共同构成 **Servora 的 pkg 框架生态**。
+**交付物：**
+1. ~~actor v2~~ ✅
+2. ~~pkg/logger 重构~~ ✅
+3. ~~audit.proto + annotations.proto~~ ✅
+4. ~~conf.proto 扩展（Kafka/ClickHouse/Audit 配置）~~ ✅
+5. ~~pkg/broker 接口 + kafka 实现~~ ✅
+6. ~~pkg/audit 骨架~~ ✅
+7. ~~IdentityFromHeader v2~~ ✅
+8. ~~Docker Compose Kafka + ClickHouse~~ ✅
+9. ~~IAM/sayhello 工具链解耦~~ ✅
 
-这意味着，Servora 未来不再围绕“一个不断膨胀的中央 IAM 服务”演进，而是围绕：
+### Phase 2：审计主链 + authz 集成（待启动）
 
-- 明确的基础设施边界；
-- 清晰的框架能力分层；
-- 通用的 proto 驱动与代码生成能力；
-- 面向微服务脚手架的长期 pkg 生态；
+**目标：** 将审计骨架连接成可运行的端到端审计链路。
 
-持续演进。
+**核心任务：**
+1. `pkg/authz` middleware 接入 `pkg/audit.Recorder.RecordAuthzDecision`，每次 Check 产出 `authz.decision` 事件
+2. `pkg/openfga` 的 WriteTuples/DeleteTuples 接入 `RecordTupleChange`，产出 `authz.tuple.changed` 事件
+3. 新建 `app/audit/service`：
+   - 从 Kafka 消费审计事件
+   - 反序列化 + 校验
+   - 写入 ClickHouse
+   - 提供基础查询 API（gRPC + HTTP）
+4. ClickHouse schema 设计（audit_events 表、分区策略、TTL）
+5. 端到端验证：业务请求 → authz 判定 → audit event → Kafka → audit service → ClickHouse → 查询可见
+
+**前置条件：** Phase 1 ✅ + 基础设施（Kafka、ClickHouse）运行正常 ✅
+
+### Phase 3：Keycloak 接入
+
+**目标：** 完成认证链路切换，下线自建 IAM issuer 能力。
+
+**核心任务：**
+1. 部署 Keycloak（docker-compose 新增 keycloak 服务）
+2. 配置 Traefik 对接 Keycloak（ForwardAuth 或 OIDC middleware）
+3. `pkg/authn` 降级重构：
+   - Gateway identity mode（默认）：从 header 构造 actor
+   - Direct JWT verification mode：极少数绕过网关的场景
+4. 清理 IAM 中的 issuer/verify/JWKS/OIDC/登录注册能力
+5. 前端对接 Keycloak 登录流程
+
+### Phase 4：all-in-proto 代码生成
+
+**目标：** 审计走向声明式，减少手写 emit 逻辑。
+
+**核心任务：**
+1. 实现 `cmd/protoc-gen-servora-audit`
+2. 生成 operation → audit rule map
+3. 生成字段提取 helper + detail builder
+4. middleware 自动按 proto 规则执行审计
+5. 集成到 `make api` 生成链路（`buf.audit.gen.yaml`）
+
+### Phase 5：Servora 生态扩展
+
+**目标：** 框架能力泛化，为对外发布做准备。
+
+**方向：**
+1. `pkg/broker` 补更多实现（NATS / RabbitMQ / Redis Streams）
+2. 设计 `pkg/task` / `pkg/queue`（Asynq 等任务队列）
+3. 统一框架级 observability、eventbus、identity、audit、authz 能力
+4. 将 Servora 逐步沉淀为对外发布的微服务框架生态
+
+---
+
+## 11. 最终结论
+
+本次设计的核心不是"替换一个认证服务"，而是为 Servora 确立一套长期有效的边界：
+
+- 认证交给 **Keycloak**
+- 网关负责 **统一认证与 principal 注入**
+- 授权由 **各业务服务本地执行 `pkg/authz` + OpenFGA**
+- 审计采用 **本地 emit + Kafka + 中心 Audit Service**
+- actor 设计为 **通用 principal 模型**
+- 审计与授权逐步走向 **all-in-proto + 注解 + 代码生成 + middleware**
+- broker / transport / audit / authz / actor 构成 **Servora 的 pkg 框架生态**
+
+Servora 未来围绕明确的基础设施边界、清晰的框架能力分层、通用的 proto 驱动与代码生成能力、面向微服务脚手架的长期 pkg 生态持续演进。
