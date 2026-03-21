@@ -28,10 +28,12 @@ func main() {
 }
 
 type messageEntry struct {
-	GoName      string
-	Presets     []string
-	FieldMap    map[string]string // entity field -> proto field rename
-	CustomHooks []string
+	GoName          string
+	Presets         []string
+	FieldMap        map[string]string // entity field -> proto field rename
+	FieldConverters map[string]string // proto field name -> ConverterKind constant name
+	IgnoredFields   []string
+	CustomHooks     []string
 }
 
 func processFile(gen *protogen.Plugin, f *protogen.File) error {
@@ -48,9 +50,10 @@ func processFile(gen *protogen.Plugin, f *protogen.File) error {
 		}
 
 		entry := messageEntry{
-			GoName:   msg.GoIdent.GoName,
-			Presets:  rule.Presets,
-			FieldMap: make(map[string]string),
+			GoName:          msg.GoIdent.GoName,
+			Presets:         rule.Presets,
+			FieldMap:        make(map[string]string),
+			FieldConverters: make(map[string]string),
 		}
 
 		for _, field := range msg.Fields {
@@ -62,8 +65,15 @@ func processFile(gen *protogen.Plugin, f *protogen.File) error {
 			if !ok || fr == nil {
 				continue
 			}
+			if fr.Ignore {
+				entry.IgnoredFields = append(entry.IgnoredFields, field.GoName)
+				continue
+			}
 			if fr.Rename != "" {
 				entry.FieldMap[fr.Rename] = field.GoName
+			}
+			if fr.Converter != mapperpb.ConverterKind_CONVERTER_KIND_UNSPECIFIED {
+				entry.FieldConverters[field.GoName] = converterKindToConstant(fr.Converter)
 			}
 			if fr.Custom != "" {
 				entry.CustomHooks = append(entry.CustomHooks, fr.Custom)
@@ -113,6 +123,20 @@ func generateMapperFile(g *protogen.GeneratedFile, pkgName protogen.GoPackageNam
 			g.P("		},")
 		}
 
+		if len(e.FieldConverters) > 0 {
+			converterKind := g.QualifiedGoIdent(protogen.GoIdent{GoName: "ConverterKind", GoImportPath: mapperPkg})
+			g.P("		FieldConverters: map[string]", converterKind, "{")
+			for field, kind := range e.FieldConverters {
+				kindIdent := g.QualifiedGoIdent(protogen.GoIdent{GoName: kind, GoImportPath: mapperPkg})
+				g.P(fmt.Sprintf("			%q: ", field), kindIdent, ",")
+			}
+			g.P("		},")
+		}
+
+		if len(e.IgnoredFields) > 0 {
+			g.P("		IgnoredFields: []string{", formatStringSlice(e.IgnoredFields), "},")
+		}
+
 		if len(e.CustomHooks) > 0 {
 			g.P("		CustomHooks: []string{", formatStringSlice(e.CustomHooks), "},")
 		}
@@ -120,6 +144,27 @@ func generateMapperFile(g *protogen.GeneratedFile, pkgName protogen.GoPackageNam
 		g.P("	}")
 		g.P("}")
 		g.P()
+	}
+}
+
+func converterKindToConstant(kind mapperpb.ConverterKind) string {
+	switch kind {
+	case mapperpb.ConverterKind_CONVERTER_KIND_TIMESTAMP_TIME:
+		return "ConverterTimestampTime"
+	case mapperpb.ConverterKind_CONVERTER_KIND_TIME_PTR:
+		return "ConverterTimePTR"
+	case mapperpb.ConverterKind_CONVERTER_KIND_STRING_PTR:
+		return "ConverterStringPTR"
+	case mapperpb.ConverterKind_CONVERTER_KIND_INT64_PTR:
+		return "ConverterInt64PTR"
+	case mapperpb.ConverterKind_CONVERTER_KIND_ENUM_STRING:
+		return "ConverterEnumString"
+	case mapperpb.ConverterKind_CONVERTER_KIND_UUID_STRING:
+		return "ConverterUUIDString"
+	case mapperpb.ConverterKind_CONVERTER_KIND_INT_INT32:
+		return "ConverterIntInt32"
+	default:
+		return ""
 	}
 }
 
