@@ -42,7 +42,7 @@ func (r *authnRepo) SaveUser(ctx context.Context, u *userpb.User, hashedPassword
 		r.log.Errorf("SaveUser failed: %v", err)
 		return nil, err
 	}
-	return mapUser(r.mapper, created), nil
+	return r.mapper.MustToProto(created), nil
 }
 
 func (r *authnRepo) GetUserByUserName(ctx context.Context, name string) (*userpb.User, error) {
@@ -50,7 +50,7 @@ func (r *authnRepo) GetUserByUserName(ctx context.Context, name string) (*userpb
 	if err != nil {
 		return nil, wrapNotFound(err)
 	}
-	return mapUser(r.mapper, entUser), nil
+	return r.mapper.MustToProto(entUser), nil
 }
 
 func (r *authnRepo) GetUserByEmail(ctx context.Context, email string) (*userpb.User, error) {
@@ -58,7 +58,7 @@ func (r *authnRepo) GetUserByEmail(ctx context.Context, email string) (*userpb.U
 	if err != nil {
 		return nil, wrapNotFound(err)
 	}
-	return mapUser(r.mapper, entUser), nil
+	return r.mapper.MustToProto(entUser), nil
 }
 
 func (r *authnRepo) GetUserByID(ctx context.Context, id string) (*userpb.User, error) {
@@ -70,7 +70,7 @@ func (r *authnRepo) GetUserByID(ctx context.Context, id string) (*userpb.User, e
 	if err != nil {
 		return nil, wrapNotFound(err)
 	}
-	return mapUser(r.mapper, entUser), nil
+	return r.mapper.MustToProto(entUser), nil
 }
 
 func (r *authnRepo) GetPasswordHash(ctx context.Context, userID string) (string, error) {

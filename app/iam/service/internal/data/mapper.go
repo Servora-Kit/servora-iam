@@ -16,28 +16,15 @@ func newUserMapper() *mapper.CopierMapper[userpb.User, ent.User] {
 	if err := mapper.ApplyPlan(userpb.UserMapperPlan(), m, mapper.DefaultPresets(), hooks); err != nil {
 		panic("mapper: apply user plan: " + err.Error())
 	}
-	return m
-}
 
-// mapUser converts ent.User to proto User with profile post-processing.
-// Profile uses map[string]any in ent but structured *UserProfile in proto,
-// which copier cannot handle -- so we apply it after the copier pass.
-func mapUser(m *mapper.CopierMapper[userpb.User, ent.User], u *ent.User) *userpb.User {
-	pb := m.MustToProto(u)
-	if pb != nil && u.Profile != nil {
-		pb.Profile = profileFromJSON(u.Profile)
-	}
-	return pb
-}
-
-func mapUsers(m *mapper.CopierMapper[userpb.User, ent.User], users []*ent.User) []*userpb.User {
-	result := make([]*userpb.User, 0, len(users))
-	for _, u := range users {
-		if u != nil {
-			result = append(result, mapUser(m, u))
+	m.WithPostToProtoHook(func(entity *ent.User, proto *userpb.User) error {
+		if entity.Profile != nil {
+			proto.Profile = profileFromJSON(entity.Profile)
 		}
-	}
-	return result
+		return nil
+	})
+
+	return m
 }
 
 func profileFromJSON(m map[string]any) *userpb.UserProfile {

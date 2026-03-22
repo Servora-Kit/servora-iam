@@ -62,7 +62,7 @@ func (r *userRepo) SaveUser(ctx context.Context, u *userpb.User, hashedPassword 
 		r.log.Errorf("SaveUser failed: %v", err)
 		return nil, err
 	}
-	return mapUser(r.mapper, created), nil
+	return r.mapper.MustToProto(created), nil
 }
 
 func (r *userRepo) GetUserById(ctx context.Context, id string) (*userpb.User, error) {
@@ -74,7 +74,7 @@ func (r *userRepo) GetUserById(ctx context.Context, id string) (*userpb.User, er
 	if err != nil {
 		return nil, wrapNotFound(err)
 	}
-	return mapUser(r.mapper, entUser), nil
+	return r.mapper.MustToProto(entUser), nil
 }
 
 func (r *userRepo) DeleteUser(ctx context.Context, id string) error {
@@ -110,7 +110,7 @@ func (r *userRepo) RestoreUser(ctx context.Context, id string) (*userpb.User, er
 	if err != nil {
 		return nil, err
 	}
-	return mapUser(r.mapper, u), nil
+	return r.mapper.MustToProto(u), nil
 }
 
 func (r *userRepo) GetUserByIdIncludingDeleted(ctx context.Context, id string) (*userpb.User, error) {
@@ -122,7 +122,7 @@ func (r *userRepo) GetUserByIdIncludingDeleted(ctx context.Context, id string) (
 	if err != nil {
 		return nil, wrapNotFound(err)
 	}
-	return mapUser(r.mapper, entUser), nil
+	return r.mapper.MustToProto(entUser), nil
 }
 
 func (r *userRepo) UpdateUser(ctx context.Context, u *userpb.User) (*userpb.User, error) {
@@ -155,7 +155,7 @@ func (r *userRepo) UpdateUser(ctx context.Context, u *userpb.User) (*userpb.User
 	if err != nil {
 		return nil, err
 	}
-	return mapUser(r.mapper, updated), nil
+	return r.mapper.MustToProto(updated), nil
 }
 
 func (r *userRepo) ListUsers(ctx context.Context, page int32, pageSize int32) ([]*userpb.User, int64, error) {
@@ -173,7 +173,11 @@ func (r *userRepo) ListUsers(ctx context.Context, page int32, pageSize int32) ([
 		return nil, 0, err
 	}
 
-	return mapUsers(r.mapper, entUsers), int64(total), nil
+	users, err := r.mapper.ToProtoList(entUsers)
+	if err != nil {
+		return nil, 0, err
+	}
+	return users, int64(total), nil
 }
 
 func profileToJSON(p *userpb.UserProfile) map[string]interface{} {
