@@ -1,6 +1,7 @@
 package mapper
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -140,4 +141,58 @@ func TestMapperPlan_IgnoredFields(t *testing.T) {
 
 	err := ApplyPlan(plan, m, presets, hooks)
 	require.NoError(t, err)
+}
+
+func TestCopierMapper_PostToProtoHook(t *testing.T) {
+	m := NewCopierMapper[domainUser, entLikeUser]()
+	m.WithPostToProtoHook(func(entity *entLikeUser, proto *domainUser) error {
+		proto.Role = "injected_by_hook"
+		return nil
+	})
+
+	src := &entLikeUser{ID: 1, Name: "alice", Role: "user"}
+	dst := m.MustToProto(src)
+	require.Equal(t, "injected_by_hook", dst.Role)
+	require.Equal(t, "alice", dst.Name)
+}
+
+func TestCopierMapper_PostToEntityHook(t *testing.T) {
+	m := NewCopierMapper[domainUser, entLikeUser]()
+	m.WithPostToEntityHook(func(proto *domainUser, entity *entLikeUser) error {
+		entity.Role = "injected_by_hook"
+		return nil
+	})
+
+	src := &domainUser{ID: 1, Name: "bob", Role: "admin"}
+	dst := m.MustToEntity(src)
+	require.Equal(t, "injected_by_hook", dst.Role)
+	require.Equal(t, "bob", dst.Name)
+}
+
+func TestCopierMapper_PostHookError(t *testing.T) {
+	m := NewCopierMapper[domainUser, entLikeUser]()
+	m.WithPostToProtoHook(func(_ *entLikeUser, _ *domainUser) error {
+		return fmt.Errorf("hook failed")
+	})
+
+	src := &entLikeUser{ID: 1}
+	_, err := m.ToProto(src)
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "hook failed")
+}
+
+func TestCopierMapper_MultiplePostHooks(t *testing.T) {
+	m := NewCopierMapper[domainUser, entLikeUser]()
+	m.WithPostToProtoHook(func(_ *entLikeUser, proto *domainUser) error {
+		proto.Name = proto.Name + "_first"
+		return nil
+	})
+	m.WithPostToProtoHook(func(_ *entLikeUser, proto *domainUser) error {
+		proto.Name = proto.Name + "_second"
+		return nil
+	})
+
+	src := &entLikeUser{Name: "base"}
+	dst := m.MustToProto(src)
+	require.Equal(t, "base_first_second", dst.Name)
 }

@@ -6,9 +6,11 @@ import "github.com/jinzhu/copier"
 // Proto/domain type P and Entity/storage type E.
 // Type parameter order: P = proto/domain side, E = entity/storage side.
 type CopierMapper[P any, E any] struct {
-	converters   []copier.TypeConverter
-	fieldMapping []copier.FieldNameMapping
-	options      copier.Option
+	converters       []copier.TypeConverter
+	fieldMapping     []copier.FieldNameMapping
+	options          copier.Option
+	postToProtoHooks []func(entity *E, proto *P) error
+	postToEntityHooks []func(proto *P, entity *E) error
 }
 
 func NewCopierMapper[P any, E any]() *CopierMapper[P, E] {
@@ -19,6 +21,21 @@ func NewCopierMapper[P any, E any]() *CopierMapper[P, E] {
 			DeepCopy:    true,
 		},
 	}
+}
+
+// WithPostToProtoHook registers a function that runs after copier completes
+// in ToProto. Use for field-level transformations that copier cannot handle
+// (e.g. map[string]any -> structured proto message).
+func (m *CopierMapper[P, E]) WithPostToProtoHook(fn func(entity *E, proto *P) error) *CopierMapper[P, E] {
+	m.postToProtoHooks = append(m.postToProtoHooks, fn)
+	return m
+}
+
+// WithPostToEntityHook registers a function that runs after copier completes
+// in ToEntity.
+func (m *CopierMapper[P, E]) WithPostToEntityHook(fn func(proto *P, entity *E) error) *CopierMapper[P, E] {
+	m.postToEntityHooks = append(m.postToEntityHooks, fn)
+	return m
 }
 
 func (m *CopierMapper[P, E]) AppendConverter(c copier.TypeConverter) *CopierMapper[P, E] {
@@ -59,6 +76,11 @@ func (m *CopierMapper[P, E]) ToProto(entity *E) (*P, error) {
 	if err := copier.CopyWithOption(&p, entity, m.buildOption()); err != nil {
 		return nil, err
 	}
+	for _, hook := range m.postToProtoHooks {
+		if err := hook(entity, &p); err != nil {
+			return nil, err
+		}
+	}
 	return &p, nil
 }
 
@@ -70,6 +92,11 @@ func (m *CopierMapper[P, E]) ToEntity(proto *P) (*E, error) {
 	var e E
 	if err := copier.CopyWithOption(&e, proto, m.buildOption()); err != nil {
 		return nil, err
+	}
+	for _, hook := range m.postToEntityHooks {
+		if err := hook(proto, &e); err != nil {
+			return nil, err
+		}
 	}
 	return &e, nil
 }
