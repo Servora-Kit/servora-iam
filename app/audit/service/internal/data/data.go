@@ -2,6 +2,7 @@ package data
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/ClickHouse/clickhouse-go/v2/lib/driver"
 	conf "github.com/Servora-Kit/servora/api/gen/go/servora/conf/v1"
@@ -10,12 +11,19 @@ import (
 )
 
 // ProviderSet provides all data layer dependencies.
-var ProviderSet = wire.NewSet(NewClickHouseClient, NewData, NewBatchWriter, NewAuditRepo)
+// NewAuditRepo returns biz.AuditRepo directly — no wire.Bind needed.
+var ProviderSet = wire.NewSet(
+	NewClickHouseClient,
+	NewData,
+	NewBatchWriter,
+	NewConsumer,
+	NewAuditRepo,
+)
 
 // Data holds shared data layer resources for the audit service.
 type Data struct {
-	chc driver.Conn
-	log *logger.Helper
+	clickhouse driver.Conn
+	log        *logger.Helper
 }
 
 // NewData initialises the audit data layer: it runs the ClickHouse DDL
@@ -38,17 +46,17 @@ func NewData(conn driver.Conn, appCfg *conf.App, l logger.Logger) (*Data, func()
 			retentionDays = appCfg.Audit.RetentionDays
 		}
 		if err := createAuditEventsTable(context.Background(), conn, retentionDays); err != nil {
-			log.Warnf("failed to ensure audit_events table: %v", err)
-		} else {
-			log.Info("audit_events table ensured")
+			cleanup()
+			return nil, nil, fmt.Errorf("create audit_events table: %w", err)
 		}
+		log.Info("audit_events table ensured")
 	}
 
-	return &Data{chc: conn, log: log}, cleanup, nil
+	return &Data{clickhouse: conn, log: log}, cleanup, nil
 }
 
-// ch returns the ch connection. May be nil when ch is
+// ClickHouse returns the ClickHouse connection. May be nil when ClickHouse is
 // not configured; callers should nil-check before use.
-func (d *Data) ch() driver.Conn {
-	return d.chc
+func (d *Data) ClickHouse() driver.Conn {
+	return d.clickhouse
 }

@@ -4,23 +4,23 @@ import (
 	"context"
 
 	auditsvcpb "github.com/Servora-Kit/servora/api/gen/go/servora/audit/service/v1"
-	"github.com/Servora-Kit/servora/app/audit/service/internal/data"
+	"github.com/Servora-Kit/servora/app/audit/service/internal/biz"
 )
 
 // AuditService implements both AuditQueryService (gRPC) and AuditHTTPService (HTTP).
 type AuditService struct {
 	auditsvcpb.UnimplementedAuditQueryServiceServer
 	auditsvcpb.UnimplementedAuditHTTPServiceServer
-	repo *data.AuditRepo
+	uc *biz.AuditUsecase
 }
 
 // NewAuditService creates a new AuditService.
-func NewAuditService(repo *data.AuditRepo) *AuditService {
-	return &AuditService{repo: repo}
+func NewAuditService(uc *biz.AuditUsecase) *AuditService {
+	return &AuditService{uc: uc}
 }
 
 func (s *AuditService) ListAuditEvents(ctx context.Context, req *auditsvcpb.ListAuditEventsRequest) (*auditsvcpb.ListAuditEventsResponse, error) {
-	items, nextToken, err := s.repo.ListEvents(ctx, req)
+	items, nextToken, err := s.uc.ListEvents(ctx, req)
 	if err != nil {
 		return nil, err
 	}
@@ -31,7 +31,7 @@ func (s *AuditService) ListAuditEvents(ctx context.Context, req *auditsvcpb.List
 }
 
 func (s *AuditService) CountAuditEvents(ctx context.Context, req *auditsvcpb.CountAuditEventsRequest) (*auditsvcpb.CountAuditEventsResponse, error) {
-	count, err := s.repo.CountEvents(ctx, req)
+	count, err := s.uc.CountEvents(ctx, req)
 	if err != nil {
 		return nil, err
 	}

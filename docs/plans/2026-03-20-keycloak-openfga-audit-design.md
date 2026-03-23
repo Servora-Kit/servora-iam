@@ -104,6 +104,7 @@ Servora 当前仓库同时承载了框架能力（`pkg/`、`cmd/`、`api/`）与
 12. **Kafka topic 预创建**：`KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"` 已启用，但 franz-go 客户端首次发布时不等待 auto-create 完成，可能导致第一条消息失败（`UNKNOWN_TOPIC_OR_PARTITION`）。开发环境 topic 已持久化后无影响；生产环境应在服务启动前通过 admin API 或 init job 确保 topic 存在
 13. **nil Timestamp 空值处理**：protobuf `*timestamppb.Timestamp` 在字段未设置时为 nil；调用 `.AsTime()` 返回 `time.Unix(0,0).UTC()`（非 Go zero value），`!t.IsZero()` 为 true 会产生意外 WHERE 条件。规范：凡接收 proto timestamp 参数并转 `time.Time` 的地方，必须先判断 nil
 14. **Data 层结构统一**：每个微服务的 `internal/data/` 必须包含 `Data` struct + `NewData` 函数（持有底层连接、管 cleanup、跑 DDL）；各 repo 通过 `*Data` 访问连接（如 `d.ClickHouse()`、`d.Ent(ctx)`），不直接依赖裸连接。连接建立由独立函数完成（如 `NewClickHouseClient`、`NewDBClient`），`NewData` 负责组装
+15. **分层依赖与接口返回**：`service` → `biz`（use case）→ `data`（repo），禁止跨层依赖。data 层构造函数直接返回 biz 层接口类型（如 `func NewAuditRepo(...) biz.AuditRepo`），Wire 自动解析，不使用 `wire.Bind`。数据接入管道（如 Kafka consumer）属于 data 层而非 biz 层；同 package 内组件（如 consumer → batch writer）直接依赖具体类型
 
 ---
 
@@ -257,7 +258,7 @@ proto 注解 → protoc-gen-servora-audit → middleware 自动执行
 
 | 交付物 | 关键决策 |
 |--------|---------|
-| `app/audit/service` 微服务 | 参考 IAM 分层（cmd/biz/data/server/service）；proto 拆 `audit.proto` + `i_audit.proto`；hot-reload via `Dockerfile.air` |
+| `app/audit/service` 微服务 | 严格分层（service→biz→data）；data 构造函数返回 biz 接口，不用 `wire.Bind`；consumer/batch-writer 归 data 层；proto 拆 `audit.proto` + `i_audit.proto`；hot-reload via `Dockerfile.air` |
 | ClickHouse 存储 | 官方 native driver `clickhouse-go/v2`；`detail` 纯 JSON 列；DDL 内嵌 `CREATE TABLE IF NOT EXISTS`（启动时 idempotent） |
 | `pkg/db/clickhouse` | 框架级连接 helper `NewConnOptional`（TLS/压缩/连接池），遵循 Optional-init 模式 |
 | Kafka consumer | 复用 `pkg/broker.Subscribe`（不直接依赖 franz-go）；BatchWriter 按 `consumer_batch_size`/`consumer_flush_interval` 刷盘 |

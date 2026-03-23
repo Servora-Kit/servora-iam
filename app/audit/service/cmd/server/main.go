@@ -4,7 +4,7 @@ import (
 	"context"
 	"flag"
 
-	"github.com/Servora-Kit/servora/app/audit/service/internal/biz"
+	"github.com/Servora-Kit/servora/app/audit/service/internal/data"
 	"github.com/Servora-Kit/servora/pkg/bootstrap"
 
 	"github.com/go-kratos/kratos/v2"
@@ -26,7 +26,7 @@ func init() {
 	flag.StringVar(&flagconf, "conf", "./configs", "config path, eg: -conf config.yaml")
 }
 
-func newApp(identity bootstrap.SvcIdentity, l log.Logger, reg registry.Registrar, gs *grpc.Server, hs *http.Server, consumer *biz.Consumer) *kratos.App {
+func newApp(identity bootstrap.SvcIdentity, l log.Logger, reg registry.Registrar, gs *grpc.Server, hs *http.Server, consumer *data.Consumer) *kratos.App {
 	return kratos.New(
 		kratos.ID(identity.ID),
 		kratos.Name(identity.Name),

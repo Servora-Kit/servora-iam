@@ -12,7 +12,7 @@ import (
 	"github.com/Servora-Kit/servora/app/iam/service/internal/data/ent"
 	"github.com/Servora-Kit/servora/app/iam/service/internal/data/ent/migrate"
 
-	entdrv "github.com/Servora-Kit/servora/pkg/ent"
+	entdrv "github.com/Servora-Kit/servora/pkg/db/ent"
 	"github.com/Servora-Kit/servora/pkg/governance/registry"
 	"github.com/Servora-Kit/servora/pkg/logger"
 	"github.com/Servora-Kit/servora/pkg/mail"

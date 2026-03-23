@@ -1,11 +1,11 @@
-package biz
+package data
 
 import (
 	"context"
+	"fmt"
 
 	auditv1 "github.com/Servora-Kit/servora/api/gen/go/servora/audit/v1"
 	conf "github.com/Servora-Kit/servora/api/gen/go/servora/conf/v1"
-	"github.com/Servora-Kit/servora/app/audit/service/internal/data"
 	"github.com/Servora-Kit/servora/pkg/broker"
 	"github.com/Servora-Kit/servora/pkg/logger"
 	"google.golang.org/protobuf/proto"
@@ -16,29 +16,35 @@ const defaultConsumerGroup = "audit-consumer"
 
 // Consumer subscribes to Kafka audit topic and routes events to the BatchWriter.
 type Consumer struct {
-	broker      broker.Broker
-	writer      *data.BatchWriter
-	log         *logger.Helper
-	topic       string
-	group       string
-	subscriber  broker.Subscriber
+	broker     broker.Broker
+	writer     *BatchWriter
+	log        *logger.Helper
+	topic      string
+	group      string
+	subscriber broker.Subscriber
 }
 
-// NewConsumer creates a new Consumer.
-func NewConsumer(b broker.Broker, writer *data.BatchWriter, appCfg *conf.App, l logger.Logger) *Consumer {
+// NewConsumer creates a new Consumer. The topic comes from conf.App.Audit.topic,
+// the consumer group from conf.Data.Kafka.consumer_group. Both fall back to
+// hardcoded defaults when unset.
+func NewConsumer(b broker.Broker, writer *BatchWriter, dataCfg *conf.Data, appCfg *conf.App, l logger.Logger) *Consumer {
 	topic := defaultTopic
 	group := defaultConsumerGroup
 
-	if appCfg != nil && appCfg.Audit != nil {
-		if appCfg.Audit.Topic != "" {
-			topic = appCfg.Audit.Topic
-		}
+	if appCfg != nil && appCfg.Audit != nil && appCfg.Audit.Topic != "" {
+		topic = appCfg.Audit.Topic
 	}
+	if dataCfg != nil && dataCfg.Kafka != nil && dataCfg.Kafka.ConsumerGroup != "" {
+		group = dataCfg.Kafka.ConsumerGroup
+	}
+
+	log := logger.For(l, "consumer/data/audit")
+	log.Infof("audit consumer configured: topic=%s group=%s", topic, group)
 
 	return &Consumer{
 		broker: b,
 		writer: writer,
-		log:    logger.For(l, "consumer/biz/audit"),
+		log:    log,
 		topic:  topic,
 		group:  group,
 	}
@@ -59,8 +65,7 @@ func (c *Consumer) Start(ctx context.Context) error {
 		broker.DisableAutoAck(),
 	)
 	if err != nil {
-		c.log.Warnf("failed to subscribe to topic %s: %v", c.topic, err)
-		return nil
+		return fmt.Errorf("subscribe to audit topic %s: %w", c.topic, err)
 	}
 
 	c.subscriber = sub
@@ -109,6 +114,9 @@ func (c *Consumer) handle(ctx context.Context, evt broker.Event) error {
 func validateEvent(e *auditv1.AuditEvent) error {
 	if e.EventId == "" {
 		return errorf("missing event_id")
+	}
+	if e.EventType == 0 {
+		return errorf("missing event_type")
 	}
 	if e.OccurredAt == nil {
 		return errorf("missing occurred_at")

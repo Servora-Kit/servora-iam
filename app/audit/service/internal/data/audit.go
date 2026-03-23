@@ -8,19 +8,21 @@ import (
 	"time"
 
 	auditsvcpb "github.com/Servora-Kit/servora/api/gen/go/servora/audit/service/v1"
+	"github.com/Servora-Kit/servora/app/audit/service/internal/biz"
 	"github.com/Servora-Kit/servora/pkg/logger"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-// AuditRepo provides read access to ClickHouse audit_events.
-type AuditRepo struct {
+// auditRepo provides read access to ClickHouse audit_events.
+type auditRepo struct {
 	data *Data
 	log  *logger.Helper
 }
 
-// NewAuditRepo creates a new AuditRepo.
-func NewAuditRepo(d *Data, l logger.Logger) *AuditRepo {
-	return &AuditRepo{
+// NewAuditRepo creates a new AuditRepo. Returns the biz.AuditRepo interface
+// so Wire resolves the dependency without wire.Bind — matching IAM's pattern.
+func NewAuditRepo(d *Data, l logger.Logger) biz.AuditRepo {
+	return &auditRepo{
 		data: d,
 		log:  logger.For(l, "audit/data"),
 	}
@@ -50,8 +52,8 @@ func decodePageToken(token string) (*pageToken, error) {
 }
 
 // ListEvents queries audit events with filters and cursor-based pagination.
-func (r *AuditRepo) ListEvents(ctx context.Context, req *auditsvcpb.ListAuditEventsRequest) ([]*auditsvcpb.AuditEventItem, string, error) {
-	if r.data.ch() == nil {
+func (r *auditRepo) ListEvents(ctx context.Context, req *auditsvcpb.ListAuditEventsRequest) ([]*auditsvcpb.AuditEventItem, string, error) {
+	if r.data.ClickHouse() == nil {
 		return nil, "", nil
 	}
 
@@ -70,7 +72,10 @@ func (r *AuditRepo) ListEvents(ctx context.Context, req *auditsvcpb.ListAuditEve
 	if req.EndTime != nil {
 		endTime = req.EndTime.AsTime()
 	}
-	where, args := buildWhere(startTime, endTime, req.EventTypes, req.ActorId, req.Service, req.PageToken)
+	where, args, err := buildWhere(startTime, endTime, req.EventTypes, req.ActorId, req.Service, req.PageToken)
+	if err != nil {
+		return nil, "", err
+	}
 
 	query := fmt.Sprintf(`
 SELECT event_id, event_type, event_version, occurred_at,
@@ -85,7 +90,7 @@ ORDER BY occurred_at ASC, event_id ASC
 LIMIT %d
 `, where, pageSize+1)
 
-	rows, err := r.data.ch().Query(ctx, query, args...)
+	rows, err := r.data.ClickHouse().Query(ctx, query, args...)
 	if err != nil {
 		return nil, "", fmt.Errorf("query audit events: %w", err)
 	}
@@ -135,6 +140,9 @@ LIMIT %d
 			Detail:           detail,
 		})
 	}
+	if err := rows.Err(); err != nil {
+		return nil, "", fmt.Errorf("iterate audit events: %w", err)
+	}
 
 	var nextToken string
 	if len(items) > pageSize {
@@ -147,8 +155,8 @@ LIMIT %d
 }
 
 // CountEvents returns the count of audit events matching the given filters.
-func (r *AuditRepo) CountEvents(ctx context.Context, req *auditsvcpb.CountAuditEventsRequest) (int64, error) {
-	if r.data.ch() == nil {
+func (r *auditRepo) CountEvents(ctx context.Context, req *auditsvcpb.CountAuditEventsRequest) (int64, error) {
+	if r.data.ClickHouse() == nil {
 		return 0, nil
 	}
 
@@ -159,19 +167,23 @@ func (r *AuditRepo) CountEvents(ctx context.Context, req *auditsvcpb.CountAuditE
 	if req.EndTime != nil {
 		endTime = req.EndTime.AsTime()
 	}
-	where, args := buildWhere(startTime, endTime, req.EventTypes, req.ActorId, req.Service, "")
+	where, args, err := buildWhere(startTime, endTime, req.EventTypes, req.ActorId, req.Service, "")
+	if err != nil {
+		return 0, err
+	}
 
 	query := fmt.Sprintf("SELECT count() FROM audit_events %s", where)
 
 	var count uint64
-	if err := r.data.ch().QueryRow(ctx, query, args...).Scan(&count); err != nil {
+	if err := r.data.ClickHouse().QueryRow(ctx, query, args...).Scan(&count); err != nil {
 		return 0, fmt.Errorf("count audit events: %w", err)
 	}
 	return int64(count), nil
 }
 
 // buildWhere constructs the WHERE clause and argument list from filter parameters.
-func buildWhere(startTime, endTime time.Time, eventTypes []string, actorID, service, pageToken string) (string, []interface{}) {
+// Returns an error if pageToken is non-empty but invalid.
+func buildWhere(startTime, endTime time.Time, eventTypes []string, actorID, service, pageToken string) (string, []interface{}, error) {
 	var conditions []string
 	var args []interface{}
 
@@ -197,14 +209,15 @@ func buildWhere(startTime, endTime time.Time, eventTypes []string, actorID, serv
 	}
 	if pageToken != "" {
 		pt, err := decodePageToken(pageToken)
-		if err == nil {
-			conditions = append(conditions, "(occurred_at, event_id) > (?, ?)")
-			args = append(args, pt.OccurredAt, pt.EventID)
+		if err != nil {
+			return "", nil, fmt.Errorf("invalid page_token: %w", err)
 		}
+		conditions = append(conditions, "(occurred_at, event_id) > (?, ?)")
+		args = append(args, pt.OccurredAt, pt.EventID)
 	}
 
 	if len(conditions) == 0 {
-		return "", args
+		return "", args, nil
 	}
 
 	where := "WHERE "
@@ -214,5 +227,5 @@ func buildWhere(startTime, endTime time.Time, eventTypes []string, actorID, serv
 		}
 		where += c
 	}
-	return where, args
+	return where, args, nil
 }

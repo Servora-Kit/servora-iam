@@ -19,7 +19,6 @@ import (
 	"github.com/Servora-Kit/servora/pkg/governance/registry"
 	"github.com/Servora-Kit/servora/pkg/governance/telemetry"
 	"github.com/Servora-Kit/servora/pkg/jwks"
-	"github.com/Servora-Kit/servora/pkg/openfga"
 	"github.com/Servora-Kit/servora/pkg/transport/client"
 	"github.com/go-kratos/kratos/v2"
 	"github.com/go-kratos/kratos/v2/log"
@@ -42,7 +41,7 @@ func wireApp(confServer *conf.Server, discovery *conf.Discovery, confRegistry *c
 	if err != nil {
 		return nil, nil, err
 	}
-	openfgaClient := openfga.NewClientOptional(app, logger)
+	openfgaClient := server.NewOpenFGAClient(app, logger)
 	redisClient, cleanup, err := data.NewRedis(confData, logger)
 	if err != nil {
 		return nil, nil, err

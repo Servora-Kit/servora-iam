@@ -7,7 +7,7 @@ import (
 	"entgo.io/ent/dialect/entsql"
 	"entgo.io/ent/schema"
 	"entgo.io/ent/schema/field"
-	entmixin "github.com/Servora-Kit/servora/pkg/ent/mixin"
+	entmixin "github.com/Servora-Kit/servora/pkg/db/ent/mixin"
 	"github.com/google/uuid"
 )
 

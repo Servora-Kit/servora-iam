@@ -2131,7 +2131,7 @@ type Data_ClickHouse struct {
 	ConnMaxLifetime *durationpb.Duration   `protobuf:"bytes,9,opt,name=conn_max_lifetime,json=connMaxLifetime,proto3" json:"conn_max_lifetime,omitempty"`
 	Tls             bool                   `protobuf:"varint,10,opt,name=tls,proto3" json:"tls,omitempty"`                                            // 是否启用 TLS（默认 false）
 	TlsSkipVerify   bool                   `protobuf:"varint,11,opt,name=tls_skip_verify,json=tlsSkipVerify,proto3" json:"tls_skip_verify,omitempty"` // 跳过 TLS 证书校验（仅用于开发，默认 false）
-	Compress        string                 `protobuf:"bytes,12,opt,name=compress,proto3" json:"compress,omitempty"`                                   // 压缩算法："lz4"（默认）| "zstd" | "" 不压缩
+	Compress        string                 `protobuf:"bytes,12,opt,name=compress,proto3" json:"compress,omitempty"`                                   // 压缩算法："lz4" | "zstd" | ""（默认，不压缩）
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }

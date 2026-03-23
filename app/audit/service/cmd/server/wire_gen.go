@@ -39,12 +39,13 @@ func wireApp(confServer *conf.Server, confRegistry *conf.Registry, confData *con
 		return nil, nil, err
 	}
 	auditRepo := data.NewAuditRepo(dataData, logger)
-	auditService := service.NewAuditService(auditRepo)
+	auditUsecase := biz.NewAuditUsecase(auditRepo)
+	auditService := service.NewAuditService(auditUsecase)
 	grpcServer := server.NewGRPCServer(confServer, trace, logger, auditService)
 	httpServer := server.NewHTTPServer(confServer, trace, logger, auditService)
 	broker := newKafkaBroker(confData, logger)
 	batchWriter := data.NewBatchWriter(dataData, app, logger)
-	consumer := biz.NewConsumer(broker, batchWriter, app, logger)
+	consumer := data.NewConsumer(broker, batchWriter, confData, app, logger)
 	kratosApp := newApp(svcIdentity, logger, registrar, grpcServer, httpServer, consumer)
 	return kratosApp, func() {
 		cleanup()

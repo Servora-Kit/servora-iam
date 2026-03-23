@@ -118,7 +118,7 @@ func (w *BatchWriter) flush(ctx context.Context) {
 	w.buffer = make([]pendingEvent, 0, w.batchSize)
 	w.mu.Unlock()
 
-	if w.data.ch() == nil {
+	if w.data.ClickHouse() == nil {
 		// ClickHouse not configured; ack events so they don't block
 		for _, p := range batch {
 			if p.kafkaEvt != nil {
@@ -128,7 +128,7 @@ func (w *BatchWriter) flush(ctx context.Context) {
 		return
 	}
 
-	chBatch, err := w.data.ch().PrepareBatch(ctx, "INSERT INTO audit_events")
+	chBatch, err := w.data.ClickHouse().PrepareBatch(ctx, "INSERT INTO audit_events")
 	if err != nil {
 		w.log.Warnf("failed to prepare batch: %v", err)
 		w.nackAll(batch)
@@ -183,7 +183,10 @@ func (w *BatchWriter) flush(ctx context.Context) {
 			e.RequestId,
 			detail,
 		); err != nil {
-			w.log.Warnf("failed to append event %s: %v", e.EventId, err)
+			w.log.Warnf("append failed for event %s, aborting batch: %v", e.EventId, err)
+			_ = chBatch.Abort()
+			w.nackAll(batch)
+			return
 		}
 	}
 

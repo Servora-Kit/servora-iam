@@ -12,11 +12,13 @@ import (
 )
 
 // NewClickHouseClient opens a ClickHouse connection via pkg/db/clickhouse.
-// Returns (nil, nil) when ClickHouse is not configured or unreachable — callers
-// must nil-check the returned conn. The connection lifecycle (Close) is owned by
-// NewData, following the same pattern as IAM's NewDBClient + NewData.
+// Returns (nil, nil) when ClickHouse is not configured; returns an error when
+// configured but connection failed — ensuring fail-fast for a core dependency.
 func NewClickHouseClient(cfg *conf.Data, l logger.Logger) (driver.Conn, error) {
-	conn := pkgch.NewConnOptional(cfg, l)
+	conn, err := pkgch.NewConnOptional(context.Background(), cfg, l)
+	if err != nil {
+		return nil, fmt.Errorf("clickhouse client: %w", err)
+	}
 	return conn, nil
 }
 
