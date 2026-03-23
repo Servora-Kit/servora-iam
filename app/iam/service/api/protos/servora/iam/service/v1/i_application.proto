@@ -4,7 +4,7 @@ package servora.iam.service.v1;
 
 import "google/api/annotations.proto";
 import "servora/application/service/v1/application.proto";
-import "servora/authz/service/v1/authz.proto";
+import "servora/authz/v1/authz.proto";
 
 option go_package = "github.com/Servora-Kit/servora/api/gen/go/servora/iam/service/v1;iampb";
 
@@ -15,7 +15,7 @@ service ApplicationService {
       post: "/v1/applications"
       body: "*"
     };
-    option (servora.authz.service.v1.rule) = {
+    option (servora.authz.v1.rule) = {
       mode: AUTHZ_MODE_CHECK
       object_type: "platform"
       relation: "admin"
@@ -24,14 +24,14 @@ service ApplicationService {
 
   rpc GetApplication(servora.application.service.v1.GetApplicationRequest) returns (servora.application.service.v1.GetApplicationResponse) {
     option (google.api.http) = {get: "/v1/applications/{id}"};
-    option (servora.authz.service.v1.rule) = {
+    option (servora.authz.v1.rule) = {
       mode: AUTHZ_MODE_NONE
     };
   }
 
   rpc ListApplications(servora.application.service.v1.ListApplicationsRequest) returns (servora.application.service.v1.ListApplicationsResponse) {
     option (google.api.http) = {get: "/v1/applications"};
-    option (servora.authz.service.v1.rule) = {
+    option (servora.authz.v1.rule) = {
       mode: AUTHZ_MODE_NONE
     };
   }
@@ -41,7 +41,7 @@ service ApplicationService {
       put: "/v1/applications/{id}"
       body: "*"
     };
-    option (servora.authz.service.v1.rule) = {
+    option (servora.authz.v1.rule) = {
       mode: AUTHZ_MODE_CHECK
       object_type: "platform"
       relation: "admin"
@@ -50,7 +50,7 @@ service ApplicationService {
 
   rpc DeleteApplication(servora.application.service.v1.DeleteApplicationRequest) returns (servora.application.service.v1.DeleteApplicationResponse) {
     option (google.api.http) = {delete: "/v1/applications/{id}"};
-    option (servora.authz.service.v1.rule) = {
+    option (servora.authz.v1.rule) = {
       mode: AUTHZ_MODE_CHECK
       object_type: "platform"
       relation: "admin"
@@ -62,7 +62,7 @@ service ApplicationService {
       post: "/v1/applications/{id}/regenerate-secret"
       body: "*"
     };
-    option (servora.authz.service.v1.rule) = {
+    option (servora.authz.v1.rule) = {
       mode: AUTHZ_MODE_CHECK
       object_type: "platform"
       relation: "admin"

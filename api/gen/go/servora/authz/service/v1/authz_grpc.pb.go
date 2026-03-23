@@ -4,7 +4,7 @@
 // - protoc             (unknown)
 // source: servora/authz/service/v1/authz.proto
 
-package authzpb
+package authzsvcpb
 
 import (
 	context "context"

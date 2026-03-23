@@ -3,7 +3,7 @@ syntax = "proto3";
 package servora.iam.service.v1;
 
 import "google/api/annotations.proto";
-import "servora/authz/service/v1/authz.proto";
+import "servora/authz/v1/authz.proto";
 import "servora/user/service/v1/user.proto";
 
 option go_package = "github.com/Servora-Kit/servora/api/gen/go/servora/iam/service/v1;iampb";
@@ -11,14 +11,14 @@ option go_package = "github.com/Servora-Kit/servora/api/gen/go/servora/iam/servi
 service UserService {
   rpc CurrentUserInfo(servora.user.service.v1.CurrentUserInfoRequest) returns (servora.user.service.v1.CurrentUserInfoResponse) {
     option (google.api.http) = {get: "/v1/user/info"};
-    option (servora.authz.service.v1.rule) = {
+    option (servora.authz.v1.rule) = {
       mode: AUTHZ_MODE_NONE
     };
   }
 
   rpc GetUser(servora.user.service.v1.GetUserRequest) returns (servora.user.service.v1.GetUserResponse) {
     option (google.api.http) = {get: "/v1/users/{id}"};
-    option (servora.authz.service.v1.rule) = {
+    option (servora.authz.v1.rule) = {
       mode: AUTHZ_MODE_CHECK
       object_type: "platform"
       relation: "can_manage_users"
@@ -27,7 +27,7 @@ service UserService {
 
   rpc ListUsers(servora.user.service.v1.ListUsersRequest) returns (servora.user.service.v1.ListUsersResponse) {
     option (google.api.http) = {get: "/v1/users"};
-    option (servora.authz.service.v1.rule) = {
+    option (servora.authz.v1.rule) = {
       mode: AUTHZ_MODE_CHECK
       object_type: "platform"
       relation: "can_manage_users"
@@ -39,7 +39,7 @@ service UserService {
       post: "/v1/user/update"
       body: "*"
     };
-    option (servora.authz.service.v1.rule) = {
+    option (servora.authz.v1.rule) = {
       mode: AUTHZ_MODE_NONE
     };
   }
@@ -50,7 +50,7 @@ service UserService {
       post: "/v1/users"
       body: "*"
     };
-    option (servora.authz.service.v1.rule) = {
+    option (servora.authz.v1.rule) = {
       mode: AUTHZ_MODE_CHECK
       object_type: "platform"
       relation: "admin"
@@ -59,7 +59,7 @@ service UserService {
 
   rpc DeleteUser(servora.user.service.v1.DeleteUserRequest) returns (servora.user.service.v1.DeleteUserResponse) {
     option (google.api.http) = {delete: "/v1/users/{id}"};
-    option (servora.authz.service.v1.rule) = {
+    option (servora.authz.v1.rule) = {
       mode: AUTHZ_MODE_CHECK
       object_type: "platform"
       relation: "admin"
@@ -68,7 +68,7 @@ service UserService {
 
   rpc PurgeUser(servora.user.service.v1.PurgeUserRequest) returns (servora.user.service.v1.PurgeUserResponse) {
     option (google.api.http) = {delete: "/v1/users/{id}/purge"};
-    option (servora.authz.service.v1.rule) = {
+    option (servora.authz.v1.rule) = {
       mode: AUTHZ_MODE_CHECK
       object_type: "platform"
       relation: "admin"
@@ -80,7 +80,7 @@ service UserService {
       post: "/v1/users/{id}/restore"
       body: "*"
     };
-    option (servora.authz.service.v1.rule) = {
+    option (servora.authz.v1.rule) = {
       mode: AUTHZ_MODE_CHECK
       object_type: "platform"
       relation: "admin"

@@ -4,7 +4,7 @@ package servora.iam.service.v1;
 
 import "servora/authn/service/v1/authn.proto";
 import "google/api/annotations.proto";
-import "servora/authz/service/v1/authz.proto";
+import "servora/authz/v1/authz.proto";
 
 option go_package = "github.com/Servora-Kit/servora/api/gen/go/servora/iam/service/v1;iampb";
 
@@ -14,7 +14,7 @@ service AuthnService {
       post: "/v1/auth/signup/using-email"
       body: "*"
     };
-    option (servora.authz.service.v1.rule) = {
+    option (servora.authz.v1.rule) = {
       mode: AUTHZ_MODE_NONE
     };
   }
@@ -24,7 +24,7 @@ service AuthnService {
       post: "/v1/auth/login/email-password"
       body: "*"
     };
-    option (servora.authz.service.v1.rule) = {
+    option (servora.authz.v1.rule) = {
       mode: AUTHZ_MODE_NONE
     };
   }
@@ -34,7 +34,7 @@ service AuthnService {
       post: "/v1/auth/refresh-token"
       body: "*"
     };
-    option (servora.authz.service.v1.rule) = {
+    option (servora.authz.v1.rule) = {
       mode: AUTHZ_MODE_NONE
     };
   }
@@ -44,7 +44,7 @@ service AuthnService {
       post: "/v1/auth/logout"
       body: "*"
     };
-    option (servora.authz.service.v1.rule) = {
+    option (servora.authz.v1.rule) = {
       mode: AUTHZ_MODE_NONE
     };
   }
@@ -54,7 +54,7 @@ service AuthnService {
       post: "/v1/auth/change-password"
       body: "*"
     };
-    option (servora.authz.service.v1.rule) = {
+    option (servora.authz.v1.rule) = {
       mode: AUTHZ_MODE_NONE
     };
   }
@@ -64,7 +64,7 @@ service AuthnService {
       post: "/v1/auth/logout-all"
       body: "*"
     };
-    option (servora.authz.service.v1.rule) = {
+    option (servora.authz.v1.rule) = {
       mode: AUTHZ_MODE_NONE
     };
   }
@@ -74,7 +74,7 @@ service AuthnService {
       post: "/v1/auth/request-email-verification"
       body: "*"
     };
-    option (servora.authz.service.v1.rule) = {
+    option (servora.authz.v1.rule) = {
       mode: AUTHZ_MODE_NONE
     };
   }
@@ -84,7 +84,7 @@ service AuthnService {
       post: "/v1/auth/verify-email"
       body: "*"
     };
-    option (servora.authz.service.v1.rule) = {
+    option (servora.authz.v1.rule) = {
       mode: AUTHZ_MODE_NONE
     };
   }
@@ -94,7 +94,7 @@ service AuthnService {
       post: "/v1/auth/request-password-reset"
       body: "*"
     };
-    option (servora.authz.service.v1.rule) = {
+    option (servora.authz.v1.rule) = {
       mode: AUTHZ_MODE_NONE
     };
   }
@@ -104,7 +104,7 @@ service AuthnService {
       post: "/v1/auth/reset-password"
       body: "*"
     };
-    option (servora.authz.service.v1.rule) = {
+    option (servora.authz.v1.rule) = {
       mode: AUTHZ_MODE_NONE
     };
   }
