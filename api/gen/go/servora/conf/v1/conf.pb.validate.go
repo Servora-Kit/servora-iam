@@ -4698,6 +4698,12 @@ func (m *Data_ClickHouse) validate(all bool) error {
 		}
 	}
 
+	// no validation rules for Tls
+
+	// no validation rules for TlsSkipVerify
+
+	// no validation rules for Compress
+
 	if len(errors) > 0 {
 		return Data_ClickHouseMultiError(errors)
 	}
@@ -5611,6 +5617,39 @@ func (m *App_Audit) validate(all bool) error {
 	// no validation rules for Topic
 
 	// no validation rules for ServiceName
+
+	// no validation rules for ConsumerBatchSize
+
+	if all {
+		switch v := interface{}(m.GetConsumerFlushInterval()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, App_AuditValidationError{
+					field:  "ConsumerFlushInterval",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, App_AuditValidationError{
+					field:  "ConsumerFlushInterval",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetConsumerFlushInterval()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return App_AuditValidationError{
+				field:  "ConsumerFlushInterval",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	// no validation rules for RetentionDays
 
 	if len(errors) > 0 {
 		return App_AuditMultiError(errors)

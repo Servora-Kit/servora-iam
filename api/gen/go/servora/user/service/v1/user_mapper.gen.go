@@ -15,10 +15,10 @@ func UserMapperPlan() *mapper.MapperPlan {
 			"ID": "Id",
 		},
 		FieldConverters: map[string]mapper.ConverterKind{
-			"Id":              mapper.ConverterUUIDString,
 			"EmailVerifiedAt": mapper.ConverterTimestampTime,
 			"CreatedAt":       mapper.ConverterTimestampTime,
 			"UpdatedAt":       mapper.ConverterTimestampTime,
+			"Id":              mapper.ConverterUUIDString,
 		},
 		CustomHooks: []string{"user_profile"},
 	}

@@ -60,8 +60,7 @@ COMPOSE_DEV_FILES := -f docker-compose.yaml -f docker-compose.dev.yaml
 DOCKER_BAKE_FILE := docker-bake.hcl
 BAKE_TARGETS ?= default
 # IAM and sayhello are deprecated as active services (retained as reference code).
-# New microservices (e.g. audit) will be added here when created.
-MICROSERVICES :=
+MICROSERVICES := audit sayhello
 
 # Frontend packages under web/<name>/ (pnpm workspace members; must match pnpm-workspace.yaml)
 # WEB_APPS := iam pkg ui
@@ -73,13 +72,13 @@ WEB_DEV_APP ?= iam
 # Go modules to lint from repo root (each path has its own go.mod). Excludes api/gen (generated).
 # When adding a workspace service module, append it here (see go.work `use`).
 # app/iam/service and app/sayhello/service are retained as reference code but excluded from lint.
-GO_WORKSPACE_MODULES :=
+GO_WORKSPACE_MODULES := app/audit/service
 
 # pnpm --filter args built from WEB_APPS (+ optional api client anchor)
 WEB_PNPM_FILTERS := $(foreach app,$(WEB_APPS),--filter "./web/$(app)")
 TS_CLIENT_PNPM_FILTER := --filter "./api/ts-client"
-# INFRA_SERVICES := consul db redis mailpit openfga otel-collector jaeger loki prometheus grafana traefik
-INFRA_SERVICES := consul db redis mailpit openfga otel-collector jaeger loki prometheus traefik kafka clickhouse
+# INFRA_SERVICES := consul db redis mailpit openfga otel-collector jaeger loki prometheus grafana traefik kafka clickhouse
+INFRA_SERVICES := consul db redis openfga otel-collector jaeger loki prometheus traefik kafka clickhouse
 COMPOSE_STACK_SERVICES := $(INFRA_SERVICES) $(MICROSERVICES)
 COMPOSE_STACK_DOWN := $(COMPOSE) $(COMPOSE_DEV_FILES) down --remove-orphans
 COMPOSE_STACK_RESET := $(COMPOSE) $(COMPOSE_DEV_FILES) down --remove-orphans --volumes

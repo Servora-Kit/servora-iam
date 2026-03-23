@@ -2129,6 +2129,9 @@ type Data_ClickHouse struct {
 	MaxOpenConns    int32                  `protobuf:"varint,7,opt,name=max_open_conns,json=maxOpenConns,proto3" json:"max_open_conns,omitempty"`
 	MaxIdleConns    int32                  `protobuf:"varint,8,opt,name=max_idle_conns,json=maxIdleConns,proto3" json:"max_idle_conns,omitempty"`
 	ConnMaxLifetime *durationpb.Duration   `protobuf:"bytes,9,opt,name=conn_max_lifetime,json=connMaxLifetime,proto3" json:"conn_max_lifetime,omitempty"`
+	Tls             bool                   `protobuf:"varint,10,opt,name=tls,proto3" json:"tls,omitempty"`                                            // 是否启用 TLS（默认 false）
+	TlsSkipVerify   bool                   `protobuf:"varint,11,opt,name=tls_skip_verify,json=tlsSkipVerify,proto3" json:"tls_skip_verify,omitempty"` // 跳过 TLS 证书校验（仅用于开发，默认 false）
+	Compress        string                 `protobuf:"bytes,12,opt,name=compress,proto3" json:"compress,omitempty"`                                   // 压缩算法："lz4"（默认）| "zstd" | "" 不压缩
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -2224,6 +2227,27 @@ func (x *Data_ClickHouse) GetConnMaxLifetime() *durationpb.Duration {
 		return x.ConnMaxLifetime
 	}
 	return nil
+}
+
+func (x *Data_ClickHouse) GetTls() bool {
+	if x != nil {
+		return x.Tls
+	}
+	return false
+}
+
+func (x *Data_ClickHouse) GetTlsSkipVerify() bool {
+	if x != nil {
+		return x.TlsSkipVerify
+	}
+	return false
+}
+
+func (x *Data_ClickHouse) GetCompress() string {
+	if x != nil {
+		return x.Compress
+	}
+	return ""
 }
 
 type Data_Client_HTTP struct {
@@ -2717,13 +2741,17 @@ func (x *App_Oidc) GetLoginBaseUrl() string {
 
 // 审计配置（控制 pkg/audit 的 Emitter 类型与目标）
 type App_Audit struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Enabled       bool                   `protobuf:"varint,1,opt,name=enabled,proto3" json:"enabled,omitempty"`                           // 是否启用审计事件采集
-	EmitterType   string                 `protobuf:"bytes,2,opt,name=emitter_type,json=emitterType,proto3" json:"emitter_type,omitempty"` // "broker"（→ Kafka）| "log"（→ 日志）| "noop"（丢弃）
-	Topic         string                 `protobuf:"bytes,3,opt,name=topic,proto3" json:"topic,omitempty"`                                // Kafka topic（默认 "servora.audit.events"）
-	ServiceName   string                 `protobuf:"bytes,4,opt,name=service_name,json=serviceName,proto3" json:"service_name,omitempty"` // 服务名称（覆盖 App.name，用于多实例场景）
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state       protoimpl.MessageState `protogen:"open.v1"`
+	Enabled     bool                   `protobuf:"varint,1,opt,name=enabled,proto3" json:"enabled,omitempty"`                           // 是否启用审计事件采集
+	EmitterType string                 `protobuf:"bytes,2,opt,name=emitter_type,json=emitterType,proto3" json:"emitter_type,omitempty"` // "broker"（→ Kafka）| "log"（→ 日志）| "noop"（丢弃）
+	Topic       string                 `protobuf:"bytes,3,opt,name=topic,proto3" json:"topic,omitempty"`                                // Kafka topic（默认 "servora.audit.events"）
+	ServiceName string                 `protobuf:"bytes,4,opt,name=service_name,json=serviceName,proto3" json:"service_name,omitempty"` // 服务名称（覆盖 App.name，用于多实例场景）
+	// consumer 侧配置（由 app/audit/service 消费）
+	ConsumerBatchSize     int32                `protobuf:"varint,5,opt,name=consumer_batch_size,json=consumerBatchSize,proto3" json:"consumer_batch_size,omitempty"`            // 批量写入大小（默认 100）
+	ConsumerFlushInterval *durationpb.Duration `protobuf:"bytes,6,opt,name=consumer_flush_interval,json=consumerFlushInterval,proto3" json:"consumer_flush_interval,omitempty"` // 批量刷新间隔（默认 1s）
+	RetentionDays         int32                `protobuf:"varint,7,opt,name=retention_days,json=retentionDays,proto3" json:"retention_days,omitempty"`                          // ClickHouse 数据保留天数（默认 90）
+	unknownFields         protoimpl.UnknownFields
+	sizeCache             protoimpl.SizeCache
 }
 
 func (x *App_Audit) Reset() {
@@ -2784,6 +2812,27 @@ func (x *App_Audit) GetServiceName() string {
 	return ""
 }
 
+func (x *App_Audit) GetConsumerBatchSize() int32 {
+	if x != nil {
+		return x.ConsumerBatchSize
+	}
+	return 0
+}
+
+func (x *App_Audit) GetConsumerFlushInterval() *durationpb.Duration {
+	if x != nil {
+		return x.ConsumerFlushInterval
+	}
+	return nil
+}
+
+func (x *App_Audit) GetRetentionDays() int32 {
+	if x != nil {
+		return x.RetentionDays
+	}
+	return 0
+}
+
 var File_servora_conf_v1_conf_proto protoreflect.FileDescriptor
 
 const file_servora_conf_v1_conf_proto_rawDesc = "" +
@@ -2833,7 +2882,7 @@ const file_servora_conf_v1_conf_proto_rawDesc = "" +
 	"\x03tls\x18\x02 \x01(\v2\x1a.servora.conf.v1.TLSConfigR\x03tls\x1aU\n" +
 	"\tGrpcEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x122\n" +
-	"\x05value\x18\x02 \x01(\v2\x1c.servora.conf.v1.Client.GRPCR\x05value:\x028\x01\"\xee\x0f\n" +
+	"\x05value\x18\x02 \x01(\v2\x1c.servora.conf.v1.Client.GRPCR\x05value:\x028\x01\"\xc4\x10\n" +
 	"\x04Data\x12:\n" +
 	"\bdatabase\x18\x01 \x01(\v2\x1e.servora.conf.v1.Data.DatabaseR\bdatabase\x121\n" +
 	"\x05redis\x18\x02 \x01(\v2\x1b.servora.conf.v1.Data.RedisR\x05redis\x124\n" +
@@ -2881,7 +2930,7 @@ const file_servora_conf_v1_conf_proto_rawDesc = "" +
 	"\x04SASL\x12\x1c\n" +
 	"\tmechanism\x18\x01 \x01(\tR\tmechanism\x12\x1a\n" +
 	"\busername\x18\x02 \x01(\tR\busername\x12\x1a\n" +
-	"\bpassword\x18\x03 \x01(\tR\bpassword\x1a\x85\x03\n" +
+	"\bpassword\x18\x03 \x01(\tR\bpassword\x1a\xdb\x03\n" +
 	"\n" +
 	"ClickHouse\x12\x14\n" +
 	"\x05addrs\x18\x01 \x03(\tR\x05addrs\x12\x1a\n" +
@@ -2892,8 +2941,11 @@ const file_servora_conf_v1_conf_proto_rawDesc = "" +
 	"\fread_timeout\x18\x06 \x01(\v2\x19.google.protobuf.DurationR\vreadTimeout\x12$\n" +
 	"\x0emax_open_conns\x18\a \x01(\x05R\fmaxOpenConns\x12$\n" +
 	"\x0emax_idle_conns\x18\b \x01(\x05R\fmaxIdleConns\x12E\n" +
-	"\x11conn_max_lifetime\x18\t \x01(\v2\x19.google.protobuf.DurationR\x0fconnMaxLifetime\"\x97\n" +
-	"\n" +
+	"\x11conn_max_lifetime\x18\t \x01(\v2\x19.google.protobuf.DurationR\x0fconnMaxLifetime\x12\x10\n" +
+	"\x03tls\x18\n" +
+	" \x01(\bR\x03tls\x12&\n" +
+	"\x0ftls_skip_verify\x18\v \x01(\bR\rtlsSkipVerify\x12\x1a\n" +
+	"\bcompress\x18\f \x01(\tR\bcompress\"\xc2\v\n" +
 	"\x03App\x12\x10\n" +
 	"\x03env\x18\x01 \x01(\tR\x03env\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x18\n" +
@@ -2931,12 +2983,15 @@ const file_servora_conf_v1_conf_proto_rawDesc = "" +
 	"crypto_key\x18\x01 \x01(\tR\tcryptoKey\x127\n" +
 	"\x18grant_type_refresh_token\x18\x02 \x01(\bR\x15grantTypeRefreshToken\x12=\n" +
 	"\x1bdefault_logout_redirect_uri\x18\x03 \x01(\tR\x18defaultLogoutRedirectUri\x12$\n" +
-	"\x0elogin_base_url\x18\x04 \x01(\tR\floginBaseUrl\x1a}\n" +
+	"\x0elogin_base_url\x18\x04 \x01(\tR\floginBaseUrl\x1a\xa7\x02\n" +
 	"\x05Audit\x12\x18\n" +
 	"\aenabled\x18\x01 \x01(\bR\aenabled\x12!\n" +
 	"\femitter_type\x18\x02 \x01(\tR\vemitterType\x12\x14\n" +
 	"\x05topic\x18\x03 \x01(\tR\x05topic\x12!\n" +
-	"\fservice_name\x18\x04 \x01(\tR\vserviceName\x1a;\n" +
+	"\fservice_name\x18\x04 \x01(\tR\vserviceName\x12.\n" +
+	"\x13consumer_batch_size\x18\x05 \x01(\x05R\x11consumerBatchSize\x12Q\n" +
+	"\x17consumer_flush_interval\x18\x06 \x01(\v2\x19.google.protobuf.DurationR\x15consumerFlushInterval\x12%\n" +
+	"\x0eretention_days\x18\a \x01(\x05R\rretentionDays\x1a;\n" +
 	"\rMetadataEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xfd\x01\n" +
@@ -3139,11 +3194,12 @@ var file_servora_conf_v1_conf_proto_depIdxs = []int32{
 	37, // 62: servora.conf.v1.Data.ClickHouse.conn_max_lifetime:type_name -> google.protobuf.Duration
 	37, // 63: servora.conf.v1.Data.Client.HTTP.timeout:type_name -> google.protobuf.Duration
 	37, // 64: servora.conf.v1.Data.Client.GRPC.timeout:type_name -> google.protobuf.Duration
-	65, // [65:65] is the sub-list for method output_type
-	65, // [65:65] is the sub-list for method input_type
-	65, // [65:65] is the sub-list for extension type_name
-	65, // [65:65] is the sub-list for extension extendee
-	0,  // [0:65] is the sub-list for field type_name
+	37, // 65: servora.conf.v1.App.Audit.consumer_flush_interval:type_name -> google.protobuf.Duration
+	66, // [66:66] is the sub-list for method output_type
+	66, // [66:66] is the sub-list for method input_type
+	66, // [66:66] is the sub-list for extension type_name
+	66, // [66:66] is the sub-list for extension extendee
+	0,  // [0:66] is the sub-list for field type_name
 }
 
 func init() { file_servora_conf_v1_conf_proto_init() }

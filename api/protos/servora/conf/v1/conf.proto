@@ -145,6 +145,9 @@ message Data {
     int32 max_open_conns = 7;
     int32 max_idle_conns = 8;
     google.protobuf.Duration conn_max_lifetime = 9;
+    bool tls = 10;                                   // 是否启用 TLS（默认 false）
+    bool tls_skip_verify = 11;                       // 跳过 TLS 证书校验（仅用于开发，默认 false）
+    string compress = 12;                            // 压缩算法："lz4"（默认）| "zstd" | "" 不压缩
   }
 
   Database database = 1;
@@ -198,6 +201,10 @@ message App {
     string emitter_type = 2;         // "broker"（→ Kafka）| "log"（→ 日志）| "noop"（丢弃）
     string topic = 3;                // Kafka topic（默认 "servora.audit.events"）
     string service_name = 4;         // 服务名称（覆盖 App.name，用于多实例场景）
+    // consumer 侧配置（由 app/audit/service 消费）
+    int32 consumer_batch_size = 5;                          // 批量写入大小（默认 100）
+    google.protobuf.Duration consumer_flush_interval = 6;   // 批量刷新间隔（默认 1s）
+    int32 retention_days = 7;                               // ClickHouse 数据保留天数（默认 90）
   }
 
   string env = 1; // dev test prod
