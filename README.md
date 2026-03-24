@@ -2,19 +2,19 @@
 
 简体中文
 
-`servora` 是一个微服务快速开发框架， **Proto First** 开发方式，覆盖 API 定义、代码生成、服务实现、前端联调、可观测性与容器化开发链路。
-
-当前已内置 **IAM 服务**（认证、授权、组织、项目管理）作为核心基础服务，以及 **SayHello** 作为 gRPC 示例服务。
+`servora` 是一个微服务快速开发框架，**Proto First** 开发方式，覆盖 API 定义、代码生成、服务实现、前端联调、可观测性与容器化开发链路。
 
 ## 核心能力
 
-- **Go workspace + 多模块**：根目录 `go.work` 统一纳管根模块、`api/gen`、`app/iam/service`、`app/sayhello/service`
+- **Go workspace + 多模块**：根目录 `go.work` 统一纳管根模块与各服务模块
 - **Proto First**：使用 Buf v2 workspace 管理共享 proto 与服务私有 proto
 - **双协议接口**：支持 gRPC、HTTP 与 OpenAPI 产物生成
 - **DDD 分层**：服务遵循 `service -> biz -> data` 分层
 - **依赖注入**：使用 Wire 管理服务依赖图
 - **数据访问**：Ent 为主，GORM GEN 作为并行工具链保留
-- **IAM 内置**：认证（JWT/JWKS）、授权（OpenFGA）、组织与项目管理
+- **可插拔认证**：`pkg/authn` 接口驱动，内置 JWT 引擎与 Keycloak claims 映射
+- **细粒度授权**：`pkg/authz` 接口驱动，内置 OpenFGA 引擎
+- **全链路审计**：`pkg/audit` 经 Kafka 投递审计事件
 - **服务治理**：支持注册发现、配置中心与基础遥测能力
 - **可观测性**：集成 OTel / Jaeger / Loki / Prometheus / Grafana
 
@@ -24,7 +24,7 @@
 - API：Protobuf + Buf v2
 - DI：Google Wire
 - ORM：Ent（主）+ GORM GEN（并行）
-- 认证：JWT / JWKS
+- 认证：Keycloak（OIDC）/ JWT / JWKS
 - 授权：OpenFGA
 - 存储：PostgreSQL + Redis
 - 观测：OTel Collector / Jaeger / Loki / Prometheus / Grafana
@@ -36,20 +36,18 @@
 ├── api/                             # 共享 proto 与统一生成产物
 │   ├── gen/go/                      # Go 生成代码
 │   └── protos/                      # 共享 proto（conf、pagination、authz 注解）
-├── app/
-│   ├── iam/service/                 # IAM 服务（认证、授权、组织、项目）
-│   │   ├── api/protos/              # IAM 私有 proto
-│   │   ├── cmd/                     # 服务入口
-│   │   ├── configs/                 # 服务配置
-│   │   └── internal/                # service / biz / data 分层实现
-│   └── sayhello/service/            # gRPC 示例服务
+├── app/                             # 服务实现（示例服务）
 ├── cmd/
 │   ├── svr/                         # CLI 工具（svr gen gorm / svr openfga）
 │   └── protoc-gen-servora-authz/    # 自定义 protoc 插件
 ├── pkg/                             # 共享基础库
-│   ├── actor/                       # 请求上下文身份提取
+│   ├── actor/                       # 通用 principal 模型
+│   ├── authn/                       # 可插拔认证中间件（JWT / Header / Noop）
+│   ├── authz/                       # 可插拔授权中间件（OpenFGA / Noop）
+│   ├── audit/                       # 全链路审计
 │   ├── bootstrap/                   # 服务启动引导
-│   ├── ent/mixin/                   # Ent schema mixin
+│   ├── broker/                      # 消息代理抽象（Kafka 实现）
+│   ├── db/ent/                      # Ent schema mixin 与 scope 工具
 │   ├── governance/                  # 服务治理（注册发现、配置中心）
 │   ├── health/                      # 健康检查
 │   ├── helpers/                     # 通用工具函数
@@ -130,25 +128,6 @@ make compose.dev.restart   # 重启服务
 make compose.dev.down      # 移除完整开发栈容器/网络（保留数据卷）
 make compose.dev.reset     # 移除完整开发栈容器/网络/数据卷
 ```
-
-## 内置服务
-
-### IAM 服务
-
-IAM（Identity and Access Management）是内置的核心基础服务，提供：
-
-- **认证**：JWT 签发与验证、JWKS 公钥发布
-- **授权**：基于 OpenFGA 的细粒度关系型授权，支持 Redis 缓存
-- **组织管理**：组织 CRUD、成员管理、角色分配
-- **项目管理**：项目 CRUD、项目成员、归属组织
-- **软删除**：所有实体支持软删除、恢复与彻底清除
-
-端口：HTTP 8000 / gRPC 8001
-
-### SayHello（gRPC 示例）
-
-- 端口：gRPC 9001
-- 功能：简单的 gRPC 服务示例
 
 ## 开发工作流
 
