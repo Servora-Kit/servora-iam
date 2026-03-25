@@ -21,6 +21,7 @@
     "@faker-js/faker": "^10.3.0",
     "@sentry/tanstackstart-react": "^10.42.0",
     "@servora/api-client": "workspace:*",
+    "@servora/web-pkg": "^0.0.1",
     "@t3-oss/env-core": "^0.13.10",
     "@tailwindcss/postcss": "^4.2.1",
     "@tailwindcss/vite": "^4.1.18",

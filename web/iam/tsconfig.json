@@ -17,7 +17,7 @@
       "@/*": ["./src/*"],
       "#/api-gen/*": ["../../api/gen/ts/*"],
       "@servora/api-client/*": ["../../api/ts-client/*", "../../api/gen/ts/*"],
-      "@servora/web-pkg/*": ["../../web/pkg/*"],
+      "@servora/web-pkg/*": ["../../../servora-web/packages/pkg/src/*"],
       "@servora/ui": ["../../web/ui/src/index.ts"],
       "@servora/ui/*": ["../../web/ui/src/*"]
     },

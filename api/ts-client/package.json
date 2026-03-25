@@ -1,0 +1,14 @@
+{
+  "name": "@servora/api-client",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Stable wrapper over generated TypeScript API clients (api/gen/ts/)",
+  "type": "module",
+  "exports": {
+    "./servora/iam/service/v1/index": "../gen/ts/servora/iam/service/v1/index.ts",
+    "./servora/authn/service/v1/index": "../gen/ts/servora/authn/service/v1/index.ts",
+    "./servora/user/service/v1/index": "../gen/ts/servora/user/service/v1/index.ts",
+    "./servora/application/service/v1/index": "../gen/ts/servora/application/service/v1/index.ts",
+    "./servora/pagination/v1/index": "../gen/ts/servora/pagination/v1/index.ts"
+  }
+}
