@@ -3,8 +3,8 @@ module github.com/Servora-Kit/servora-iam
 go 1.26.1
 
 require (
-	github.com/Servora-Kit/servora v0.1.2
-	github.com/Servora-Kit/servora/api/gen v0.1.2
+	github.com/Servora-Kit/servora v0.1.3
+	github.com/Servora-Kit/servora/api/gen v0.1.3
 	github.com/go-kratos/kratos/v2 v2.9.2
 	github.com/google/uuid v1.6.0
 	github.com/wneessen/go-mail v0.7.2

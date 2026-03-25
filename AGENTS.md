@@ -70,8 +70,7 @@ type(scope): description
 
 - `Makefile`：构建入口（gen / api / wire / ent / lint / test / compose / pnpm / openfga）
 - `buf.yaml`：Buf v2 workspace，包含 `app/iam/service/api/protos`（名为 `buf.build/servora/servora-iam`）和 `app/sayhello/service/api/protos`；依赖 `buf.build/servora/servora`
-- `buf.go.gen.yaml`：Go 代码生成模板（含 servora 自定义插件）
-- `buf.audit.gen.yaml`：Audit 规则生成模板
+- `buf.go.gen.yaml`：Go 代码生成模板（含 servora 自定义插件：authz、mapper、audit）
 - `buf.typescript.gen.yaml`：TS 代码生成模板
 - `docker-compose.yaml`：基础设施（consul、db、redis、openfga 等）
 - `docker-compose.dev.yaml`：开发环境（iam + sayhello 服务）
