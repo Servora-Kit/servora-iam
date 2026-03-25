@@ -25,7 +25,7 @@ var File_servora_iam_service_v1_iam_doc_proto protoreflect.FileDescriptor
 
 const file_servora_iam_service_v1_iam_doc_proto_rawDesc = "" +
 	"\n" +
-	"$servora/iam/service/v1/iam_doc.proto\x12\x16servora.iam.service.v1\x1a$gnostic/openapi/v3/annotations.protoB\xe1\x05\xbaG\xf1\x03\x12\xa9\x01\n" +
+	"$servora/iam/service/v1/iam_doc.proto\x12\x16servora.iam.service.v1\x1a$gnostic/openapi/v3/annotations.protoB\xe5\x05\xbaG\xf1\x03\x12\xa9\x01\n" +
 	"\aIAM API\x12\x18IAM 微服务 API 文档\"6\n" +
 	"\fservora Team\x12&https://github.com/Servora-Kit/servora*G\n" +
 	"\vMIT License\x128https://github.com/Servora-Kit/servora/blob/main/LICENSE2\x031.0*\xc2\x02\n" +
@@ -53,7 +53,7 @@ const file_servora_iam_service_v1_iam_doc_proto_rawDesc = "" +
 	"\x10application/json\x12&\n" +
 	"$\x12\"\n" +
 	" #/components/schemas/KratosError\n" +
-	"\x1acom.servora.iam.service.v1B\vIamDocProtoP\x01ZFgithub.com/Servora-Kit/servora/api/gen/go/servora/iam/service/v1;iampb\xa2\x02\x03SIS\xaa\x02\x16Servora.Iam.Service.V1\xca\x02\x16Servora\\Iam\\Service\\V1\xe2\x02\"Servora\\Iam\\Service\\V1\\GPBMetadata\xea\x02\x19Servora::Iam::Service::V1b\x06proto3"
+	"\x1acom.servora.iam.service.v1B\vIamDocProtoP\x01ZJgithub.com/Servora-Kit/servora-iam/api/gen/go/servora/iam/service/v1;iampb\xa2\x02\x03SIS\xaa\x02\x16Servora.Iam.Service.V1\xca\x02\x16Servora\\Iam\\Service\\V1\xe2\x02\"Servora\\Iam\\Service\\V1\\GPBMetadata\xea\x02\x19Servora::Iam::Service::V1b\x06proto3"
 
 var file_servora_iam_service_v1_iam_doc_proto_goTypes = []any{}
 var file_servora_iam_service_v1_iam_doc_proto_depIdxs = []int32{

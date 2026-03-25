@@ -5,7 +5,7 @@ package iampb
 
 import (
 	context "context"
-	authnpb "github.com/Servora-Kit/servora/api/gen/go/servora/authn/service/v1"
+	authnpb "github.com/Servora-Kit/servora-iam/api/gen/go/servora/authn/service/v1"
 	redact "github.com/menta2k/protoc-gen-redact/v3/redact/v3"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"

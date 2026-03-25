@@ -7,7 +7,7 @@
 package iampb
 
 import (
-	v1 "github.com/Servora-Kit/servora/api/gen/go/servora/application/service/v1"
+	v1 "github.com/Servora-Kit/servora-iam/api/gen/go/servora/application/service/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -33,8 +33,8 @@ const file_servora_iam_service_v1_i_application_proto_rawDesc = "" +
 	"\x10ListApplications\x127.servora.application.service.v1.ListApplicationsRequest\x1a8.servora.application.service.v1.ListApplicationsResponse\"\x18\x82\xd3\xe4\x93\x02\x12\x12\x10/v1/applications\x12\xaa\x01\n" +
 	"\x11UpdateApplication\x128.servora.application.service.v1.UpdateApplicationRequest\x1a9.servora.application.service.v1.UpdateApplicationResponse\" \x82\xd3\xe4\x93\x02\x1a:\x01*\x1a\x15/v1/applications/{id}\x12\xa7\x01\n" +
 	"\x11DeleteApplication\x128.servora.application.service.v1.DeleteApplicationRequest\x1a9.servora.application.service.v1.DeleteApplicationResponse\"\x1d\x82\xd3\xe4\x93\x02\x17*\x15/v1/applications/{id}\x12\xcb\x01\n" +
-	"\x16RegenerateClientSecret\x12=.servora.application.service.v1.RegenerateClientSecretRequest\x1a>.servora.application.service.v1.RegenerateClientSecretResponse\"2\x82\xd3\xe4\x93\x02,:\x01*\"'/v1/applications/{id}/regenerate-secretB\xf2\x01\n" +
-	"\x1acom.servora.iam.service.v1B\x11IApplicationProtoP\x01ZFgithub.com/Servora-Kit/servora/api/gen/go/servora/iam/service/v1;iampb\xa2\x02\x03SIS\xaa\x02\x16Servora.Iam.Service.V1\xca\x02\x16Servora\\Iam\\Service\\V1\xe2\x02\"Servora\\Iam\\Service\\V1\\GPBMetadata\xea\x02\x19Servora::Iam::Service::V1b\x06proto3"
+	"\x16RegenerateClientSecret\x12=.servora.application.service.v1.RegenerateClientSecretRequest\x1a>.servora.application.service.v1.RegenerateClientSecretResponse\"2\x82\xd3\xe4\x93\x02,:\x01*\"'/v1/applications/{id}/regenerate-secretB\xf6\x01\n" +
+	"\x1acom.servora.iam.service.v1B\x11IApplicationProtoP\x01ZJgithub.com/Servora-Kit/servora-iam/api/gen/go/servora/iam/service/v1;iampb\xa2\x02\x03SIS\xaa\x02\x16Servora.Iam.Service.V1\xca\x02\x16Servora\\Iam\\Service\\V1\xe2\x02\"Servora\\Iam\\Service\\V1\\GPBMetadata\xea\x02\x19Servora::Iam::Service::V1b\x06proto3"
 
 var file_servora_iam_service_v1_i_application_proto_goTypes = []any{
 	(*v1.CreateApplicationRequest)(nil),       // 0: servora.application.service.v1.CreateApplicationRequest

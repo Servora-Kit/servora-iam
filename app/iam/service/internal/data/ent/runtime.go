@@ -5,9 +5,9 @@ package ent
 import (
 	"time"
 
-	"github.com/Servora-Kit/servora/app/iam/service/internal/data/ent/application"
-	"github.com/Servora-Kit/servora/app/iam/service/internal/data/ent/user"
-	"github.com/Servora-Kit/servora/app/iam/service/internal/data/schema"
+	"github.com/Servora-Kit/servora-iam/app/iam/service/internal/data/ent/application"
+	"github.com/Servora-Kit/servora-iam/app/iam/service/internal/data/ent/user"
+	"github.com/Servora-Kit/servora-iam/app/iam/service/internal/data/schema"
 	"github.com/google/uuid"
 )
 

@@ -4,8 +4,8 @@ import (
 	kgrpc "github.com/go-kratos/kratos/v2/transport/grpc"
 
 	"github.com/Servora-Kit/servora/api/gen/go/servora/conf/v1"
-	sayhellov1 "github.com/Servora-Kit/servora/api/gen/go/servora/sayhello/service/v1"
-	"github.com/Servora-Kit/servora/app/sayhello/service/internal/service"
+	sayhellov1 "github.com/Servora-Kit/servora-iam/api/gen/go/servora/sayhello/service/v1"
+	"github.com/Servora-Kit/servora-iam/app/sayhello/service/internal/service"
 	"github.com/Servora-Kit/servora/pkg/audit"
 	"github.com/Servora-Kit/servora/pkg/governance/telemetry"
 	"github.com/Servora-Kit/servora/pkg/logger"

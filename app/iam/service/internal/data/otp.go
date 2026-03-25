@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/Servora-Kit/servora/app/iam/service/internal/biz"
+	"github.com/Servora-Kit/servora-iam/app/iam/service/internal/biz"
 	"github.com/Servora-Kit/servora/pkg/logger"
 	"github.com/Servora-Kit/servora/pkg/redis"
 )

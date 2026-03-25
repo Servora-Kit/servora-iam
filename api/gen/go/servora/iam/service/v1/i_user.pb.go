@@ -7,7 +7,7 @@
 package iampb
 
 import (
-	v1 "github.com/Servora-Kit/servora/api/gen/go/servora/user/service/v1"
+	v1 "github.com/Servora-Kit/servora-iam/api/gen/go/servora/user/service/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -38,9 +38,9 @@ const file_servora_iam_service_v1_i_user_proto_rawDesc = "" +
 	"\n" +
 	"DeleteUser\x12*.servora.user.service.v1.DeleteUserRequest\x1a+.servora.user.service.v1.DeleteUserResponse\"\x16\x82\xd3\xe4\x93\x02\x10*\x0e/v1/users/{id}\x12\x80\x01\n" +
 	"\tPurgeUser\x12).servora.user.service.v1.PurgeUserRequest\x1a*.servora.user.service.v1.PurgeUserResponse\"\x1c\x82\xd3\xe4\x93\x02\x16*\x14/v1/users/{id}/purge\x12\x8b\x01\n" +
-	"\vRestoreUser\x12+.servora.user.service.v1.RestoreUserRequest\x1a,.servora.user.service.v1.RestoreUserResponse\"!\x82\xd3\xe4\x93\x02\x1b:\x01*\"\x16/v1/users/{id}/restoreB\xeb\x01\n" +
+	"\vRestoreUser\x12+.servora.user.service.v1.RestoreUserRequest\x1a,.servora.user.service.v1.RestoreUserResponse\"!\x82\xd3\xe4\x93\x02\x1b:\x01*\"\x16/v1/users/{id}/restoreB\xef\x01\n" +
 	"\x1acom.servora.iam.service.v1B\n" +
-	"IUserProtoP\x01ZFgithub.com/Servora-Kit/servora/api/gen/go/servora/iam/service/v1;iampb\xa2\x02\x03SIS\xaa\x02\x16Servora.Iam.Service.V1\xca\x02\x16Servora\\Iam\\Service\\V1\xe2\x02\"Servora\\Iam\\Service\\V1\\GPBMetadata\xea\x02\x19Servora::Iam::Service::V1b\x06proto3"
+	"IUserProtoP\x01ZJgithub.com/Servora-Kit/servora-iam/api/gen/go/servora/iam/service/v1;iampb\xa2\x02\x03SIS\xaa\x02\x16Servora.Iam.Service.V1\xca\x02\x16Servora\\Iam\\Service\\V1\xe2\x02\"Servora\\Iam\\Service\\V1\\GPBMetadata\xea\x02\x19Servora::Iam::Service::V1b\x06proto3"
 
 var file_servora_iam_service_v1_i_user_proto_goTypes = []any{
 	(*v1.CurrentUserInfoRequest)(nil),  // 0: servora.user.service.v1.CurrentUserInfoRequest

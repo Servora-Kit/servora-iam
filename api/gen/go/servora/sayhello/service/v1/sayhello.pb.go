@@ -125,8 +125,8 @@ const file_servora_sayhello_service_v1_sayhello_proto_rawDesc = "" +
 	"\rHelloResponse\x12\x14\n" +
 	"\x05reply\x18\x01 \x01(\tR\x05reply2\x89\x01\n" +
 	"\x0fSayHelloService\x12v\n" +
-	"\x05Hello\x12).servora.sayhello.service.v1.HelloRequest\x1a*.servora.sayhello.service.v1.HelloResponse\"\x16\x82\xb5\x18\x12\b\x01\x10\x04\x18\x01\"\bgreeting0\x01B\x91\x02\n" +
-	"\x1fcom.servora.sayhello.service.v1B\rSayhelloProtoP\x01ZPgithub.com/Servora-Kit/servora/api/gen/go/servora/sayhello/service/v1;sayhellopb\xa2\x02\x03SSS\xaa\x02\x1bServora.Sayhello.Service.V1\xca\x02\x1bServora\\Sayhello\\Service\\V1\xe2\x02'Servora\\Sayhello\\Service\\V1\\GPBMetadata\xea\x02\x1eServora::Sayhello::Service::V1b\x06proto3"
+	"\x05Hello\x12).servora.sayhello.service.v1.HelloRequest\x1a*.servora.sayhello.service.v1.HelloResponse\"\x16\x82\xb5\x18\x12\b\x01\x10\x04\x18\x01\"\bgreeting0\x01B\x95\x02\n" +
+	"\x1fcom.servora.sayhello.service.v1B\rSayhelloProtoP\x01ZTgithub.com/Servora-Kit/servora-iam/api/gen/go/servora/sayhello/service/v1;sayhellopb\xa2\x02\x03SSS\xaa\x02\x1bServora.Sayhello.Service.V1\xca\x02\x1bServora\\Sayhello\\Service\\V1\xe2\x02'Servora\\Sayhello\\Service\\V1\\GPBMetadata\xea\x02\x1eServora::Sayhello::Service::V1b\x06proto3"
 
 var (
 	file_servora_sayhello_service_v1_sayhello_proto_rawDescOnce sync.Once

@@ -3,8 +3,8 @@ package main
 import (
 	"flag"
 
-	iamconf "github.com/Servora-Kit/servora/api/gen/go/servora/iam/conf/v1"
-	"github.com/Servora-Kit/servora/app/iam/service/internal/data"
+	iamconf "github.com/Servora-Kit/servora-iam/api/gen/go/servora/iam/conf/v1"
+	"github.com/Servora-Kit/servora-iam/app/iam/service/internal/data"
 	"github.com/Servora-Kit/servora/pkg/bootstrap"
 
 	"github.com/go-kratos/kratos/v2"

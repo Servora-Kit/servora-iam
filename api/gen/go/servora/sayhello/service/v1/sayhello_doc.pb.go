@@ -25,7 +25,7 @@ var File_servora_sayhello_service_v1_sayhello_doc_proto protoreflect.FileDescrip
 
 const file_servora_sayhello_service_v1_sayhello_doc_proto_rawDesc = "" +
 	"\n" +
-	".servora/sayhello/service/v1/sayhello_doc.proto\x12\x1bservora.sayhello.service.v1\x1a$gnostic/openapi/v3/annotations.protoB\x91\x06\xbaG\xf9\x03\x12\xd7\x01\n" +
+	".servora/sayhello/service/v1/sayhello_doc.proto\x12\x1bservora.sayhello.service.v1\x1a$gnostic/openapi/v3/annotations.protoB\x95\x06\xbaG\xf9\x03\x12\xd7\x01\n" +
 	"\fSayHello API\x12ASayHello 微服务 API 文档 - 一个简单的问候服务示例\"6\n" +
 	"\fservora Team\x12&https://github.com/Servora-Kit/servora*G\n" +
 	"\vMIT License\x128https://github.com/Servora-Kit/servora/blob/main/LICENSE2\x031.0*\x9c\x02\n" +
@@ -50,7 +50,7 @@ const file_servora_sayhello_service_v1_sayhello_doc_proto_rawDesc = "" +
 	"\x10application/json\x12&\n" +
 	"$\x12\"\n" +
 	" #/components/schemas/KratosError\n" +
-	"\x1fcom.servora.sayhello.service.v1B\x10SayhelloDocProtoP\x01ZPgithub.com/Servora-Kit/servora/api/gen/go/servora/sayhello/service/v1;sayhellopb\xa2\x02\x03SSS\xaa\x02\x1bServora.Sayhello.Service.V1\xca\x02\x1bServora\\Sayhello\\Service\\V1\xe2\x02'Servora\\Sayhello\\Service\\V1\\GPBMetadata\xea\x02\x1eServora::Sayhello::Service::V1b\x06proto3"
+	"\x1fcom.servora.sayhello.service.v1B\x10SayhelloDocProtoP\x01ZTgithub.com/Servora-Kit/servora-iam/api/gen/go/servora/sayhello/service/v1;sayhellopb\xa2\x02\x03SSS\xaa\x02\x1bServora.Sayhello.Service.V1\xca\x02\x1bServora\\Sayhello\\Service\\V1\xe2\x02'Servora\\Sayhello\\Service\\V1\\GPBMetadata\xea\x02\x1eServora::Sayhello::Service::V1b\x06proto3"
 
 var file_servora_sayhello_service_v1_sayhello_doc_proto_goTypes = []any{}
 var file_servora_sayhello_service_v1_sayhello_doc_proto_depIdxs = []int32{

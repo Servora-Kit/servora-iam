@@ -7,7 +7,7 @@
 package iampb
 
 import (
-	v1 "github.com/Servora-Kit/servora/api/gen/go/servora/authn/service/v1"
+	v1 "github.com/Servora-Kit/servora-iam/api/gen/go/servora/authn/service/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -37,8 +37,8 @@ const file_servora_iam_service_v1_i_authn_proto_rawDesc = "" +
 	"\x18RequestEmailVerification\x129.servora.authn.service.v1.RequestEmailVerificationRequest\x1a:.servora.authn.service.v1.RequestEmailVerificationResponse\".\x82\xd3\xe4\x93\x02(:\x01*\"#/v1/auth/request-email-verification\x12\x8c\x01\n" +
 	"\vVerifyEmail\x12,.servora.authn.service.v1.VerifyEmailRequest\x1a-.servora.authn.service.v1.VerifyEmailResponse\" \x82\xd3\xe4\x93\x02\x1a:\x01*\"\x15/v1/auth/verify-email\x12\xb1\x01\n" +
 	"\x14RequestPasswordReset\x125.servora.authn.service.v1.RequestPasswordResetRequest\x1a6.servora.authn.service.v1.RequestPasswordResetResponse\"*\x82\xd3\xe4\x93\x02$:\x01*\"\x1f/v1/auth/request-password-reset\x12\x94\x01\n" +
-	"\rResetPassword\x12..servora.authn.service.v1.ResetPasswordRequest\x1a/.servora.authn.service.v1.ResetPasswordResponse\"\"\x82\xd3\xe4\x93\x02\x1c:\x01*\"\x17/v1/auth/reset-passwordB\xec\x01\n" +
-	"\x1acom.servora.iam.service.v1B\vIAuthnProtoP\x01ZFgithub.com/Servora-Kit/servora/api/gen/go/servora/iam/service/v1;iampb\xa2\x02\x03SIS\xaa\x02\x16Servora.Iam.Service.V1\xca\x02\x16Servora\\Iam\\Service\\V1\xe2\x02\"Servora\\Iam\\Service\\V1\\GPBMetadata\xea\x02\x19Servora::Iam::Service::V1b\x06proto3"
+	"\rResetPassword\x12..servora.authn.service.v1.ResetPasswordRequest\x1a/.servora.authn.service.v1.ResetPasswordResponse\"\"\x82\xd3\xe4\x93\x02\x1c:\x01*\"\x17/v1/auth/reset-passwordB\xf0\x01\n" +
+	"\x1acom.servora.iam.service.v1B\vIAuthnProtoP\x01ZJgithub.com/Servora-Kit/servora-iam/api/gen/go/servora/iam/service/v1;iampb\xa2\x02\x03SIS\xaa\x02\x16Servora.Iam.Service.V1\xca\x02\x16Servora\\Iam\\Service\\V1\xe2\x02\"Servora\\Iam\\Service\\V1\\GPBMetadata\xea\x02\x19Servora::Iam::Service::V1b\x06proto3"
 
 var file_servora_iam_service_v1_i_authn_proto_goTypes = []any{
 	(*v1.SignupByEmailRequest)(nil),             // 0: servora.authn.service.v1.SignupByEmailRequest

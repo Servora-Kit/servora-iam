@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/Servora-Kit/servora/app/iam/service/internal/biz"
+	"github.com/Servora-Kit/servora-iam/app/iam/service/internal/biz"
 	"github.com/Servora-Kit/servora/pkg/openfga"
 	"github.com/Servora-Kit/servora/pkg/redis"
 )

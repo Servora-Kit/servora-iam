@@ -10,7 +10,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/Servora-Kit/servora/app/iam/service/internal/data/ent/user"
+	"github.com/Servora-Kit/servora-iam/app/iam/service/internal/data/ent/user"
 	"github.com/google/uuid"
 )
 

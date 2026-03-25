@@ -1196,9 +1196,9 @@ const file_servora_authn_service_v1_authn_proto_rawDesc = "" +
 	"\x18RequestEmailVerification\x129.servora.authn.service.v1.RequestEmailVerificationRequest\x1a:.servora.authn.service.v1.RequestEmailVerificationResponse\"\x06\xa2\xbb\x18\x02\b\x01\x12r\n" +
 	"\vVerifyEmail\x12,.servora.authn.service.v1.VerifyEmailRequest\x1a-.servora.authn.service.v1.VerifyEmailResponse\"\x06\xa2\xbb\x18\x02\b\x01\x12\x8d\x01\n" +
 	"\x14RequestPasswordReset\x125.servora.authn.service.v1.RequestPasswordResetRequest\x1a6.servora.authn.service.v1.RequestPasswordResetResponse\"\x06\xa2\xbb\x18\x02\b\x01\x12x\n" +
-	"\rResetPassword\x12..servora.authn.service.v1.ResetPasswordRequest\x1a/.servora.authn.service.v1.ResetPasswordResponse\"\x06\xa2\xbb\x18\x02\b\x01B\xf9\x01\n" +
+	"\rResetPassword\x12..servora.authn.service.v1.ResetPasswordRequest\x1a/.servora.authn.service.v1.ResetPasswordResponse\"\x06\xa2\xbb\x18\x02\b\x01B\xfd\x01\n" +
 	"\x1ccom.servora.authn.service.v1B\n" +
-	"AuthnProtoP\x01ZJgithub.com/Servora-Kit/servora/api/gen/go/servora/authn/service/v1;authnpb\xa2\x02\x03SAS\xaa\x02\x18Servora.Authn.Service.V1\xca\x02\x18Servora\\Authn\\Service\\V1\xe2\x02$Servora\\Authn\\Service\\V1\\GPBMetadata\xea\x02\x1bServora::Authn::Service::V1b\x06proto3"
+	"AuthnProtoP\x01ZNgithub.com/Servora-Kit/servora-iam/api/gen/go/servora/authn/service/v1;authnpb\xa2\x02\x03SAS\xaa\x02\x18Servora.Authn.Service.V1\xca\x02\x18Servora\\Authn\\Service\\V1\xe2\x02$Servora\\Authn\\Service\\V1\\GPBMetadata\xea\x02\x1bServora::Authn::Service::V1b\x06proto3"
 
 var (
 	file_servora_authn_service_v1_authn_proto_rawDescOnce sync.Once

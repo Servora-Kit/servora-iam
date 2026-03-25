@@ -8,7 +8,7 @@ package iampb
 
 import (
 	context "context"
-	v1 "github.com/Servora-Kit/servora/api/gen/go/servora/authn/service/v1"
+	v1 "github.com/Servora-Kit/servora-iam/api/gen/go/servora/authn/service/v1"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"

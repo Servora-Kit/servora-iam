@@ -6,7 +6,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/Servora-Kit/servora/app/iam/service/internal/data/ent"
+	"github.com/Servora-Kit/servora-iam/app/iam/service/internal/data/ent"
 )
 
 // The ApplicationFunc type is an adapter to allow the use of ordinary

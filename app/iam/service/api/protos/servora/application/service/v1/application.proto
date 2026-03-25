@@ -10,7 +10,7 @@ import "servora/authz/v1/authz.proto";
 import "servora/mapper/v1/mapper.proto";
 import "servora/pagination/v1/pagination.proto";
 
-option go_package = "github.com/Servora-Kit/servora/api/gen/go/servora/application/service/v1;apppb";
+option go_package = "github.com/Servora-Kit/servora-iam/api/gen/go/servora/application/service/v1;apppb";
 option java_multiple_files = true;
 option java_outer_classname = "ApplicationProtoV1";
 option java_package = "dev.servora.api.application.v1";

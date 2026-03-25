@@ -845,8 +845,8 @@ const file_servora_application_service_v1_application_proto_rawDesc = "" +
 	"\x10ListApplications\x127.servora.application.service.v1.ListApplicationsRequest\x1a8.servora.application.service.v1.ListApplicationsResponse\"\x06\xa2\xbb\x18\x02\b\x01\x12\xa1\x01\n" +
 	"\x11UpdateApplication\x128.servora.application.service.v1.UpdateApplicationRequest\x1a9.servora.application.service.v1.UpdateApplicationResponse\"\x17\xa2\xbb\x18\x13\b\x02\x12\x05admin\x1a\bplatform\x12\xa1\x01\n" +
 	"\x11DeleteApplication\x128.servora.application.service.v1.DeleteApplicationRequest\x1a9.servora.application.service.v1.DeleteApplicationResponse\"\x17\xa2\xbb\x18\x13\b\x02\x12\x05admin\x1a\bplatform\x12\xb0\x01\n" +
-	"\x16RegenerateClientSecret\x12=.servora.application.service.v1.RegenerateClientSecretRequest\x1a>.servora.application.service.v1.RegenerateClientSecretResponse\"\x17\xa2\xbb\x18\x13\b\x02\x12\x05admin\x1a\bplatformB\xa1\x02\n" +
-	"\"com.servora.application.service.v1B\x10ApplicationProtoP\x01ZNgithub.com/Servora-Kit/servora/api/gen/go/servora/application/service/v1;apppb\xa2\x02\x03SAS\xaa\x02\x1eServora.Application.Service.V1\xca\x02\x1eServora\\Application\\Service\\V1\xe2\x02*Servora\\Application\\Service\\V1\\GPBMetadata\xea\x02!Servora::Application::Service::V1b\x06proto3"
+	"\x16RegenerateClientSecret\x12=.servora.application.service.v1.RegenerateClientSecretRequest\x1a>.servora.application.service.v1.RegenerateClientSecretResponse\"\x17\xa2\xbb\x18\x13\b\x02\x12\x05admin\x1a\bplatformB\xa5\x02\n" +
+	"\"com.servora.application.service.v1B\x10ApplicationProtoP\x01ZRgithub.com/Servora-Kit/servora-iam/api/gen/go/servora/application/service/v1;apppb\xa2\x02\x03SAS\xaa\x02\x1eServora.Application.Service.V1\xca\x02\x1eServora\\Application\\Service\\V1\xe2\x02*Servora\\Application\\Service\\V1\\GPBMetadata\xea\x02!Servora::Application::Service::V1b\x06proto3"
 
 var (
 	file_servora_application_service_v1_application_proto_rawDescOnce sync.Once

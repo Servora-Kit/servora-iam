@@ -5,7 +5,7 @@ package servora.iam.service.v1;
 import "google/api/annotations.proto";
 import "servora/user/service/v1/user.proto";
 
-option go_package = "github.com/Servora-Kit/servora/api/gen/go/servora/iam/service/v1;iampb";
+option go_package = "github.com/Servora-Kit/servora-iam/api/gen/go/servora/iam/service/v1;iampb";
 
 // UserService exposes UserService methods over HTTP.
 // Authorization rules are declared on the underlying servora.user.service.v1.UserService.

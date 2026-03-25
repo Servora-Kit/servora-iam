@@ -7,8 +7,8 @@ import (
 	"context"
 
 	conf "github.com/Servora-Kit/servora/api/gen/go/servora/conf/v1"
-	"github.com/Servora-Kit/servora/app/sayhello/service/internal/server"
-	"github.com/Servora-Kit/servora/app/sayhello/service/internal/service"
+	"github.com/Servora-Kit/servora-iam/app/sayhello/service/internal/server"
+	"github.com/Servora-Kit/servora-iam/app/sayhello/service/internal/service"
 	"github.com/Servora-Kit/servora/pkg/audit"
 	"github.com/Servora-Kit/servora/pkg/bootstrap"
 	"github.com/Servora-Kit/servora/pkg/broker"

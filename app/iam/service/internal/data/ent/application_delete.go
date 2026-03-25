@@ -8,8 +8,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/Servora-Kit/servora/app/iam/service/internal/data/ent/application"
-	"github.com/Servora-Kit/servora/app/iam/service/internal/data/ent/predicate"
+	"github.com/Servora-Kit/servora-iam/app/iam/service/internal/data/ent/application"
+	"github.com/Servora-Kit/servora-iam/app/iam/service/internal/data/ent/predicate"
 )
 
 // ApplicationDelete is the builder for deleting a Application entity.

@@ -4,7 +4,7 @@ package servora.authz.service.v1;
 
 import "errors/errors.proto";
 
-option go_package = "github.com/Servora-Kit/servora/api/gen/go/servora/authz/service/v1;authzsvcpb";
+option go_package = "github.com/Servora-Kit/servora-iam/api/gen/go/servora/authz/service/v1;authzsvcpb";
 
 enum ErrorReason {
   option (errors.default_code) = 500;

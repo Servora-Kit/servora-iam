@@ -2,7 +2,7 @@
 
 package runtime
 
-// The schema-stitching logic is generated in github.com/Servora-Kit/servora/app/iam/service/internal/data/ent/runtime.go
+// The schema-stitching logic is generated in github.com/Servora-Kit/servora-iam/app/iam/service/internal/data/ent/runtime.go
 
 const (
 	Version = "v0.14.5"                                         // Version of ent codegen.

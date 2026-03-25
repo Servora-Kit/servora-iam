@@ -1144,8 +1144,8 @@ const file_servora_user_service_v1_user_proto_rawDesc = "" +
 	"\n" +
 	"DeleteUser\x12*.servora.user.service.v1.DeleteUserRequest\x1a+.servora.user.service.v1.DeleteUserResponse\"\x17\xa2\xbb\x18\x13\b\x02\x12\x05admin\x1a\bplatform\x12{\n" +
 	"\tPurgeUser\x12).servora.user.service.v1.PurgeUserRequest\x1a*.servora.user.service.v1.PurgeUserResponse\"\x17\xa2\xbb\x18\x13\b\x02\x12\x05admin\x1a\bplatform\x12\x81\x01\n" +
-	"\vRestoreUser\x12+.servora.user.service.v1.RestoreUserRequest\x1a,.servora.user.service.v1.RestoreUserResponse\"\x17\xa2\xbb\x18\x13\b\x02\x12\x05admin\x1a\bplatformB\xf1\x01\n" +
-	"\x1bcom.servora.user.service.v1B\tUserProtoP\x01ZHgithub.com/Servora-Kit/servora/api/gen/go/servora/user/service/v1;userpb\xa2\x02\x03SUS\xaa\x02\x17Servora.User.Service.V1\xca\x02\x17Servora\\User\\Service\\V1\xe2\x02#Servora\\User\\Service\\V1\\GPBMetadata\xea\x02\x1aServora::User::Service::V1b\x06proto3"
+	"\vRestoreUser\x12+.servora.user.service.v1.RestoreUserRequest\x1a,.servora.user.service.v1.RestoreUserResponse\"\x17\xa2\xbb\x18\x13\b\x02\x12\x05admin\x1a\bplatformB\xf5\x01\n" +
+	"\x1bcom.servora.user.service.v1B\tUserProtoP\x01ZLgithub.com/Servora-Kit/servora-iam/api/gen/go/servora/user/service/v1;userpb\xa2\x02\x03SUS\xaa\x02\x17Servora.User.Service.V1\xca\x02\x17Servora\\User\\Service\\V1\xe2\x02#Servora\\User\\Service\\V1\\GPBMetadata\xea\x02\x1aServora::User::Service::V1b\x06proto3"
 
 var (
 	file_servora_user_service_v1_user_proto_rawDescOnce sync.Once

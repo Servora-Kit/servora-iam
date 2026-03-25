@@ -1,4 +1,4 @@
-module github.com/Servora-Kit/servora/app/iam/service
+module github.com/Servora-Kit/servora-iam/app/iam/service
 
 go 1.26.1
 
@@ -6,6 +6,7 @@ require (
 	entgo.io/ent v0.14.5
 	github.com/Servora-Kit/servora v0.0.0
 	github.com/Servora-Kit/servora/api/gen v0.0.0
+	github.com/Servora-Kit/servora-iam/api/gen v0.0.0
 	github.com/go-jose/go-jose/v4 v4.1.3
 	github.com/go-kratos/kratos/v2 v2.9.2
 	github.com/go-sql-driver/mysql v1.9.3
@@ -177,9 +178,4 @@ require (
 	sigs.k8s.io/randfill v1.0.0 // indirect
 	sigs.k8s.io/structured-merge-diff/v6 v6.3.0 // indirect
 	sigs.k8s.io/yaml v1.6.0 // indirect
-)
-
-replace (
-	github.com/Servora-Kit/servora => ../../..
-	github.com/Servora-Kit/servora/api/gen => ../../../api/gen
 )

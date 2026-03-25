@@ -137,8 +137,8 @@ const file_servora_iam_conf_v1_config_proto_rawDesc = "" +
 	"adminEmail\x12%\n" +
 	"\x0eadmin_password\x18\x02 \x01(\tR\radminPassword\x12\x1d\n" +
 	"\n" +
-	"admin_name\x18\x03 \x01(\tR\tadminNameB\xd9\x01\n" +
-	"\x17com.servora.iam.conf.v1B\vConfigProtoP\x01ZBgithub.com/Servora-Kit/servora/api/gen/go/servora/iam/conf/v1;conf\xa2\x02\x03SIC\xaa\x02\x13Servora.Iam.Conf.V1\xca\x02\x13Servora\\Iam\\Conf\\V1\xe2\x02\x1fServora\\Iam\\Conf\\V1\\GPBMetadata\xea\x02\x16Servora::Iam::Conf::V1b\x06proto3"
+	"admin_name\x18\x03 \x01(\tR\tadminNameB\xdd\x01\n" +
+	"\x17com.servora.iam.conf.v1B\vConfigProtoP\x01ZFgithub.com/Servora-Kit/servora-iam/api/gen/go/servora/iam/conf/v1;conf\xa2\x02\x03SIC\xaa\x02\x13Servora.Iam.Conf.V1\xca\x02\x13Servora\\Iam\\Conf\\V1\xe2\x02\x1fServora\\Iam\\Conf\\V1\\GPBMetadata\xea\x02\x16Servora::Iam::Conf::V1b\x06proto3"
 
 var (
 	file_servora_iam_conf_v1_config_proto_rawDescOnce sync.Once

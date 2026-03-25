@@ -8,7 +8,7 @@ package iampb
 
 import (
 	context "context"
-	v1 "github.com/Servora-Kit/servora/api/gen/go/servora/authn/service/v1"
+	v1 "github.com/Servora-Kit/servora-iam/api/gen/go/servora/authn/service/v1"
 	http "github.com/go-kratos/kratos/v2/transport/http"
 	binding "github.com/go-kratos/kratos/v2/transport/http/binding"
 )

@@ -1,7 +1,7 @@
 syntax = "proto3";
 package servora.iam.conf.v1;
 
-option go_package = "github.com/Servora-Kit/servora/api/gen/go/servora/iam/conf/v1;conf";
+option go_package = "github.com/Servora-Kit/servora-iam/api/gen/go/servora/iam/conf/v1;conf";
 
 message Biz {
   Seed seed = 1;

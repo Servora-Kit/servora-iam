@@ -7,10 +7,10 @@ import (
 
 	"github.com/google/uuid"
 
-	userpb "github.com/Servora-Kit/servora/api/gen/go/servora/user/service/v1"
-	"github.com/Servora-Kit/servora/app/iam/service/internal/biz"
-	"github.com/Servora-Kit/servora/app/iam/service/internal/data/ent"
-	"github.com/Servora-Kit/servora/app/iam/service/internal/data/ent/user"
+	userpb "github.com/Servora-Kit/servora-iam/api/gen/go/servora/user/service/v1"
+	"github.com/Servora-Kit/servora-iam/app/iam/service/internal/biz"
+	"github.com/Servora-Kit/servora-iam/app/iam/service/internal/data/ent"
+	"github.com/Servora-Kit/servora-iam/app/iam/service/internal/data/ent/user"
 	"github.com/Servora-Kit/servora/pkg/logger"
 	"github.com/Servora-Kit/servora/pkg/mapper"
 )
