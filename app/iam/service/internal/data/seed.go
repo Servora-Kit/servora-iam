@@ -6,7 +6,7 @@ import (
 	iamconf "github.com/Servora-Kit/servora-iam/api/gen/go/servora/iam/conf/v1"
 	"github.com/Servora-Kit/servora-iam/app/iam/service/internal/data/ent"
 	"github.com/Servora-Kit/servora-iam/app/iam/service/internal/data/ent/user"
-	"github.com/Servora-Kit/servora/pkg/helpers"
+	"github.com/Servora-Kit/servora-iam/pkg/helpers"
 	"github.com/Servora-Kit/servora/pkg/logger"
 	"github.com/Servora-Kit/servora/pkg/openfga"
 )

@@ -4,7 +4,7 @@ import (
 	conf "github.com/Servora-Kit/servora/api/gen/go/servora/conf/v1"
 	"github.com/Servora-Kit/servora/pkg/governance/registry"
 	"github.com/Servora-Kit/servora/pkg/governance/telemetry"
-	"github.com/Servora-Kit/servora/pkg/jwks"
+	"github.com/Servora-Kit/servora-iam/pkg/jwks"
 	"github.com/Servora-Kit/servora/pkg/logger"
 	"github.com/Servora-Kit/servora/pkg/openfga"
 	"github.com/google/wire"

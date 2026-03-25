@@ -5,6 +5,7 @@ go 1.26.1
 require (
 	entgo.io/ent v0.14.5
 	github.com/Servora-Kit/servora v0.1.2
+	github.com/Servora-Kit/servora-iam v0.0.0
 	github.com/Servora-Kit/servora-iam/api/gen v0.1.0
 	github.com/Servora-Kit/servora/api/gen v0.1.2
 	github.com/go-jose/go-jose/v4 v4.1.3

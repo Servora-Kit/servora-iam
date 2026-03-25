@@ -14,7 +14,7 @@ import (
 	"github.com/Servora-Kit/servora/pkg/authz"
 	authzopenfga "github.com/Servora-Kit/servora/pkg/authz/openfga"
 	"github.com/Servora-Kit/servora/pkg/governance/telemetry"
-	"github.com/Servora-Kit/servora/pkg/jwks"
+	"github.com/Servora-Kit/servora-iam/pkg/jwks"
 	"github.com/Servora-Kit/servora/pkg/logger"
 	"github.com/Servora-Kit/servora/pkg/openfga"
 	"github.com/Servora-Kit/servora/pkg/redis"

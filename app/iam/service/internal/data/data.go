@@ -15,7 +15,7 @@ import (
 	entdrv "github.com/Servora-Kit/servora/pkg/db/ent"
 	"github.com/Servora-Kit/servora/pkg/governance/registry"
 	"github.com/Servora-Kit/servora/pkg/logger"
-	"github.com/Servora-Kit/servora/pkg/mail"
+	"github.com/Servora-Kit/servora-iam/pkg/mail"
 	"github.com/Servora-Kit/servora/pkg/redis"
 	"github.com/Servora-Kit/servora/pkg/transport/client"
 
