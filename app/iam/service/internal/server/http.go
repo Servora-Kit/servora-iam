@@ -10,24 +10,24 @@ import (
 	khttp "github.com/go-kratos/kratos/v2/transport/http"
 	"github.com/zitadel/oidc/v3/pkg/op"
 
-	"github.com/Servora-Kit/servora/api/gen/go/servora/conf/v1"
 	iamv1 "github.com/Servora-Kit/servora-iam/api/gen/go/servora/iam/service/v1"
 	"github.com/Servora-Kit/servora-iam/app/iam/service/internal/assets"
 	"github.com/Servora-Kit/servora-iam/app/iam/service/internal/oidc"
 	"github.com/Servora-Kit/servora-iam/app/iam/service/internal/service"
+	"github.com/Servora-Kit/servora-iam/pkg/cap"
+	"github.com/Servora-Kit/servora-iam/pkg/jwks"
+	"github.com/Servora-Kit/servora/api/gen/go/servora/conf/v1"
+	"github.com/Servora-Kit/servora/infra/openfga"
+	"github.com/Servora-Kit/servora/infra/redis"
+	logger "github.com/Servora-Kit/servora/obs/logging"
+	"github.com/Servora-Kit/servora/obs/telemetry"
+	"github.com/Servora-Kit/servora/platform/health"
+	"github.com/Servora-Kit/servora/platform/swagger"
 	"github.com/Servora-Kit/servora/security/authn"
 	authjwt "github.com/Servora-Kit/servora/security/authn/jwt"
 	"github.com/Servora-Kit/servora/security/authz"
 	authzopenfga "github.com/Servora-Kit/servora/security/authz/openfga"
-	"github.com/Servora-Kit/servora-iam/pkg/cap"
-	"github.com/Servora-Kit/servora/obs/telemetry"
-	"github.com/Servora-Kit/servora/platform/health"
-	"github.com/Servora-Kit/servora-iam/pkg/jwks"
-	"github.com/Servora-Kit/servora/obs/logging"
-	"github.com/Servora-Kit/servora/infra/openfga"
-	"github.com/Servora-Kit/servora/infra/redis"
-	"github.com/Servora-Kit/servora/platform/swagger"
-	"github.com/Servora-Kit/servora/transport/server/http"
+	svrhttp "github.com/Servora-Kit/servora/transport/server/http"
 	svrmw "github.com/Servora-Kit/servora/transport/server/middleware"
 )
 
@@ -101,29 +101,28 @@ func NewHTTPServer(
 	loginHandler *oidc.LoginHandler,
 	loginCompleteHandler *oidc.LoginCompleteHandler,
 ) *khttp.Server {
+	_ = appCfg
 	hlog := logger.With(l, "http/server/iam")
-
-	opts := []http.ServerOption{
-		http.WithLogger(hlog),
-		http.WithMiddleware(mw...),
-		http.WithMetrics(mtc),
-		http.WithHealthCheck(h),
-		http.WithSwagger(assets.OpenAPIData, swagger.WithTitle("IAM API")),
-		http.WithServices(
+	builder := svrhttp.NewBuilder().
+		WithLogger(hlog).
+		WithMiddleware(mw...).
+		WithMetrics(mtc).
+		WithHealthCheck(h).
+		WithSwagger(assets.OpenAPIData, swagger.WithTitle("IAM API")).
+		WithServices(
 			forwardAuthVerify(authn),
 			func(s *khttp.Server) { cap.Register(s, capSvc) },
 			func(s *khttp.Server) { iamv1.RegisterAuthnServiceHTTPServer(s, authn) },
 			func(s *khttp.Server) { iamv1.RegisterUserServiceHTTPServer(s, user) },
 			func(s *khttp.Server) { iamv1.RegisterApplicationServiceHTTPServer(s, app) },
 			func(s *khttp.Server) { oidc.Register(s, oidcProvider, loginHandler, loginCompleteHandler) },
-		),
-	}
+		)
 	if c != nil && c.Http != nil {
-		opts = append(opts, http.WithConfig(c.Http))
-		opts = append(opts, http.WithCORS(c.Http.Cors))
+		builder.WithConfig(c.Http)
+		builder.WithCORS(c.Http.Cors)
 	}
 
-	return http.NewServer(opts...)
+	return builder.MustBuild()
 }
 
 // forwardAuthVerify registers GET/HEAD /v1/auth/verify for gateway ForwardAuth.

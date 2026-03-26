@@ -58,7 +58,7 @@ func wireApp(confServer *conf.Server, discovery *conf.Discovery, confRegistry *c
 		return nil, nil, err
 	}
 	registryDiscovery := registry.NewDiscovery(discovery)
-	clientClient, err := client.NewClient(confData, trace, registryDiscovery, logger)
+	clientClient, err := client.NewDefaultClient(confData, trace, registryDiscovery, logger)
 	if err != nil {
 		cleanup()
 		return nil, nil, err

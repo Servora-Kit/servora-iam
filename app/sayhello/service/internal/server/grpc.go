@@ -3,13 +3,13 @@ package server
 import (
 	kgrpc "github.com/go-kratos/kratos/v2/transport/grpc"
 
-	"github.com/Servora-Kit/servora/api/gen/go/servora/conf/v1"
 	sayhellov1 "github.com/Servora-Kit/servora-iam/api/gen/go/servora/sayhello/service/v1"
 	"github.com/Servora-Kit/servora-iam/app/sayhello/service/internal/service"
+	"github.com/Servora-Kit/servora/api/gen/go/servora/conf/v1"
 	"github.com/Servora-Kit/servora/obs/audit"
+	logger "github.com/Servora-Kit/servora/obs/logging"
 	"github.com/Servora-Kit/servora/obs/telemetry"
-	"github.com/Servora-Kit/servora/obs/logging"
-	"github.com/Servora-Kit/servora/transport/server/grpc"
+	svrgrpc "github.com/Servora-Kit/servora/transport/server/grpc"
 	"github.com/Servora-Kit/servora/transport/server/middleware"
 )
 
@@ -29,16 +29,15 @@ func NewGRPCServer(c *conf.Server, trace *conf.Trace, mtc *telemetry.Metrics, re
 	)
 	mw = append(mw, auditMw)
 
-	opts := []grpc.ServerOption{
-		grpc.WithLogger(grpcLogger),
-		grpc.WithMiddleware(mw...),
-		grpc.WithServices(
+	builder := svrgrpc.NewBuilder().
+		WithLogger(grpcLogger).
+		WithMiddleware(mw...).
+		WithServices(
 			func(s *kgrpc.Server) { sayhellov1.RegisterSayHelloServiceServer(s, sayhello) },
-		),
-	}
+		)
 	if c != nil && c.Grpc != nil {
-		opts = append(opts, grpc.WithConfig(c.Grpc))
+		builder.WithConfig(c.Grpc)
 	}
 
-	return grpc.NewServer(opts...)
+	return builder.MustBuild()
 }

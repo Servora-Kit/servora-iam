@@ -6,19 +6,19 @@ import (
 	kgrpc "github.com/go-kratos/kratos/v2/transport/grpc"
 
 	authnpb "github.com/Servora-Kit/servora-iam/api/gen/go/servora/authn/service/v1"
-	"github.com/Servora-Kit/servora/api/gen/go/servora/conf/v1"
 	userpb "github.com/Servora-Kit/servora-iam/api/gen/go/servora/user/service/v1"
 	"github.com/Servora-Kit/servora-iam/app/iam/service/internal/service"
+	"github.com/Servora-Kit/servora-iam/pkg/jwks"
+	"github.com/Servora-Kit/servora/api/gen/go/servora/conf/v1"
+	"github.com/Servora-Kit/servora/infra/openfga"
+	"github.com/Servora-Kit/servora/infra/redis"
+	logger "github.com/Servora-Kit/servora/obs/logging"
+	"github.com/Servora-Kit/servora/obs/telemetry"
 	"github.com/Servora-Kit/servora/security/authn"
 	authjwt "github.com/Servora-Kit/servora/security/authn/jwt"
 	"github.com/Servora-Kit/servora/security/authz"
 	authzopenfga "github.com/Servora-Kit/servora/security/authz/openfga"
-	"github.com/Servora-Kit/servora/obs/telemetry"
-	"github.com/Servora-Kit/servora-iam/pkg/jwks"
-	"github.com/Servora-Kit/servora/obs/logging"
-	"github.com/Servora-Kit/servora/infra/openfga"
-	"github.com/Servora-Kit/servora/infra/redis"
-	"github.com/Servora-Kit/servora/transport/server/grpc"
+	svrgrpc "github.com/Servora-Kit/servora/transport/server/grpc"
 	svrmw "github.com/Servora-Kit/servora/transport/server/middleware"
 )
 
@@ -72,19 +72,16 @@ func NewGRPCServer(
 	user *service.UserService,
 ) *kgrpc.Server {
 	glog := logger.With(l, "grpc/server/iam")
-
-	opts := []grpc.ServerOption{
-		grpc.WithLogger(glog),
-		grpc.WithMiddleware(mw...),
-	}
+	builder := svrgrpc.NewBuilder().
+		WithLogger(glog).
+		WithMiddleware(mw...).
+		WithServices(
+			func(s *kgrpc.Server) { authnpb.RegisterAuthnServiceServer(s, authn) },
+			func(s *kgrpc.Server) { userpb.RegisterUserServiceServer(s, user) },
+		)
 	if c != nil && c.Grpc != nil {
-		opts = append(opts, grpc.WithConfig(c.Grpc))
+		builder.WithConfig(c.Grpc)
 	}
 
-	srv := grpc.NewServer(opts...)
-
-	authnpb.RegisterAuthnServiceServer(srv, authn)
-	userpb.RegisterUserServiceServer(srv, user)
-
-	return srv
+	return builder.MustBuild()
 }

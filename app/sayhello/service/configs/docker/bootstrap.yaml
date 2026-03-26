@@ -1,7 +1,8 @@
 server:
   grpc:
-    addr: "0.0.0.0:8000"
-    timeout: 10s
+    listen:
+      addr: "0.0.0.0:8000"
+      timeout: 10s
 
 data:
   kafka:
